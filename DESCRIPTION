@@ -1,9 +1,9 @@
-Package: MicrobiomePack
+Package: DivNet
 Type: Package
-Title: Tools for Microbiome data analysis
+Title: Diversity Estimation in Networked Ecological Communities
 Version: 0.1.0
-Authors@R: person("Bryan", "Martin", email = "bmartin6@uw.ed", role = c("aut", "cre"))
-Description: This packages provides an implementation of the Segmented Logistic Mixture Model (SLMM).
+Authors@R: c(person("Amy", "Willis", email = "adwillis@uw.ed", role = c("aut", "cre")), person("Bryan", "Martin", email = "bmartin6@uw.ed", role = c("aut")))
+Description: Estimate alpha- and beta- diversity of a community where taxa interact
 Depends: R (>= 3.4.2)
 License: GPL (>= 2)
 Imports:
@@ -20,7 +20,8 @@ Imports:
     doSNOW,
     PDSCE,
     foreach,
-    parallel
+    parallel,
+    magrittr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
