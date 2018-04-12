@@ -115,7 +115,7 @@ fit_aitchison <- function(W,
   # start EM algorithm
   pb <- txtProgressBar(min = 0, max = EMiter, style = 3)
   for (em in 1:EMiter) {
-    setTxtProgressBar(pb, em-1)
+    utils::setTxtProgressBar(pb, em-1)
     start <- proc.time()
     
     # MC step
@@ -161,7 +161,7 @@ fit_aitchison <- function(W,
     sigma.list[,, em + 1] <- sigma
     end <- proc.time()
   }
-  setTxtProgressBar(pb, EMiter)
+  utils::setTxtProgressBar(pb, EMiter)
   cat("\n")
   
   ## Next: take average of EM samples past burn. Included init, so have EMiter+1 total 

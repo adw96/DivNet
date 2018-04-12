@@ -24,9 +24,9 @@ Wsim <- function(out, W, X = NULL, niter = 1000, fast = FALSE) {
     for (i in 1:niter) {
       # set up Y take mu, sigma, simulate N Y_i's
       if (fast == TRUE) {
-        Y.m <- rmvn(n = N, mu = mu, sigma = diag(diag(out$sigma)))
+        Y.m <- mvnfast::rmvn(n = N, mu = mu, sigma = diag(diag(out$sigma)))
       } else {
-        Y.m <- mvrnorm(n = N, mu = mu, Sigma = out$sigma)
+        Y.m <- MASS::mvrnorm(n = N, mu = mu, Sigma = out$sigma)
       }
       W.m[, , i] <- YtoW(Y = Y.m, M = M, base = base)
     }
@@ -72,9 +72,9 @@ Xsim <- function(out, W, X = NULL, niter = 1000, fast = FALSE) {
     for (i in 1:niter) {
       # set up Y take mu, sigma, simulate N Y_i's
       if (fast == TRUE) {
-        Y.m <- rmvn(n = N, mu = mu, sigma = diag(diag(out$sigma)))
+        Y.m <- mvnfast::rmvn(n = N, mu = mu, sigma = diag(diag(out$sigma)))
       } else {
-        Y.m <- mvrnorm(n = N, mu = mu, Sigma = out$sigma)
+        Y.m <- MASS::mvrnorm(n = N, mu = mu, Sigma = out$sigma)
       }
       W.m <- YtoW(Y = Y.m, M = M, base = base)
       X.m[, , i] <- makeComp(W.m)
