@@ -156,7 +156,8 @@ parametric_variance <- function(fitted_aitchison,
                                 ncores, ...) {
   
   # unfortunately in this model we condition on M_i, so no randomising here
-  ms <- apply(W, 1, sum)
+  #ms <- apply(W, 1, sum)
+  ms <- rowSums(W)
   
   mw <- make_w(mu=fitted_aitchison$fitted_y, 
                Sigma = fitted_aitchison$sigma, 
