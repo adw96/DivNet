@@ -1,0 +1,53 @@
+---
+title: "Getting started with DivNet"
+author: "Amy Willis"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{getting-started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+`DivNet` is awesome!
+
+## Vignette Info
+
+This vignette will lead you through
+
+- loading in your data and covariate information
+- creating frequency tables
+- using `breakaway` to estimate species richness
+- using the objective bayes methods to estimate species richness
+- estimating various alpha diversity indices and providing a very basic resample-based method for ascribing variability to them
+- using `betta` to model changes in alpha diversity with covariates
+
+If there is something that you would like explained please feel free to request it!
+
+## Loading the package and data
+
+Download the latest version of the package from github.
+
+```{r}
+### Run the first two lines at home! ####
+# install.packages("devtools")
+# devtools::install_github("adw96/DivNet")
+library(DivNet)
+
+# let's simulate some OTU abundances data
+set.seed(1)
+my_counts <- matrix(rpois(30, lambda=10), nrow = 6)
+rownames(my_counts) <- paste("Sample", 1:6, sep = "")
+colnames(my_counts) <- paste("Taxon", 1:5, sep = "")
+
+# 6 Samples, 5 taxa
+my_counts
+
+
+my_covariate <- cbind(1, rep(c(0,1), each = 3), rep(c(0,1), 3))
+my_covariate
+
+divnet(my_counts, my_covariate)
+divnet(my_counts, my_covariate, variance="parametric")
+
+```
