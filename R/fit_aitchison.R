@@ -62,12 +62,7 @@ fit_aitchison <- function(W,
   sigma <- var(Y.p - eY) # (Q-1) x (Q-1)
   
   
-  ## set up storage for EM algorithm
-  b0.list <- b0
-  if (!no_covariates)   b.list <- b
-  # sigma's by arraw, acomb3
-  sigma.list <- sigma
-  accept.list <- c()
+
   
   ## set up tuning parameters for EM-MH algorithm
   if (is.null(tuning)) tuning <- "fast"
@@ -95,6 +90,27 @@ fit_aitchison <- function(W,
   
   if (is.null(network)) network <- "default"
   if (is.null(ncores)) ncores <- 1
+  
+  
+  ## set up storage for EM algorithm
+  #b0.list <- b0
+  b0.list <- matrix(0, nrow = EMiter + 1, ncol = length(b0))
+  b0.list[1,] <- b0
+  if (!no_covariates) {
+    if (is.matrix(b)) {
+      b.list <- array(0, dim = c(dim(b), EMiter + 1))
+      b.list[,, 1] <- b
+    } else {
+      b.list <- matrix(0, nrow = length(b), ncol = EMiter + 1)
+      b.list[, 1] <- b
+    }
+  }
+  
+  
+  # sigma's by arraw, acomb3
+  sigma.list <- array(0, dim = c(dim(sigma), EMiter + 1))
+  sigma.list[,, 1] <- sigma
+  accept.list <- matrix(0, nrow = EMiter, ncol = N)
   
   # start EM algorithm
   pb <- txtProgressBar(min = 0, max = EMiter, style = 3)
@@ -132,16 +148,17 @@ fit_aitchison <- function(W,
     
     ### STORE after updating
     ## @Bryan TODO: can this be cleaned up?
-    accept.list <- rbind(accept.list, accepts)
-    b0.list <- rbind(b0.list, b0)
+    accept.list[em,] <- accepts
+    #b0.list <- rbind(b0.list, b0)
+    b0.list[em + 1,] <- b0
     if (!no_covariates) {
       if (is.matrix(b)) {
-        b.list <- acomb3(b.list, b)
+        b.list[,, em + 1] <- b
       } else {
-        b.list <- cbind(b.list, b)
+        b.list[, em + 1] <- b
       }
     }
-    sigma.list <- acomb3(sigma.list, sigma)
+    sigma.list[,, em + 1] <- sigma
     end <- proc.time()
   }
   setTxtProgressBar(pb, EMiter)
