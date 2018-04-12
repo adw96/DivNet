@@ -4,7 +4,8 @@
 \alias{estimate_diversity}
 \title{estimate_diversity}
 \usage{
-estimate_diversity(fitted_aitchison, variance = "parametric")
+estimate_diversity(fitted_aitchison, W, variance = "parametric", B = 5,
+  nsub = NULL, ...)
 }
 \arguments{
 \item{fitted_aitchison}{object produced by fit_aitchison}

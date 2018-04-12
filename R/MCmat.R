@@ -1,6 +1,6 @@
 #' MCmat
 #'
-#' This function simulates MC step for an entire matrix. Should not need to be used by user directly. NOTE: currently written in parallel
+#' This function simulates MC step for an entire matrix. Should not need to be used by user directly; available to help with determining network estimation. 
 #'
 #' @author Bryan Martin
 #' @author Amy Willis
@@ -22,28 +22,18 @@
 #' @export
 MCmat <- function(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1, perturbation = 0.05, network = "default", ncores = 1, ...) {
   
-  # sigInv <- solve(sigma)
   if (network == "diagonal") {
-    # take diagonal vec, make it a diagonal matrix, solve
-    sigInv <- diag(1/diag(sigma))
-    
-    
+    sigInv <- diagonal_network(sigma)
   } else if (network == "default") {
-    test <- try(chol(sigma), silent = T)
-    if (class(test) == "try-error") {
-      sigInv <- MASS::ginv(sigma)
-    } else {
-      sigInv <- chol2inv(chol(sigma))
-    }
+    sigInv <- default_network(sigma)
   } else if (network == "stars") {
     sigInv <- stars(sigma, W, base = base, perturbation = perturbation, ncores = ncores)
-  } else { #if (class(network) %in% c("function", "methods", "standardGeneric")) {
+  } else { 
     sigInv <- try(network(sigma, ...), silent = T)
     if (class(sigInv) == "try-error") {
-      stop("Cannot use supplied network option")
+      stop("Cannot use supplied network option?")
     }
   }
-  
   
   MH_path <- function(i) {
     MCrow(Yi = Y[i, ], Wi = W[i, ], eYi = eY[i, ], Q = Q, base = base, sigInv = sigInv, MCiter = MCiter, 
@@ -54,8 +44,7 @@ MCmat <- function(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1, perturbatio
     ####################
     # Parallel option ##
     ####################
-    warning("I'm going to use all your cores!! Tell Amy to fix this")
-    registerDoParallel(detectCores())
+    registerDoParallel(cores=min(ncores, detectCores()))
     Y.MH <-  foreach(i = 1:N, .combine = "acomb3", .multicombine = TRUE) %dopar% {
       MH_path(i)
     }
@@ -73,6 +62,20 @@ MCmat <- function(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1, perturbatio
   return(Y.MH)
 }
 
+diagonal_network <- function(sigma) {
+  # take diagonal vec, make it a diagonal matrix, solve
+  diag(1/diag(sigma))
+}
+
+default_network <- function(sigma) {
+  test <- try(chol(sigma), silent = T)
+  if (class(test) == "try-error") {
+    sigInv <- MASS::ginv(sigma)
+  } else {
+    sigInv <- chol2inv(chol(sigma))
+  }
+  sigInv
+}
 
 stars <- function(sigma, W, base, perturbation, ncores) {
   Y.p <- toLogRatios(W, base = base, perturbation = perturbation)

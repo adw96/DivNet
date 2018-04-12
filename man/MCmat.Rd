@@ -35,7 +35,7 @@ MCmat(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1,
 \item{...}{additional arguments to be supplied to the network function}
 }
 \description{
-This function simulates MC step for an entire matrix. Should not need to be used by user directly. NOTE: currently written in parallel
+This function simulates MC step for an entire matrix. Should not need to be used by user directly; available to help with determining network estimation.
 }
 \author{
 Bryan Martin

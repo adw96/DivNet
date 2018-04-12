@@ -4,32 +4,23 @@
 \alias{fit_aitchison}
 \title{LNM.EM}
 \usage{
-fit_aitchison(W, X = NULL, EMiter = 10, EMburn = 5, MCiter = 1000,
-  MCburn = 500, stepsize = 0.01, perturbation = 0.05,
-  network = "default", base = NULL, ncores = 1, ...)
+fit_aitchison(W, X = NULL, tuning = NULL, perturbation = NULL,
+  network = NULL, base = NULL, ncores = NULL, ...)
 }
 \arguments{
-\item{W}{count matrix, with OTUs as columns}
+\item{W}{count matrix, with columns listing the OTUs and rows listing the samples}
 
 \item{X}{covariate matrix (optional)}
 
-\item{EMiter}{number of EM iterations, defaults to 10}
+\item{tuning}{settings for tuning the MC-MH algorithm. Options include NULL (defaults to "fast"), "fast", "careful" or a named list with components EMiter (number of EM iterations; 6 for fast, 10 for careful), EMburn (number of EM iterations to burn; 3 for fast, 5 for careful), MCiter (number of MC iterations; 500 for fast, 1000 for careful), MCburn (number of MC iterations to burn; 250 for fast, 500 for careful) and stepsize (variance used for MH samples; 0.01 for both fast and careful)}
 
-\item{EMburn}{number of EM iterations to burn, defaults to 5}
+\item{perturbation}{size of purturbation for zero counts, defaults to NULL (0.05)}
 
-\item{MCiter}{number MC iterations, defaults to 1000}
-
-\item{MCburn}{number of MC iterations to burn, defaults to 500}
-
-\item{stepsize}{variance used for MH samples, defaults to 0.01. Tweak to adjust acceptance ratio}
-
-\item{perturbation}{size of purturbation used for toLogRatios, defaults to 0.05}
-
-\item{network}{How to estimate network. Defaults to "default" (generalised inverse, aka naive). Other options include "diagonal", "stars" (requires glasso and SpiecEasi to be installed), or a function that you want to use to estimate the network}
+\item{network}{How to estimate network. Defaults to NULL (the default), "default" (generalised inverse, aka naive). Other options include "diagonal", "stars" (requires glasso and SpiecEasi to be installed), or a function that you want to use to estimate the network}
 
 \item{base}{OTU index to be used for base. if NULL, will use most common taxon}
 
-\item{ncores}{number of cores to use, defaults to 1}
+\item{ncores}{number of cores to use for MH sampling, defaults to 1}
 
 \item{...}{additional arguments to be supplied to the network function}
 }
