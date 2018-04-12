@@ -67,15 +67,19 @@ toCounts <- function(Y, M, base) {
   N <- nrow(Y)
   Q <- ncol(Y) + 1
   exp_Y <- exp(Y)
-  sum_exp_Y <- apply(exp_Y, 1, sum)
-  X <- W <- matrix(0, N, Q)
-  
+  #sum_exp_Y <- apply(exp_Y, 1, sum)
+  sum_exp_Y <- rowSums(exp_Y)
+  X <- matrix(0, N, Q)
+  X[,-base] <- exp_Y/(sum_exp_Y + 1)
+  X[,base] <- 1 - rowSums(X)
+  W <- matrix(rmultinom(1, M, prob = X), nrow = N, ncol = Q)
   ## @Bryan TODO: can this be cleaned up?
-  for (i in 1:N) {
-    X[i, -base] <- exp_Y[i, ]/(sum_exp_Y[i] + 1)
-    X[i, base] <- 1/(sum_exp_Y[i] + 1)
-    W[i, ] <- rmultinom(n = 1, size = M[i], prob = X[i, ])
-  }
+  
+  # for (i in 1:N) {
+  #   X[i, -base] <- exp_Y[i, ]/(sum_exp_Y[i] + 1)
+  #   X[i, base] <- 1/(sum_exp_Y[i] + 1)
+  #   W[i, ] <- rmultinom(n = 1, size = M[i], prob = X[i, ])
+  # }
   return(W)
 }
 
