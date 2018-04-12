@@ -4,8 +4,8 @@
 \alias{MCmat}
 \title{MCmat}
 \usage{
-MCmat(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1, poorman = FALSE,
-  in_parallel = TRUE)
+MCmat(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1,
+  perturbation = 0.05, network = "default", ncores = 1, ...)
 }
 \arguments{
 \item{Y}{logratio matrix}
@@ -26,8 +26,19 @@ MCmat(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1, poorman = FALSE,
 
 \item{stepsize}{variance used for MH samples, defaults to 1. Tweak to adjust acceptance ratio}
 
-\item{poorman}{boolean of whether to just use simple diagonal inverse to calculate sigma inverse. Defaults to FALSE}
+\item{perturbation}{size of purturbation used for toLogRatios, defaults to 0.05}
+
+\item{network}{How to estimate network. Defaults to "default" (generalised inverse, aka naive). Other options include "diagonal", or a function that takes a sample covariance matrix and returns an estimate of the inverse covariance matrix (eg glasso or SpiecEasi)}
+
+\item{ncores}{number of cores to use, defaults to 1}
+
+\item{...}{additional arguments to be supplied to the network function}
 }
 \description{
 This function simulates MC step for an entire matrix. Should not need to be used by user directly. NOTE: currently written in parallel
+}
+\author{
+Bryan Martin
+
+Amy Willis
 }

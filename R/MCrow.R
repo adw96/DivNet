@@ -2,6 +2,8 @@
 #'
 #' This function simulates MC step for a single row. Should not need to be used by user directly.
 #'
+#' @author Bryan Martin
+#' 
 #' @param Yi row of logratio matrix
 #' @param Wi corresponding row of count matrix
 #' @param eYi current expected value of logratio matrix
@@ -11,7 +13,7 @@
 #' @param MCiter number of MC samples to generate
 #' @param stepsize variance used for MH samples, defaults to 1. Tweak to adjust acceptance ratio
 #'
-#' @export
+#'
 MCrow <- function(Yi, Wi, eYi, Q, base, sigInv, MCiter, stepsize = 1) {
     # extra column for acceptance indicator
     Yi.MH <- matrix(0, MCiter, Q)

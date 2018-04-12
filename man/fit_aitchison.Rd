@@ -5,13 +5,13 @@
 \title{LNM.EM}
 \usage{
 fit_aitchison(W, X = NULL, EMiter = 10, EMburn = 5, MCiter = 1000,
-  MCburn = 500, stepsize = 0.01, perturbation = 0.05, poorman = FALSE,
-  interval = 0.95, base = NULL, in_parallel = TRUE)
+  MCburn = 500, stepsize = 0.01, perturbation = 0.05,
+  network = "default", base = NULL, ncores = 1, ...)
 }
 \arguments{
 \item{W}{count matrix, with OTUs as columns}
 
-\item{X}{covariate matrix}
+\item{X}{covariate matrix (optional)}
 
 \item{EMiter}{number of EM iterations, defaults to 10}
 
@@ -23,12 +23,21 @@ fit_aitchison(W, X = NULL, EMiter = 10, EMburn = 5, MCiter = 1000,
 
 \item{stepsize}{variance used for MH samples, defaults to 0.01. Tweak to adjust acceptance ratio}
 
-\item{poorman}{boolean of whether to just use simple diagonal inverse to calculate sigma inverse. Defaults to FALSE}
+\item{perturbation}{size of purturbation used for toLogRatios, defaults to 0.05}
 
-\item{base}{OTU index to be used for base}
+\item{network}{How to estimate network. Defaults to "default" (generalised inverse, aka naive). Other options include "diagonal", "stars" (requires glasso and SpiecEasi to be installed), or a function that you want to use to estimate the network}
 
-\item{p}{size of purturbation used for toLogRatios, defaults to 0.05}
+\item{base}{OTU index to be used for base. if NULL, will use most common taxon}
+
+\item{ncores}{number of cores to use, defaults to 1}
+
+\item{...}{additional arguments to be supplied to the network function}
 }
 \description{
 This function estimates the LNM model fit from Xia et al.
+}
+\author{
+Bryan Martin
+
+Amy Willis
 }

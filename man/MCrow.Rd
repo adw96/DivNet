@@ -26,3 +26,6 @@ MCrow(Yi, Wi, eYi, Q, base, sigInv, MCiter, stepsize = 1)
 \description{
 This function simulates MC step for a single row. Should not need to be used by user directly.
 }
+\author{
+Bryan Martin
+}

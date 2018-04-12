@@ -1,9 +1,9 @@
-#' MicrobiomePack package documentation.
+#' DivNet package documentation.
 #'
 #' This package provides various methods and tools to analyze microbiome data
 #'
 #' A complete description of all package features, along
-#' with examples, can be found at \url{https://github.com/martinbryan/MicrobiomePack}.
+#' with examples, can be found at \url{https://github.com/adw96/DivNet}.
 #'
 #' @import stats
 #' @import readr
@@ -21,8 +21,8 @@
 #' @importFrom utils globalVariables
 #' @importFrom mvnfast rmvn
 #'
-#' @name MicrobiomePack-package
-#' @aliases MicrobiomePack
+#' @name DivNet-package
+#' @aliases DivNet
 NULL
 
 ## Quiets global binding variables warning when using 'i' in foreach

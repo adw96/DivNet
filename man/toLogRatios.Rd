@@ -4,14 +4,14 @@
 \alias{toLogRatios}
 \title{toLogRatios}
 \usage{
-toLogRatios(W, base, p = 0.05)
+toLogRatios(W, base, perturbation = 0.05)
 }
 \arguments{
 \item{W}{raw count data, with OTUs as columns}
 
 \item{base}{base OTU value}
 
-\item{p}{how much to purturb zero counts, defaults to 0.05}
+\item{perturbation}{how much to purturb zero counts, defaults to 0.05}
 }
 \description{
 This function transforms from count data to logratios

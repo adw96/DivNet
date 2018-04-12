@@ -42,19 +42,19 @@ toCompositionMatrix <- function(Y, base = NULL) {
 #'
 #' @param W raw count data, with OTUs as columns
 #' @param base base OTU value
-#' @param p how much to purturb zero counts, defaults to 0.05
+#' @param perturbation how much to purturb zero counts, defaults to 0.05
 #'
 #' @export
-toLogRatios <- function(W, base, p = 0.05) {
+toLogRatios <- function(W, base, perturbation = 0.05) {
   W <- as.matrix(W)
   # get purturbed Y, apply returns arguments as columns CHECK: Apply forces transpose. Worth it?
-  Y.purt <- t(apply(W, 1, getPurt, base = base, p = p))
+  Y.purt <- t(apply(W, 1, getPurt, base = base, perturbation = perturbation))
   attr(Y.purt, "center") = apply(Y.purt, 2, mean)
   return(Y.purt)
 }
 
 
-#' YtoW
+#' toCounts
 #'
 #' This function transforms logratio matrix Y to counts W
 #'
@@ -63,14 +63,14 @@ toLogRatios <- function(W, base, p = 0.05) {
 #' @param base base value used to calculate logratios
 #'
 #' @export
-YtoW <- function(Y, M, base) {
+toCounts <- function(Y, M, base) {
   N <- nrow(Y)
   Q <- ncol(Y) + 1
   exp_Y <- exp(Y)
   sum_exp_Y <- apply(exp_Y, 1, sum)
   X <- W <- matrix(0, N, Q)
   
-  ## Amy@BryanTODO: can this be cleaned up?
+  ## @Bryan TODO: can this be cleaned up?
   for (i in 1:N) {
     X[i, -base] <- exp_Y[i, ]/(sum_exp_Y[i] + 1)
     X[i, base] <- 1/(sum_exp_Y[i] + 1)

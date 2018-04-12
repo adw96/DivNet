@@ -4,11 +4,16 @@
 \alias{estimate_diversity}
 \title{estimate_diversity}
 \usage{
-estimate_diversity(fitted_aitchison)
+estimate_diversity(fitted_aitchison, variance = "parametric")
 }
 \arguments{
 \item{fitted_aitchison}{object produced by fit_aitchison}
+
+\item{variance}{method to get variance of estimates. Current options are "parametric" for parametric bootstrap, "nonparametric" for nonparametric bootstrap, and "none" for no variance estimates}
 }
 \description{
 estimate_diversity
+}
+\author{
+Amy Willis
 }

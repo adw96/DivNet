@@ -2,27 +2,33 @@
 #'
 #' This function estimates the LNM model fit from Xia et al.
 #' 
+#' @author Bryan Martin
+#' @author Amy Willis
+#' 
 #' @param W count matrix, with OTUs as columns
-#' @param X covariate matrix
-#' @param base OTU index to be used for base
+#' @param X covariate matrix (optional)
 #' @param EMiter number of EM iterations, defaults to 10
 #' @param EMburn number of EM iterations to burn, defaults to 5
 #' @param MCiter number MC iterations, defaults to 1000
 #' @param MCburn number of MC iterations to burn, defaults to 500
 #' @param stepsize variance used for MH samples, defaults to 0.01. Tweak to adjust acceptance ratio
-#' @param p size of purturbation used for toLogRatios, defaults to 0.05
-#' @param poorman boolean of whether to just use simple diagonal inverse to calculate sigma inverse. Defaults to FALSE
-#'
+#' @param perturbation size of purturbation used for toLogRatios, defaults to 0.05
+#' @param network How to estimate network. Defaults to "default" (generalised inverse, aka naive). Other options include "diagonal", "stars" (requires glasso and SpiecEasi to be installed), or a function that you want to use to estimate the network
+#' @param base OTU index to be used for base. if NULL, will use most common taxon
+#' @param ncores number of cores to use, defaults to 1
+#' @param ... additional arguments to be supplied to the network function
+#' 
 #' @importFrom magrittr "%>%"
 #' @export
-fit_aitchison <- function(W, X = NULL, 
-                         EMiter = 10, EMburn = 5, MCiter = 1000, MCburn = 500, 
-                         stepsize = 0.01, 
-                         perturbation = 0.05, 
-                         poorman = FALSE, 
-                         interval = 0.95,
-                         base = NULL,
-                         in_parallel = TRUE) {
+fit_aitchison <- function(W, 
+                          X = NULL, 
+                          EMiter = 10, EMburn = 5, MCiter = 1000, MCburn = 500, 
+                          stepsize = 0.01, 
+                          perturbation = 0.05, 
+                          network = "default",
+                          base = NULL,
+                          ncores = 1,
+                          ...) {
   X_original <- X
   W <- as.matrix(W)
   
@@ -30,14 +36,21 @@ fit_aitchison <- function(W, X = NULL,
   N <- nrow(W)
   Q <- ncol(W)
   if (is.null(base)) {
-    base <- Q ## this is compatible with later
+    taxa_sums <- apply(W, 2, sum)
+    base <- which(rank(taxa_sums) == max(rank(taxa_sums)))[1]
   }
+
+  output_list <- list()
   
   if (is.null(X)) {
     X <- matrix(1, nrow=N, ncol=1)
   }
+  # if an intercept to column is included in the covariate matrix, remove it
   intercept_columns <- apply(X, 2, function(x) max(x) == min(x))
   X <- X[ , -intercept_columns] %>% as.matrix
+  
+  output_list$X <- X
+  
   
   no_covariates <- ncol(X) == 0
   
@@ -66,11 +79,12 @@ fit_aitchison <- function(W, X = NULL,
   
   # Should be (MCiter x Q x N) (1000 x 75 x 119) Dont forget, first column is acceptance (ie want 74 x
   # 119 for data)
+  pb <- txtProgressBar(min = 0, max = EMiter, style = 3)
   for (em in 1:EMiter) {
-    cat("EM iteration:", em, "\n")
+    setTxtProgressBar(pb, em-1)
     start <- proc.time()
     MCarray <- MCmat(Y = Y.p, W = W, eY = eY, N = N, Q = Q, base = base, sigma = sigma, MCiter = MCiter, 
-                     stepsize = stepsize, poorman = poorman, in_parallel = in_parallel)
+                     stepsize = stepsize, network = network, ncores = ncores, ...)
     
     # should call 119 apply functions, each time, get 75 means. each of iteration values for OTU.  ORIGINAL
     # for(i in 1:119) { Y.new[i,] <- apply(MCarray[(MCburn+1):MCiter,,i],2,mean) } ALTERNATIVE, no for loop
@@ -119,14 +133,13 @@ fit_aitchison <- function(W, X = NULL,
     sigma.list <- acomb3(sigma.list, sigma)
     end <- proc.time()
   }
-  
+  setTxtProgressBar(pb, EMiter)
+  cat("\n")
   
   ## Next: take average of EM samples past burn. Included init, so have EMiter+1 total Note, below doesn't
   ## have any inital input
-  # accept.EM <- colMeans(accept.list[(EMburn):(EMiter), ])
   b0.EM <- colMeans(b0.list[(EMburn + 1):(EMiter + 1), ])
   
-  output_list <- list()
   output_list$beta0 <- b0.EM
   
   ### estimated value of Y
@@ -136,7 +149,7 @@ fit_aitchison <- function(W, X = NULL,
     b.list.reduced <- b.list[, , (EMburn + 1):(EMiter + 1)] 
     
     if (length(dim(b.list.reduced)) == 2) {
-      b.list.reduced %>% array(c(1, dim(b.list.reduced))) -> b.list.reduced
+      b.list.reduced <- b.list.reduced %>% array(c(1, dim(b.list.reduced)))
     }
     
     b.EM <- apply(b.list.reduced, c(1, 2), mean)
@@ -146,9 +159,10 @@ fit_aitchison <- function(W, X = NULL,
     
   }
   
+  # burn-in sigma and take average 
+  # it's fine to do this because class of positive definite matrices is closed under addition
   sigma.EM <- apply(sigma.list[, , (EMburn + 1):(EMiter + 1)], c(1, 2), mean)
   
-  output_list$X <- X
   output_list$sigma <- sigma.EM
   output_list$fitted_y <- fitted_y
   output_list$fitted_z <- toCompositionMatrix(fitted_y, base=base)
