@@ -46,10 +46,13 @@ toCompositionMatrix <- function(Y, base = NULL) {
 #'
 #' @export
 toLogRatios <- function(W, base, perturbation = 0.05) {
-  W <- as.matrix(W)
+  # W <- as.matrix(W)
   # get purturbed Y, apply returns arguments as columns CHECK: Apply forces transpose. Worth it?
-  Y.purt <- t(apply(W, 1, getPurt, base = base, perturbation = perturbation))
-  attr(Y.purt, "center") = apply(Y.purt, 2, mean)
+  # Y.purt <- t(apply(W, 1, getPurt, base = base, perturbation = perturbation))
+  # attr(Y.purt, "center") = apply(Y.purt, 2, mean)
+  tmp <- pmax(W, perturbation)
+  Ztmp <- tmp/rowSums(tmp)
+  Y.purt <- log(Ztmp[,-base]/Ztmp[,base])
   return(Y.purt)
 }
 
