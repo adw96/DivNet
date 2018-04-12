@@ -21,7 +21,9 @@ Imports:
     PDSCE,
     foreach,
     parallel,
-    magrittr
+    magrittr,
+    R.utils,
+    mvnfast
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
