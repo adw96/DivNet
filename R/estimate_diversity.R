@@ -94,25 +94,26 @@ get_diversities <- function(zz) {
 get_diversity_variance <- function(list_of_fitted_models) {
   output_list <- list()
   
+  # na.rm = TRUE because nonparametric bootstrap works by subsampling
   output_list[["shannon-variance"]]  <- list_of_fitted_models %>% 
     lapply(function(x) x$shannon) %>% 
     simplify2array %>% 
-    apply(1, var)
+    apply(1, var, na.rm = TRUE)
   
   output_list[["simpson-variance"]]  <- list_of_fitted_models %>% 
     lapply(function(x) x$simpson) %>% 
     simplify2array %>% 
-    apply(1, var)
+    apply(1, var, na.rm = TRUE)
   
   output_list[["bray-curtis-variance"]] <- list_of_fitted_models %>% 
     lapply(function(x) x[["bray-curtis"]]) %>% 
     simplify2array %>% 
-    apply(1:2, var)
+    apply(1:2, var, na.rm = TRUE)
   
   output_list[["euclidean-variance"]] <- list_of_fitted_models %>% 
     lapply(function(x) x$euclidean) %>% 
     simplify2array %>% 
-    apply(1:2, var)
+    apply(1:2, var, na.rm = TRUE)
   
   output_list
 }
@@ -125,21 +126,21 @@ nonparametric_variance <- function(W,
                                    network,
                                    base,
                                    ncores,
-                                   nsub, ...) {
+                                   nsub, 
+                                   ...) {
   curly_b <- sample(1:(nrow(W)), size = nsub, replace=T)
+  
   fitted_model <- fit_aitchison(W[curly_b, ],  
                                 X[curly_b, ], 
                                 tuning = tuning,
                                 perturbation = perturbation, 
                                 network = network,
                                 base = base,
-                                ncores = ncores,...)
-  eY <- fitted_model$beta0 + fitted_model$X %*% fitted_model$beta
-  
-  dots <- list(...)
-  base <- ifelse(is.null(dots$base), 
-                 which(rank(apply(W, 2, sum)) == max(rank(apply(W, 2, sum))))[1], 
-                 dots$base)
+                                ncores = ncores, 
+                                ...)
+  eY <- matrix(NA, ncol = ncol(W)-1, nrow = nrow(W))
+  eY[curly_b, ] <- fitted_model$X %*% fitted_model$beta + 
+    matrix(fitted_model$beta0 , ncol = ncol(W)-1, nrow = nsub, byrow=T)
   toCompositionMatrix(Y=eY, base=base) %>% get_diversities
   
 }
