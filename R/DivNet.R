@@ -48,7 +48,7 @@ divnet <-  function(W,
                                     network = network,
                                     base = base,
                                     ncores = ncores,
-                                ...)
+                                    ...)
   zz <- fitted_aitchison$fitted_z
   output_list <- get_diversities(zz)
   
@@ -60,7 +60,7 @@ divnet <-  function(W,
     parametric_list <- replicate(B, 
                                  parametric_variance(fitted_aitchison, 
                                                      W = W,
-                                                     X = X, 
+                                                     X = fitted_aitchison$X, 
                                                      tuning = tuning,
                                                      perturbation = perturbation, 
                                                      network = network,
@@ -73,6 +73,7 @@ divnet <-  function(W,
     output_list <- c(output_list, variance_estimates)
   } else if (variance == "nonparametric") {
     if (is.null(nsub)) nsub <- ceiling(dim(W)[1]/2)
+    
     nonparametric_list <- replicate(B, 
                                     nonparametric_variance(W = W,
                                                            X = X, 
@@ -81,7 +82,8 @@ divnet <-  function(W,
                                                            network = network,
                                                            base = base,
                                                            ncores = ncores,
-                                                            ...), 
+                                                           nsub = nsub,
+                                                           ...), 
                                     simplify=F)
     variance_estimates <- get_diversity_variance(nonparametric_list)
     output_list <- c(output_list, variance_estimates)

@@ -85,11 +85,22 @@ get_diversity_variance <- function(list_of_fitted_models) {
 }
 
 ### nonparametric bootstrap
-nonparametric_variance <- function(W, X, nsub, ...) {
-  N <- dim(W)[1]
-  curly_b <- sample(1:N, replace=T, size = nsub)
-  fitted_model <- fit_aitchison(W[curly_b, ],  X[curly_b, ], ...)
-  
+nonparametric_variance <- function(W, 
+                                   X, 
+                                   tuning,
+                                   perturbation, 
+                                   network,
+                                   base,
+                                   ncores,
+                                   nsub, ...) {
+  curly_b <- sample(1:(nrow(W)), size = nsub, replace=T)
+  fitted_model <- fit_aitchison(W[curly_b, ],  
+                                X[curly_b, ], 
+                                tuning = tuning,
+                                perturbation = perturbation, 
+                                network = network,
+                                base = base,
+                                ncores = ncores,...)
   eY <- fitted_model$beta0 + fitted_model$X %*% fitted_model$beta
   
   dots <- list(...)
