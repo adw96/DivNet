@@ -1,4 +1,5 @@
-#' estimate_diversity
+
+#' divnet
 #' 
 #' @param fitted_aitchison object produced by fit_aitchison
 #' @param variance method to get variance of estimates. Current options are "parametric" for parametric bootstrap, "nonparametric" for nonparametric bootstrap, and "none" for no variance estimates
@@ -6,36 +7,68 @@
 #' @author Amy Willis
 #' 
 #' @export
-estimate_diversity <- function(fitted_aitchison, W, variance = "parametric", B = 5, nsub = NULL, ...) {
+divnet <-  function(W, 
+                    X = NULL, 
+                    fitted_model = NULL,
+                    tuning = NULL,
+                    perturbation = NULL, 
+                    network = NULL,
+                    base = NULL,
+                    ncores = NULL,
+                    variance = "parametric",
+                    B = 5,
+                    nsub = NULL,
+                    ...) {
   
-  # compute estimate  
-  zz <- fitted_aitchison$fitted_z
+  if (is.null(fitted_model)) {
+    fitted_model <- fit_aitchison(W, 
+                                  X = X, 
+                                  tuning = tuning,
+                                  perturbation = perturbation, 
+                                  network = network,
+                                  base = base,
+                                  ncores = ncores,
+                                  ...)
+  }
+  zz <- fitted_model$fitted_z
   output_list <- get_diversities(zz)
   
-  # @Amy TODO implement variance estimates
   # @Amy TODO parallelise
   if (variance == "parametric") {
     
     # resample from models
     parametric_list <- replicate(B, 
-                                 parametric_variance(fitted_aitchison, 
+                                 parametric_variance(fitted_model, 
                                                      W = W,
-                                                     X = fitted_aitchison$X, ...), 
+                                                     X = X, 
+                                                     tuning = tuning,
+                                                     perturbation = perturbation, 
+                                                     network = network,
+                                                     base = base,
+                                                     ncores = ncores,
+                                                     ...), 
                                  simplify=F)
     
     variance_estimates <- get_diversity_variance(parametric_list)
+    
     output_list <- c(output_list, variance_estimates)
   } else if (variance == "nonparametric") {
     if (is.null(nsub)) nsub <- ceiling(dim(W)[1]/2)
+    
     nonparametric_list <- replicate(B, 
                                     nonparametric_variance(W = W,
-                                                           X = fitted_aitchison$X, 
-                                                           nsub = nsub, ...), 
+                                                           X = X, 
+                                                           tuning = tuning,
+                                                           perturbation = perturbation, 
+                                                           network = network,
+                                                           base = base,
+                                                           ncores = ncores,
+                                                           nsub = nsub,
+                                                           ...), 
                                     simplify=F)
     variance_estimates <- get_diversity_variance(nonparametric_list)
     output_list <- c(output_list, variance_estimates)
   }
-  
   output_list
 }
 
@@ -113,7 +146,13 @@ nonparametric_variance <- function(W,
 
 
 ### parametric bootstrap
-parametric_variance <- function(fitted_aitchison, W, X, ...) {
+parametric_variance <- function(fitted_aitchison, 
+                                W, X, 
+                                tuning,
+                                perturbation, 
+                                network,
+                                base,
+                                ncores, ...) {
   
   # unfortunately in this model we condition on M_i, so no randomising here
   ms <- apply(W, 1, sum)
@@ -122,6 +161,12 @@ parametric_variance <- function(fitted_aitchison, W, X, ...) {
                Sigma = fitted_aitchison$sigma, 
                mm=ms)
   
-  fitted_model <- fit_aitchison(mw,  X, ...)
+  fitted_model <- fit_aitchison(mw,  
+                                X,
+                                tuning = tuning,
+                                perturbation = perturbation, 
+                                network = network,
+                                base = base,
+                                ncores = ncores, ...)
   get_diversities(fitted_model$fitted_z)
 }
