@@ -32,7 +32,12 @@ toComposition <- function(Y, base = NULL) {
 #' @export
 toCompositionMatrix <- function(Y, base = NULL) {
   
-  apply(X=Y, MARGIN=1, FUN=toComposition, base = base) %>% t
+  #apply(X=Y, MARGIN=1, FUN=toComposition, base = base) %>% t
+  out <- matrix(0, nrow = nrow(Y), ncol = ncol(Y) + 1)
+  out[,-base] <- exp(Y)
+  out[,base] <- 1
+  out / rowSums(out)
+  
   
 }
 
