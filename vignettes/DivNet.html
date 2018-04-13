@@ -12,7 +12,7 @@
 
 <meta name="author" content="Amy Willis" />
 
-<meta name="date" content="2018-04-12" />
+<meta name="date" content="2018-04-13" />
 
 <title>Getting started with DivNet</title>
 
@@ -70,22 +70,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Getting started with DivNet</h1>
 <h4 class="author"><em>Amy Willis</em></h4>
-<h4 class="date"><em>2018-04-12</em></h4>
+<h4 class="date"><em>2018-04-13</em></h4>
 
 
 
 <p><code>DivNet</code> is awesome!</p>
 <div id="vignette-info" class="section level2">
 <h2>Vignette Info</h2>
-<p>This vignette will lead you through</p>
-<ul>
-<li>loading in your data and covariate information</li>
-<li>creating frequency tables</li>
-<li>using <code>breakaway</code> to estimate species richness</li>
-<li>using the objective bayes methods to estimate species richness</li>
-<li>estimating various alpha diversity indices and providing a very basic resample-based method for ascribing variability to them</li>
-<li>using <code>betta</code> to model changes in alpha diversity with covariates</li>
-</ul>
+<p>This vignette will lead you through estimating diversity using DivNet</p>
 <p>If there is something that you would like explained please feel free to request it!</p>
 </div>
 <div id="loading-the-package-and-data" class="section level2">
@@ -398,13 +390,13 @@ my_covariate</code></pre></div>
 ## [6] 3.093021e-05
 ## 
 ## $`bray-curtis-variance`
-##             [,1]        [,2]        [,3]        [,4]        [,5]
-## [1,] 0.000000000 0.000339250 0.000000000 0.001162620 0.005881473
-## [2,] 0.000339250 0.000000000 0.000339250 0.002553530 0.006925613
-## [3,] 0.000000000 0.000339250 0.000000000 0.001162620 0.005881473
-## [4,] 0.001162620 0.002553530 0.001162620 0.000000000 0.001517516
-## [5,] 0.005881473 0.006925613 0.005881473 0.001517516 0.000000000
-## [6,] 0.001162620 0.002553530 0.001162620 0.000000000 0.001517516
+##              [,1]        [,2]         [,3]        [,4]        [,5]
+## [1,] 2.465190e-33 0.000339250 2.465190e-33 0.001162620 0.005881473
+## [2,] 3.392500e-04 0.000000000 3.392500e-04 0.002553530 0.006925613
+## [3,] 2.465190e-33 0.000339250 2.465190e-33 0.001162620 0.005881473
+## [4,] 1.162620e-03 0.002553530 1.162620e-03 0.000000000 0.001517516
+## [5,] 5.881473e-03 0.006925613 5.881473e-03 0.001517516 0.000000000
+## [6,] 1.162620e-03 0.002553530 1.162620e-03 0.000000000 0.001517516
 ##             [,6]
 ## [1,] 0.001162620
 ## [2,] 0.002553530
