@@ -1,0 +1,5 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^README.Rmd
+inst/doc
+^\.travis\.yml$
