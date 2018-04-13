@@ -1,3 +1,9 @@
+#' Simulate counts
+#' 
+#' @param mu TODO
+#' @param Sigma TODO
+#' @param mm TODO
+#' 
 #' @export
 make_w <- function(mu, Sigma, mm) {
   q <- ncol(Sigma)

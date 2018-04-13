@@ -9,9 +9,29 @@ divnet(W, X = NULL, fitted_model = NULL, tuning = NULL,
   variance = "parametric", B = 5, nsub = NULL, ...)
 }
 \arguments{
+\item{W}{TODO}
+
+\item{X}{TODO}
+
+\item{fitted_model}{object produced by fit_aitchison}
+
+\item{tuning}{TODO}
+
+\item{perturbation}{Perturbation magnitude for zero values when calculating logratios.}
+
+\item{network}{TODO}
+
+\item{base}{Base taxon index.}
+
+\item{ncores}{Number of cores to use for parallelization}
+
 \item{variance}{method to get variance of estimates. Current options are "parametric" for parametric bootstrap, "nonparametric" for nonparametric bootstrap, and "none" for no variance estimates}
 
-\item{fitted_aitchison}{object produced by fit_aitchison}
+\item{B}{TODO}
+
+\item{nsub}{TODO}
+
+\item{...}{TODO}
 }
 \description{
 divnet

@@ -110,7 +110,7 @@ fit_aitchison <- function(W,
   accept.list <- matrix(0, nrow = EMiter, ncol = N)
   
   # start EM algorithm
-  pb <- txtProgressBar(min = 0, max = EMiter, style = 3)
+  pb <- utils::txtProgressBar(min = 0, max = EMiter, style = 3)
   for (em in 1:EMiter) {
     utils::setTxtProgressBar(pb, em-1)
     #start <- proc.time()

@@ -1,8 +1,19 @@
 
 #' divnet
 #' 
-#' @param fitted_aitchison object produced by fit_aitchison
+#' @param W TODO
+#' @param X TODO
+#' @param fitted_model object produced by fit_aitchison
+#' @param tuning TODO
+#' @param perturbation Perturbation magnitude for zero values when calculating logratios.
+#' @param network TODO
+#' @param base Base taxon index.
+#' @param ncores Number of cores to use for parallelization
 #' @param variance method to get variance of estimates. Current options are "parametric" for parametric bootstrap, "nonparametric" for nonparametric bootstrap, and "none" for no variance estimates
+#' @param B TODO
+#' @param nsub TODO
+#' @param ... TODO
+#' 
 #' 
 #' @author Amy Willis
 #' 

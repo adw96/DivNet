@@ -50,7 +50,7 @@ get_mu <- function(out, X = NULL) {
 #'
 #' @param Wi raw count data row
 #' @param base base OTU value
-#' @param p how much to purturb zero counts, defaults to 0.05
+#' @param perturbation how much to purturb zero counts, defaults to 0.05
 #'
 getPurt <- function(Wi, base, perturbation = 0.05) {
   zeros <- which(Wi == 0)

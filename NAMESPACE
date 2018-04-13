@@ -3,6 +3,7 @@
 export(MCmat)
 export(bc_fast)
 export(bray_curtis_true)
+export(calculate_alpha)
 export(divnet)
 export(euc_fast)
 export(euclidean_true)
