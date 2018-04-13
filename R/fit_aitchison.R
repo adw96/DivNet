@@ -113,7 +113,7 @@ fit_aitchison <- function(W,
   pb <- txtProgressBar(min = 0, max = EMiter, style = 3)
   for (em in 1:EMiter) {
     utils::setTxtProgressBar(pb, em-1)
-    start <- proc.time()
+    #start <- proc.time()
     
     # MC step
     MCarray <- MCmat(Y = Y.p, W = W, eY = eY, N = N, Q = Q, base = base, sigma = sigma, MCiter = MCiter, 
@@ -156,7 +156,7 @@ fit_aitchison <- function(W,
       }
     }
     sigma.list[,, em + 1] <- sigma
-    end <- proc.time()
+    #end <- proc.time()
   }
   utils::setTxtProgressBar(pb, EMiter)
   cat("\n")
