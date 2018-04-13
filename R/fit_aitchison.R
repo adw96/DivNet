@@ -52,7 +52,7 @@ fit_aitchison <- function(W,
   Y.p <- toLogRatios(W = W, base = base, perturbation = perturbation) # (N x Q-1) 
   
   # initialize EM algorithm
-  b0 <- apply(Y.p, 2, mean) #attr(Y.p, "center")  # this is just column means (of OTUs)
+  b0 <- colMeans(Y.p)
   eY <- tcrossprod(rep(1, N), b0) 
   if (!no_covariates)  {
     b <- OLS(X, Y.p)
