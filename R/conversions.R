@@ -31,14 +31,13 @@ toComposition <- function(Y, base = NULL) {
 #'
 #' @export
 toCompositionMatrix <- function(Y, base = NULL) {
+  if (is.null(base)) base <- (ncol(Y) + 1)
   
-  #apply(X=Y, MARGIN=1, FUN=toComposition, base = base) %>% t
+  
   out <- matrix(0, nrow = nrow(Y), ncol = ncol(Y) + 1)
   out[,-base] <- exp(Y)
   out[,base] <- 1
   out / rowSums(out)
-  
-  
 }
 
 #' toLogRatios
@@ -51,7 +50,8 @@ toCompositionMatrix <- function(Y, base = NULL) {
 #'
 #' @export
 toLogRatios <- function(W, base, perturbation = 0.05) {
-  stopifnot(!is.matrix(W))
+  stopifnot(is.matrix(W))
+  
   # W <- as.matrix(W)
   # get purturbed Y, apply returns arguments as columns CHECK: Apply forces transpose. Worth it?
   # Y.purt <- t(apply(W, 1, getPurt, base = base, perturbation = perturbation))

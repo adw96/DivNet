@@ -75,3 +75,8 @@ getPurt <- function(Wi, base, perturbation = 0.05) {
 #' @param ... Array
 #' 
 acomb3 <- function(...) abind(..., along = 3)
+
+pick_base <- function(W) {
+  taxa_sums <- apply(W, 2, sum)
+  which(rank(taxa_sums) == max(rank(taxa_sums)))[1]
+}

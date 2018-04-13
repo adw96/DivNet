@@ -141,8 +141,8 @@ nonparametric_variance <- function(W,
   eY <- matrix(NA, ncol = ncol(W)-1, nrow = nrow(W))
   eY[curly_b, ] <- fitted_model$X %*% fitted_model$beta + 
     matrix(fitted_model$beta0 , ncol = ncol(W)-1, nrow = nsub, byrow=T)
-  toCompositionMatrix(Y=eY, base=base) %>% get_diversities
   
+  toCompositionMatrix(Y=eY, base=base) %>% get_diversities
 }
 
 

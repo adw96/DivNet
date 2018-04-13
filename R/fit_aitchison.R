@@ -43,9 +43,8 @@ fit_aitchison <- function(W,
   no_covariates <- ncol(X) == 0
   
   # base taxon
-  if (is.null(base)) {
-    taxa_sums <- apply(W, 2, sum)
-    base <- which(rank(taxa_sums) == max(rank(taxa_sums)))[1]
+  if (is.null(base)) { 
+    base <- pick_base(W)
   }
   
   # take log ratio, adding perturbation term to zero counts 
@@ -53,7 +52,7 @@ fit_aitchison <- function(W,
   Y.p <- toLogRatios(W = W, base = base, perturbation = perturbation) # (N x Q-1) 
   
   # initialize EM algorithm
-  b0 <- attr(Y.p, "center")  # this is just column means (of OTUs)
+  b0 <- apply(Y.p, 2, mean) #attr(Y.p, "center")  # this is just column means (of OTUs)
   eY <- tcrossprod(rep(1, N), b0) 
   if (!no_covariates)  {
     b <- OLS(X, Y.p)
@@ -66,13 +65,12 @@ fit_aitchison <- function(W,
   
   ## set up tuning parameters for EM-MH algorithm
   if (is.null(tuning)) tuning <- "fast"
-  if (tuning == 0) tuning <- "fast"
-  if (tuning == "fast") {
-    EMiter <- 6
-    EMburn <- 3
-    MCiter <- 500
-    MCburn <- 250
-    stepsize <- 0.01
+  if (class(tuning) == "list") {
+    EMiter <- ifelse(is.null(tuning$EMiter), 6, tuning$EMiter)
+    EMburn <- ifelse(is.null(tuning$EMburn), 3, tuning$EMburn)
+    MCiter <- ifelse(is.null(tuning$MCiter), 500, tuning$MCiter)
+    MCburn <- ifelse(is.null(tuning$MCburn), 250, tuning$MCburn)
+    stepsize <- ifelse(is.null(tuning$stepsize), 0.01, tuning$stepsize)
   } else if (tuning == "careful") {
     EMiter <- 10
     EMburn <- 5
@@ -80,12 +78,11 @@ fit_aitchison <- function(W,
     MCburn <- 500
     stepsize <- 0.01
   } else {
-    if (class(tuning) != "list") stop("Input parameter tuning should be `fast`, `careful`, or a list")
-    EMiter <- ifelse(is.null(tuning$EMiter), 6, tuning$EMiter)
-    EMburn <- ifelse(is.null(tuning$EMburn), 3, tuning$EMburn)
-    MCiter <- ifelse(is.null(tuning$MCiter), 500, tuning$MCiter)
-    MCburn <- ifelse(is.null(tuning$MCburn), 250, tuning$MCburn)
-    stepsize <- ifelse(is.null(tuning$stepsize), 0.01, tuning$stepsize)
+    EMiter <- 6
+    EMburn <- 3
+    MCiter <- 500
+    MCburn <- 250
+    stepsize <- 0.01
   }
   
   if (is.null(network)) network <- "default"
