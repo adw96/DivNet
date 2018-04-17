@@ -5,25 +5,22 @@ Version: 0.1.0
 Authors@R: c(person("Amy", "Willis", email = "adwillis@uw.ed", role = c("aut", "cre")), person("Bryan D", "Martin", email = "bmartin6@uw.ed", role = c("aut")))
 Description: Estimate alpha- and beta- diversity of a community where taxa interact.
 License: GPL (>= 2)
-Depends: R (>= 3.4.2)
 Imports:
     abind,
-    doParallel,
-    doSNOW,
     dplyr,
     foreach,
     magrittr,
     MASS,
     mvnfast,
-    parallel,
-    PDSCE,
     R.utils,
-    readr,
-    stats,
-    tibble
+    stats
 Suggests:
+    doParallel,
+    doSNOW,
     glasso,
     knitr, 
+    parallel,
+    PDSCE,
     rmarkdown,
     SpiecEasi,
     testthat

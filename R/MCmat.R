@@ -18,6 +18,10 @@
 #' @param network How to estimate network. Defaults to "default" (generalised inverse, aka naive). Other options include "diagonal", or a function that takes a sample covariance matrix and returns an estimate of the inverse covariance matrix (eg glasso or SpiecEasi)
 #' @param ncores number of cores to use, defaults to 1
 #' @param ... additional arguments to be supplied to the network function
+#' 
+#' @import doParallel
+#' @import abind
+#' @import foreach
 #'
 #' @export
 MCmat <- function(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1, perturbation = 0.05, network = "default", ncores = 1, ...) {
@@ -56,7 +60,7 @@ MCmat <- function(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1, perturbatio
     ####################
     ## Series option ###
     ####################
-    Y.MH <-  foreach(i=1:N, .combine='acomb3', .multicombine=TRUE) %do% {
+    Y.MH <-  foreach(i=1:N, .combine='acomb3', .multicombine=TRUE, .packages="foreach") %do% {
       MH_path(i)
     }
   }
