@@ -39,12 +39,16 @@ divnet <-  function(W,
     W <- input_data %>% otu_table %>% as.matrix 
     if (taxa_are_rows(input_data)) W <- W %>% t
     
+    samples_names <- input_data %>% sample_names
+    
     # make the design matrix
     if (is.character(X)) {
       predictors <- input_data %>% sample_data %>% get_variable(X)
       X <- model.matrix( ~., data = predictors)
       
     }
+  } else {
+    samples_names <- rownames(W)
   }
   
   # remove taxa that weren't observed 
@@ -62,7 +66,7 @@ divnet <-  function(W,
                                   ...)
   }
   zz <- fitted_model$fitted_z
-  output_list <- get_diversities(zz)
+  output_list <- get_diversities(zz, samples_names)
   
   # @Amy TODO parallelise
   if (variance == "parametric") {
@@ -80,7 +84,7 @@ divnet <-  function(W,
                                                      ...), 
                                  simplify=F)
     
-    variance_estimates <- get_diversity_variance(parametric_list)
+    variance_estimates <- get_diversity_variance(parametric_list, samples_names)
     
     output_list <- c(output_list, variance_estimates)
   } else if (variance == "nonparametric") {
@@ -97,13 +101,13 @@ divnet <-  function(W,
                                                            nsub = nsub,
                                                            ...), 
                                     simplify=F)
-    variance_estimates <- get_diversity_variance(nonparametric_list)
+    variance_estimates <- get_diversity_variance(nonparametric_list, samples_names)
     output_list <- c(output_list, variance_estimates)
   }
   output_list
 }
 
-get_diversities <- function(zz) {
+get_diversities <- function(zz, samples_names = NULL) {
   
   output_list <- list()
   
@@ -119,10 +123,19 @@ get_diversities <- function(zz) {
   # Estimate Euclidean
   output_list[["euclidean"]] <- euclidean_true(zz)
   
+  if (!is.null(samples_names)) {
+    names(output_list[["shannon"]]) <- samples_names
+    names(output_list[["simpson"]])  <- samples_names
+    rownames(output_list[["bray-curtis"]]) <- samples_names
+    rownames(output_list[["euclidean"]]) <- samples_names
+    colnames(output_list[["bray-curtis"]]) <- samples_names
+    colnames(output_list[["euclidean"]]) <- samples_names
+    
+  }
   output_list
 }
 
-get_diversity_variance <- function(list_of_fitted_models) {
+get_diversity_variance <- function(list_of_fitted_models, samples_names = NULL) {
   output_list <- list()
   
   # na.rm = TRUE because nonparametric bootstrap works by subsampling
@@ -146,6 +159,14 @@ get_diversity_variance <- function(list_of_fitted_models) {
     simplify2array %>% 
     apply(1:2, var, na.rm = TRUE)
   
+  if (!is.null(samples_names)) {
+    names(output_list[["shannon-variance"]]) <- samples_names
+    names(output_list[["simpson-variance"]])  <- samples_names
+    rownames(output_list[["bray-curtis-variance"]]) <- samples_names
+    rownames(output_list[["euclidean-variance"]]) <- samples_names
+    colnames(output_list[["bray-curtis-variance"]]) <- samples_names
+    colnames(output_list[["euclidean-variance"]]) <- samples_names
+  }
   output_list
 }
 
@@ -170,8 +191,9 @@ nonparametric_variance <- function(W,
                                 ncores = ncores, 
                                 ...)
   eY <- matrix(NA, ncol = ncol(W)-1, nrow = nrow(W))
-  eY[curly_b, ] <- fitted_model$X %*% fitted_model$beta + 
-    matrix(fitted_model$beta0 , ncol = ncol(W)-1, nrow = nsub, byrow=T)
+  eY[curly_b, ] <- fitted_model$fitted_y
+    # fitted_model$X %*% fitted_model$beta + 
+    # matrix(fitted_model$beta0 , ncol = ncol(W)-1, nrow = nsub, byrow=T)
   
   to_composition_matrix(Y=eY, base=base) %>% get_diversities
 }
