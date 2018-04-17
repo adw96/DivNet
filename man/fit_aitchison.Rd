@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit_aitchison.R
 \name{fit_aitchison}
 \alias{fit_aitchison}
-\title{LNM.EM}
+\title{fit_aitchison}
 \usage{
 fit_aitchison(W, X = NULL, tuning = NULL, perturbation = NULL,
   network = NULL, base = NULL, ncores = NULL, ...)
@@ -25,7 +25,7 @@ fit_aitchison(W, X = NULL, tuning = NULL, perturbation = NULL,
 \item{...}{additional arguments to be supplied to the network function}
 }
 \description{
-This function estimates the LNM model fit from Xia et al.
+This function estimates the parameters of the log-ratio model
 }
 \author{
 Bryan Martin

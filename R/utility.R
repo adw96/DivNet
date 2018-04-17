@@ -44,7 +44,7 @@ get_mu <- function(out, X = NULL) {
   }
 }
 
-#' getPurt
+#' get_perturbation
 #'
 #' This function purturbates a row of the raw count matrix. Likely will not be used directly.
 #'
@@ -52,20 +52,20 @@ get_mu <- function(out, X = NULL) {
 #' @param base base OTU value
 #' @param perturbation how much to purturb zero counts, defaults to 0.05
 #'
-getPurt <- function(Wi, base, perturbation = 0.05) {
+get_perturbation <- function(Wi, base, perturbation = 0.05) {
   zeros <- which(Wi == 0)
   nz <- length(zeros)
   Q <- length(Wi)
-  Z.purt <- rep(0, Q)
+  Z_purt <- rep(0, Q)
   if (nz != 0) {
-    Z.purt[zeros] <- (Wi[zeros] + perturbation)/(sum(Wi) + perturbation * nz)
-    Z.purt[-zeros] <- (Wi[-zeros])/(sum(Wi) + perturbation * nz)
+    Z_purt[zeros] <- (Wi[zeros] + perturbation)/(sum(Wi) + perturbation * nz)
+    Z_purt[-zeros] <- (Wi[-zeros])/(sum(Wi) + perturbation * nz)
   } else {
-    Z.purt <- Wi/sum(Wi)
+    Z_purt <- Wi/sum(Wi)
   }
   
-  # Return Y.purt
-  return(log(Z.purt[-base]/Z.purt[base]))
+  # Return Y_purt
+  return(log(Z_purt[-base]/Z_purt[base]))
 }
 
 #' acomb3
@@ -78,6 +78,5 @@ acomb3 <- function(...) abind(..., along = 3)
 
 pick_base <- function(W) {
   taxa_sums <- colSums(W)
-  #which(rank(taxa_sums) == max(rank(taxa_sums)))[1]
   which.max(taxa_sums)
 }

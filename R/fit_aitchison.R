@@ -1,6 +1,6 @@
-#' LNM.EM
+#' fit_aitchison
 #'
-#' This function estimates the LNM model fit from Xia et al.
+#' This function estimates the parameters of the log-ratio model
 #' 
 #' @author Bryan Martin
 #' @author Amy Willis
@@ -14,7 +14,6 @@
 #' @param ncores number of cores to use for MH sampling, defaults to 1
 #' @param ... additional arguments to be supplied to the network function
 #' 
-#' @importFrom magrittr "%>%"
 #' @export
 fit_aitchison <- function(W, 
                           X = NULL, 
@@ -24,7 +23,8 @@ fit_aitchison <- function(W,
                           base = NULL,
                           ncores = NULL,
                           ...) {
-  W <- as.matrix(W)
+  #W <- as.matrix(W)
+  class(W) <- "matrix"
   output_list <- list()
   
   ### ROWS COLUMNS N is samples, Q is OTUs
@@ -35,9 +35,12 @@ fit_aitchison <- function(W,
   if (is.null(X)) {
     X <- matrix(1, nrow=N, ncol=1)
   }
+  if (length(X) == N) {
+    X <- matrix(X, nrow=N, ncol=1)
+  }
   # if an intercept to column is included in the covariate matrix, remove it
-  intercept_columns <- apply(X, 2, function(x) max(x) == min(x))
-  X <- X[ , -intercept_columns] %>% as.matrix
+  intercept_columns <- apply(X, 2, function(x) max(x) != min(x))
+  X <- X[ , intercept_columns] %>% as.matrix
   
   output_list$X <- X
   no_covariates <- ncol(X) == 0
@@ -49,16 +52,16 @@ fit_aitchison <- function(W,
   
   # take log ratio, adding perturbation term to zero counts 
   if (is.null(perturbation)) perturbation <- 0.05
-  Y.p <- toLogRatios(W = W, base = base, perturbation = perturbation) # (N x Q-1) 
+  Y_p <- to_log_ratios(W = W, base = base, perturbation = perturbation) # (N x Q-1) 
   
   # initialize EM algorithm
-  b0 <- colMeans(Y.p)
+  b0 <- colMeans(Y_p)
   eY <- tcrossprod(rep(1, N), b0) 
   if (!no_covariates)  {
-    b <- OLS(X, Y.p)
+    b <- OLS(X, Y_p)
     eY <- eY + X %*% b
   }
-  sigma <- var(Y.p - eY) # (Q-1) x (Q-1)
+  sigma <- var(Y_p - eY) # (Q-1) x (Q-1)
   
   
 
@@ -90,44 +93,44 @@ fit_aitchison <- function(W,
   
   
   ## set up storage for EM algorithm
-  #b0.list <- b0
-  b0.list <- matrix(0, nrow = EMiter + 1, ncol = length(b0))
-  b0.list[1,] <- b0
+  #b0_list <- b0
+  b0_list <- matrix(0, nrow = EMiter + 1, ncol = length(b0))
+  b0_list[1,] <- b0
   if (!no_covariates) {
     if (is.matrix(b)) {
-      b.list <- array(0, dim = c(dim(b), EMiter + 1))
-      b.list[,, 1] <- b
+      b_list <- array(0, dim = c(dim(b), EMiter + 1))
+      b_list[,, 1] <- b
     } else {
-      b.list <- matrix(0, nrow = length(b), ncol = EMiter + 1)
-      b.list[, 1] <- b
+      b_list <- matrix(0, nrow = length(b), ncol = EMiter + 1)
+      b_list[, 1] <- b
     }
   }
   
   
   # sigma's by arraw, acomb3
-  sigma.list <- array(0, dim = c(dim(sigma), EMiter + 1))
-  sigma.list[,, 1] <- sigma
-  accept.list <- matrix(0, nrow = EMiter, ncol = N)
+  sigma_list <- array(0, dim = c(dim(sigma), EMiter + 1))
+  sigma_list[, , 1] <- sigma
+  accept_list <- matrix(0, nrow = EMiter, ncol = N)
   
   # start EM algorithm
   pb <- utils::txtProgressBar(min = 0, max = EMiter, style = 3)
   for (em in 1:EMiter) {
     utils::setTxtProgressBar(pb, em-1)
     #start <- proc.time()
-    
+
     # MC step
-    MCarray <- MCmat(Y = Y.p, W = W, eY = eY, N = N, Q = Q, base = base, sigma = sigma, MCiter = MCiter, 
+    MCarray <- MCmat(Y = Y_p, W = W, eY = eY, N = N, Q = Q, base = base, sigma = sigma, MCiter = MCiter, 
                      stepsize = stepsize, network = network, ncores = ncores, ...)
     
     # MC burn-in
     burnt <- MCarray[(MCburn + 1):MCiter, , ]
     
-    Y.new <- t(apply(burnt, 3, colMeans))
-    accepts <- Y.new[, 1] #  first column is acceptance ratio
-    Y.new <- Y.new[, 2:Q]
+    Y_new <- t(apply(burnt, 3, colMeans))
+    accepts <- Y_new[, 1] #  first column is acceptance ratio
+    Y_new <- Y_new[, 2:Q]
     
     # update b0, means across OTUs
-    b0 <- apply(Y.new, 2, mean)
+    b0 <- apply(Y_new, 2, mean)
     
     # update sigma
     sigSumFun <- function(i) {
@@ -139,57 +142,57 @@ fit_aitchison <- function(W,
     # update b
     eY <- tcrossprod(rep(1, N), b0) 
     if (!no_covariates)  {
-      b <- OLS(X, Y.new)
+      b <- OLS(X, Y_new)
       eY <- eY + X %*% b
     }
     
     ### STORE after updating
     ## @Bryan TODO: can this be cleaned up?
-    accept.list[em,] <- accepts
-    #b0.list <- rbind(b0.list, b0)
-    b0.list[em + 1,] <- b0
+    accept_list[em,] <- accepts
+    #b0_list <- rbind(b0_list, b0)
+    b0_list[em + 1,] <- b0
     if (!no_covariates) {
       if (is.matrix(b)) {
-        b.list[,, em + 1] <- b
+        b_list[,, em + 1] <- b
       } else {
-        b.list[, em + 1] <- b
+        b_list[, em + 1] <- b
       }
     }
-    sigma.list[,, em + 1] <- sigma
+    sigma_list[,, em + 1] <- sigma
     #end <- proc.time()
   }
   utils::setTxtProgressBar(pb, EMiter)
   cat("\n")
   
   ## Next: take average of EM samples past burn. Included init, so have EMiter+1 total 
-  b0.EM <- colMeans(b0.list[(EMburn + 1):(EMiter + 1), ])
+  b0_EM <- colMeans(b0_list[(EMburn + 1):(EMiter + 1), ])
   
-  output_list$beta0 <- b0.EM
+  output_list$beta0 <- b0_EM
   
   ### fitted value of Y
   if (no_covariates) {
-    fitted_y <- matrix(b0.EM, ncol = Q-1, nrow = N, byrow=T)
+    fitted_y <- matrix(b0_EM, ncol = Q-1, nrow = N, byrow=T)
   } else {
-    b.list.reduced <- b.list[, , (EMburn + 1):(EMiter + 1)] 
+    b_list_reduced <- b_list[, , (EMburn + 1):(EMiter + 1)] 
     
-    if (length(dim(b.list.reduced)) == 2) {
-      b.list.reduced <- b.list.reduced %>% array(c(1, dim(b.list.reduced)))
+    if (length(dim(b_list_reduced)) == 2) {
+      b_list_reduced <- b_list_reduced %>% array(c(1, dim(b_list_reduced)))
     }
     
-    b.EM <- apply(b.list.reduced, c(1, 2), mean)
-    output_list$beta <- b.EM
+    b_EM <- apply(b_list_reduced, c(1, 2), mean)
+    output_list$beta <- b_EM
     
-    fitted_y <- X %*% b.EM + matrix(b0.EM, ncol = Q-1, nrow = N, byrow=T)
+    fitted_y <- X %*% b_EM + matrix(b0_EM, ncol = Q-1, nrow = N, byrow=T)
     
   }
   
   # burn-in sigma and take average; fine b/c class of positive def matrices is closed under addition
-  sigma.EM <- apply(sigma.list[, , (EMburn + 1):(EMiter + 1)], c(1, 2), mean)
+  sigma_em <- apply(sigma_list[, , (EMburn + 1):(EMiter + 1)], c(1, 2), mean)
   
   # store parameters
-  output_list$sigma <- sigma.EM
+  output_list$sigma <- sigma_em
   output_list$fitted_y <- fitted_y
-  output_list$fitted_z <- toCompositionMatrix(fitted_y, base=base)
+  output_list$fitted_z <- to_composition_matrix(fitted_y, base=base)
   
   output_list
 }

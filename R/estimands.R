@@ -93,6 +93,6 @@ euclidean_true <- function(p1s, p2s = NULL) {
 #' 
 #' @export
 calculate_alpha <- function(mu, my_function) {
-  apply(mu %>% toCompositionMatrix, 1, my_function)
+  apply(mu %>% to_composition_matrix, 1, my_function)
 }
 

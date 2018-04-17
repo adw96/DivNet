@@ -14,6 +14,7 @@
 #' @param nsub TODO
 #' @param ... TODO
 #' 
+#' @importFrom magrittr "%>%"
 #' 
 #' @author Amy Willis
 #' 
@@ -30,6 +31,25 @@ divnet <-  function(W,
                     B = 5,
                     nsub = NULL,
                     ...) {
+  
+  if ("phyloseq" %in% class(W)) {
+    
+    input_data <- W
+    
+    W <- input_data %>% otu_table %>% as.matrix 
+    if (taxa_are_rows(input_data)) W <- W %>% t
+    
+    # make the design matrix
+    if (is.character(X)) {
+      predictors <- input_data %>% sample_data %>% get_variable(X)
+      X <- model.matrix( ~., data = predictors)
+      
+    }
+  }
+  
+  # remove taxa that weren't observed 
+  # yes, this is a good idea
+  W <- W[ , which(colSums(W) > 0)]
   
   if (is.null(fitted_model)) {
     fitted_model <- fit_aitchison(W, 
@@ -153,7 +173,7 @@ nonparametric_variance <- function(W,
   eY[curly_b, ] <- fitted_model$X %*% fitted_model$beta + 
     matrix(fitted_model$beta0 , ncol = ncol(W)-1, nrow = nsub, byrow=T)
   
-  toCompositionMatrix(Y=eY, base=base) %>% get_diversities
+  to_composition_matrix(Y=eY, base=base) %>% get_diversities
 }
 
 

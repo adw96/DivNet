@@ -1,4 +1,4 @@
-#' toComposition
+#' to_composition
 #'
 #' This function transforms a vector of logratios Y to a composition matrix X
 #'
@@ -8,7 +8,7 @@
 #' @importFrom R.utils insert
 #'
 #' @export
-toComposition <- function(Y, base = NULL) {
+to_composition <- function(Y, base = NULL) {
   
   stopifnot(!is.array(Y))
   
@@ -22,7 +22,7 @@ toComposition <- function(Y, base = NULL) {
   numerators / denominator
 }
 
-#' toCompositionMatrix
+#' to_composition_matrix
 #'
 #' This function transforms a logratio matrix Y to a composition matrix X
 #'
@@ -30,7 +30,7 @@ toComposition <- function(Y, base = NULL) {
 #' @param base base taxon used to calculate logratios
 #'
 #' @export
-toCompositionMatrix <- function(Y, base = NULL) {
+to_composition_matrix <- function(Y, base = NULL) {
   if (is.null(base)) base <- (ncol(Y) + 1)
   
   
@@ -40,7 +40,7 @@ toCompositionMatrix <- function(Y, base = NULL) {
   out / rowSums(out)
 }
 
-#' toLogRatios
+#' to_log_ratios
 #'
 #' This function transforms from count data to logratios
 #'
@@ -49,21 +49,17 @@ toCompositionMatrix <- function(Y, base = NULL) {
 #' @param perturbation how much to purturb zero counts, defaults to 0.05
 #'
 #' @export
-toLogRatios <- function(W, base, perturbation = 0.05) {
+to_log_ratios <- function(W, base, perturbation = 0.05) {
   stopifnot(is.matrix(W))
   
-  # W <- as.matrix(W)
-  # get purturbed Y, apply returns arguments as columns CHECK: Apply forces transpose. Worth it?
-  # Y.purt <- t(apply(W, 1, getPurt, base = base, perturbation = perturbation))
-  # attr(Y.purt, "center") = apply(Y.purt, 2, mean)
   tmp <- pmax(W, perturbation)
   Ztmp <- tmp/rowSums(tmp)
-  Y.purt <- log(Ztmp[,-base]/Ztmp[,base])
-  return(Y.purt)
+  Y_purterbed <- log(Ztmp[,-base]/Ztmp[,base])
+  return(Y_purterbed)
 }
 
 
-#' toCounts
+#' to_counts
 #'
 #' This function transforms logratio matrix Y to counts W
 #'
@@ -72,11 +68,10 @@ toLogRatios <- function(W, base, perturbation = 0.05) {
 #' @param base base value used to calculate logratios
 #'
 #' @export
-toCounts <- function(Y, M, base) {
+to_counts <- function(Y, M, base) {
   N <- nrow(Y)
   Q <- ncol(Y) + 1
   exp_Y <- exp(Y)
-  #sum_exp_Y <- apply(exp_Y, 1, sum)
   sum_exp_Y <- rowSums(exp_Y)
   X <- matrix(0, N, Q)
   X[,-base] <- exp_Y/(sum_exp_Y + 1)
@@ -92,13 +87,13 @@ toCounts <- function(Y, M, base) {
   return(W)
 }
 
-#' makeComp
+#' make_composition
 #'
 #' This function calculates the observed composition from raw counts
 #'
 #' @param W raw count matrix, with OTUs as columns
 #'
 #' @export
-makeComp <- function(W) {
+make_composition <- function(W) {
   return(W/rowSums(W))
 }

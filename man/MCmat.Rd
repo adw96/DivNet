@@ -26,7 +26,7 @@ MCmat(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1,
 
 \item{stepsize}{variance used for MH samples, defaults to 1. Tweak to adjust acceptance ratio}
 
-\item{perturbation}{size of purturbation used for toLogRatios, defaults to 0.05}
+\item{perturbation}{size of purturbation used for to_log_ratios, defaults to 0.05}
 
 \item{network}{How to estimate network. Defaults to "default" (generalised inverse, aka naive). Other options include "diagonal", or a function that takes a sample covariance matrix and returns an estimate of the inverse covariance matrix (eg glasso or SpiecEasi)}
 
