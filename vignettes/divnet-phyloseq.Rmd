@@ -1,0 +1,44 @@
+---
+title: "Analysing phyloseq object with DivNet"
+author: "Amy Willis"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{getting-started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+## Vignette Info
+  
+WARNING: DivNet can be computationally expensive when analysing many taxa. Start with sub-setting taxa, or analysing at a higher taxonomic level than ASVs,  to start. Here is an example of the syntax for analysing biological replicates of a Mock community
+
+```{r, results="hide"}
+library(magrittr)
+library(phyloseq)
+data(GlobalPatterns)
+
+library(DivNet)
+
+gp <- GlobalPatterns %>% 
+  subset_samples(SampleType == "Mock") %>%
+  subset_taxa(Order=="Cenarchaeales") %>% 
+  divnet(ncores = 4)
+```
+
+```{r}
+gp
+```
+
+So the Shannon diversity is estimated to be 1.87 with variance 0.10. Let's compare that with the plug-in estimate:
+
+```{r}
+GlobalPatterns %>% 
+  subset_samples(SampleType == "Mock") %>%
+  subset_taxa(Order=="Cenarchaeales") %>% 
+  estimate_richness(measures = "Shannon")
+```
+
+You will notice that the plug-in  estimates of Shannon diversity are different for each sample, and are lower. By sharing information across replicates, DivNet can do far better than individual estimates such as this one.
+
+## More soon!
