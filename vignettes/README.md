@@ -1,0 +1,1 @@
+Currently we have basic vignettes regarding DivNet and using it on phyloseq objects. We plan to make more vignettes as we better understand what users of DivNet are likely to need. Feel free to log a feature request under Issues if there is something you would like to see but don't.
