@@ -23,8 +23,6 @@ fit_aitchison <- function(W,
                           base = NULL,
                           ncores = NULL,
                           ...) {
-  #W <- as.matrix(W)
-  class(W) <- "matrix"
   output_list <- list()
   
   ### ROWS COLUMNS N is samples, Q is OTUs

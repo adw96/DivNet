@@ -80,3 +80,9 @@ pick_base <- function(W) {
   taxa_sums <- colSums(W)
   which.max(taxa_sums)
 }
+
+#' @export
+make_design_matrix <- function(phyloseq_object, variables) {
+  predictors <- phyloseq_object %>% sample_data %>% get_variable(variables)
+  model.matrix( ~predictors, data = predictors)
+}

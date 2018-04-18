@@ -1,3 +1,6 @@
+library(DivNet)
+context("Test output")
+
 set.seed(1)
 my_counts <- matrix(rpois(30, lambda=10), nrow = 6)
 my_counts
@@ -40,8 +43,27 @@ test_that("nonparametric variances", {
                    nsub = 3, B = 2, tuning="test"), "list")
   
 })
+test_that("parallel works", {
+  expect_is(divnet(my_counts, my_covariate, 
+                   variance="parametric",
+                   nsub = 3, B = 2, ncores = 4,
+                   tuning="test"), "list")
+  expect_is(divnet(my_counts, my_covariate, 
+                   variance="nonparametric", ncores = 4,
+                   nsub = 3, B = 2, tuning="test"), "list")
+  
+})
 
 test_that("arguments are fine", {
   expect_is(divnet(my_counts, my_covariate,
-                      base = 2, tuning="test"), "list")
+                      base = 2, perturbation = 0.01, tuning="test"), "list")
+})
+
+
+test_that("phyloseq integration", {
+  data(Lee)
+  expect_is(tax_glom(Lee, taxrank="Phylum") %>% 
+              divnet(tuning = "test"), "list")
+  expect_is(tax_glom(Lee, taxrank="Phylum") %>% 
+              divnet(X = "char", tuning = "test"), "list")
 })

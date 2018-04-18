@@ -36,16 +36,16 @@ divnet <-  function(W,
     
     input_data <- W
     
-    W <- input_data %>% otu_table %>% as.matrix 
+    W <- input_data %>% otu_table %>% as.matrix
+    suppressWarnings({class(W) <- "matrix"})
+    
     if (taxa_are_rows(input_data)) W <- W %>% t
     
     samples_names <- input_data %>% sample_names
     
     # make the design matrix
     if (is.character(X)) {
-      predictors <- input_data %>% sample_data %>% get_variable(X)
-      X <- model.matrix( ~., data = predictors)
-      
+      X <- make_design_matrix(input_data, X)
     }
   } else {
     samples_names <- rownames(W)
