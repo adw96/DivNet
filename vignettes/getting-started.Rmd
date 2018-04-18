@@ -1,0 +1,100 @@
+---
+title: "Getting started with DivNet"
+author: "Amy Willis"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{getting-started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Vignette Info
+
+This vignette will lead you through
+
+- loading the package
+- the syntax needed for DivNet to run
+- interpreting the output
+- inference using DivNet
+
+If there is something that you would like explained please feel free to request it!
+
+## Loading the package and data
+
+Download the latest version of the package from github.
+
+```{r}
+### Run the first two lines at home! ####
+# install.packages("devtools")
+# devtools::install_github("adw96/DivNet")
+library(DivNet)
+```
+
+Amy loathes dealing with the CRAN  moderators, so for the foreseeable future, this package will be available via github only. Bryan is a good sport though, so it may go up there at some point.
+
+## Running DivNet
+
+We're going to create a fake mini dataset to illustrate the syntax. If you want to learn about the phyloseq syntax, check out the phyloseq vignette.
+
+The first argument in the syntax is a matrix or data frame containing the matrix of taxa abundances. The samples must be listed in the rows, and the taxa must be listed through the columns, like this:
+
+```{r, echo=TRUE}
+set.seed(1)
+my_counts <- matrix(rpois(30, lambda=10), nrow = 6)
+rownames(my_counts) <- paste("Sample", 1:6, sep = "")
+colnames(my_counts) <- paste("Taxon", 1:5, sep = "")
+
+my_counts
+```
+Note that this is for 6 samples with 5 taxa.
+
+Estimating diversity is then as simple as running the following:
+
+```{r, results="hide"}
+estimated_diversities <- divnet(my_counts)
+```
+
+```{r, echo=TRUE}
+estimated_diversities
+```
+
+## Speeding up DivNet
+
+If you have multiple cores on your computer, you can run one of the commutationally intense steps of the algorithm in parallel by specifying the number of cores you want to use:
+
+```{r, results="hide"}
+estimated_diversities <- divnet(my_counts, ncores = 4)
+```
+
+
+## Running DivNet with covariates
+
+We're going to create a fake mini dataset to illustrate the abundance table + covariates syntax. Suppose that the first 3 observations belong to one group (e.g., untreated) and the second 3 observations belong to another group (e.g., treated). Our covariate matrix would then look like this:
+
+```{r}
+my_covariate <- cbind(1, rep(c(0,1), each = 3))
+my_covariate
+```
+
+Alternatively, if you had a vector specifying the groups, you could turn it into this matrix in the following way
+
+```{r}
+tmt <- rep(c("untreated", "treated"), each = 3)
+my_covariate <- model.matrix( ~., data = as.data.frame(tmt))
+```
+
+This matrix becomes the second argument to DivNet
+```{r, results="hide"}
+estimated_diversities_tmt <- divnet(my_counts, 
+                                X = my_covariate,
+                                ncores = 4)
+```
+
+```{r}
+estimated_diversities_tmt
+```
+
+## Interpretation
+
+Coming soon
