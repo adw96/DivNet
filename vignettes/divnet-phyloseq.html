@@ -76,7 +76,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <div id="vignette-info" class="section level2">
 <h2>Vignette Info</h2>
-<p>WARNING: DivNet can be computationally expensive when analysing many taxa. Start with sub-setting taxa, or analysing at a higher taxonomic level than ASVs, to start. Here is an example of the syntax for analysing biological replicates of a Mock community</p>
+<p>WARNING: DivNet can be computationally expensive when analysing many taxa. Start with sub-setting taxa, or analysing at a higher taxonomic level than ASVs, to start. Here is an example of the syntax for analysing biological replicates of a Mock community within a single order.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(magrittr)
 <span class="kw">library</span>(phyloseq)
 <span class="kw">data</span>(GlobalPatterns)
@@ -92,11 +92,11 @@ gp &lt;-<span class="st"> </span>GlobalPatterns %&gt;%<span class="st"> </span>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gp</code></pre></div>
 <pre><code>## $shannon
 ##    Even1    Even2    Even3 
-## 1.861423 1.861423 1.861423 
+## 1.877724 1.877724 1.877724 
 ## 
 ## $simpson
 ##    Even1    Even2    Even3 
-## 0.181337 0.181337 0.181337 
+## 0.176952 0.176952 0.176952 
 ## 
 ## $`bray-curtis`
 ##       Even1 Even2 Even3
@@ -112,17 +112,17 @@ gp &lt;-<span class="st"> </span>GlobalPatterns %&gt;%<span class="st"> </span>
 ## 
 ## $`shannon-variance`
 ##      Even1      Even2      Even3 
-## 0.09398544 0.09398544 0.09398544 
+## 0.03963913 0.03963913 0.03963913 
 ## 
 ## $`simpson-variance`
-##      Even1      Even2      Even3 
-## 0.01482171 0.01482171 0.01482171 
+##       Even1       Even2       Even3 
+## 0.003692422 0.003692422 0.003692422 
 ## 
 ## $`bray-curtis-variance`
-##              Even1        Even2        Even3
-## Even1 9.860761e-33 9.860761e-33 9.860761e-33
-## Even2 9.860761e-33 9.860761e-33 9.860761e-33
-## Even3 9.860761e-33 9.860761e-33 9.860761e-33
+##       Even1 Even2 Even3
+## Even1     0     0     0
+## Even2     0     0     0
+## Even3     0     0     0
 ## 
 ## $`euclidean-variance`
 ##       Even1 Even2 Even3

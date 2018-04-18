@@ -11,7 +11,7 @@ vignette: >
   
 ## Vignette Info
   
-WARNING: DivNet can be computationally expensive when analysing many taxa. Start with sub-setting taxa, or analysing at a higher taxonomic level than ASVs,  to start. Here is an example of the syntax for analysing biological replicates of a Mock community
+WARNING: DivNet can be computationally expensive when analysing many taxa. Start with sub-setting taxa, or analysing at a higher taxonomic level than ASVs,  to start. Here is an example of the syntax for analysing biological replicates of a Mock community within a single order.
 
 ```{r, results="hide"}
 library(magrittr)
