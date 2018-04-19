@@ -13,9 +13,10 @@ Imports:
     MASS,
     mvnfast,
     R.utils,
-    stats
-Suggests:
+    stats,
     doParallel,
+    utils
+Suggests:
     doSNOW,
     glasso,
     knitr, 
