@@ -13,7 +13,8 @@ Imports:
     MASS,
     mvnfast,
     R.utils,
-    stats
+    stats,
+    breakaway
 Suggests:
     doParallel,
     doSNOW,
