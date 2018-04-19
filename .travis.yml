@@ -8,6 +8,9 @@ cache: packages
 
 r_github_packages:
   - zdk123/SpiecEasi
+  
+bioc_packages:
+  - phyloseq
 env:
   - R_KEEP_PKG_SOURCE=yes
   - _R_S3_METHOD_LOOKUP_BASEENV_AFTER_GLOBALENV_=true
