@@ -44,7 +44,7 @@ By taking advantage of biological replicates and covariate information, DivNet w
 
 ## Using DivNet
 
-It's tempting to jump right in and run `divnet(Lee)`. I don't know what computer you are on, but mine would explode. DivNet gets more expensive as the number of taxa increases. For this reason, were going to analyse the data at a higher taxonomic level than ASVs. Let's look at the phylum level. 
+It's tempting to jump right in and run `divnet(Lee)`, but DivNet gets more expensive as the number of taxa increases. For this reason, were going to analyse the data at a higher taxonomic level than ASVs. Let's look at the phylum level (just to illustrate!).  
 
 ```{r}
 lee_phylum <- tax_glom(Lee, taxrank="Phylum") 
@@ -78,7 +78,7 @@ and the variance of the estimate is
 divnet_phylum$`shannon-variance`
 ```
 
-Why are the estimates of the same? We didn't tell DivNet about any covariate information, so it just assumes that all the samples are from the same population. But we have information about the samples and the conditions under which they observed:
+Why are the estimates all the same? We didn't tell DivNet about any covariate information, so it just assumes that all the samples are from the same population. But we have information about the samples and the conditions under which they observed:
 
 ```{r}
 lee_phylum %>% sample_data
@@ -109,6 +109,12 @@ ggplot(shannon_estimates, aes(x = char)) +
                      ymax = DivNet.est + 2*sqrt(DivNet.var)), col = "blue")+
   xlab("Basalt characteristic") +
   ylab("Shannon diversity estimate\n(phylum level)")
+# 
+# plot_bar(tax_glom(Lee, taxrank="Phylum"), x = "char", facet_grid = ~Phylum)
+# plot_bar(Lee, fill="Phylum")
+# Lee %>%
+#   transform_sample_counts(function(x){x/sum(x)}) %>%
+#     plot_bar(fill="Phylum")
 ```
 
 You will notice that the plug-in  estimates of Shannon diversity are different for each sample, but there is only a single DivNet estimate for each  characteristic (along with error bars). For characteristics for which many samples were observed, there are smaller error bars than for samples for which there was only one sample (seems reasonable -- we had less data). 
