@@ -8,6 +8,8 @@ get_mu(out, X = NULL)
 }
 \arguments{
 \item{out}{model fit from LNM.EM or LNM.EM.nocov}
+
+\item{X}{optional covariates}
 }
 \description{
 Function to get mu from model output

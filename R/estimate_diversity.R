@@ -36,12 +36,12 @@ divnet <-  function(W,
     
     input_data <- W
     
-    W <- input_data %>% otu_table %>% as.matrix
+    W <- input_data %>% phyloseq::otu_table %>% as.matrix
     suppressWarnings({class(W) <- "matrix"})
     
-    if (taxa_are_rows(input_data)) W <- W %>% t
+    if (phyloseq::taxa_are_rows(input_data)) W <- W %>% t
     
-    samples_names <- input_data %>% sample_names
+    samples_names <- input_data %>% phyloseq::sample_names
     
     # make the design matrix
     if (is.character(X)) {

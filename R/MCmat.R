@@ -38,7 +38,8 @@ MCmat <- function(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1, perturbatio
       stop("Cannot use supplied network option?")
     }
   }
-  
+  # Global variables check fix
+  i <- NULL
   MH_path <- function(i) {
     MCrow(Yi = Y[i, ], Wi = W[i, ], eYi = eY[i, ], Q = Q, base = base, sigInv = sigInv, MCiter = MCiter, 
           stepsize = stepsize)
@@ -51,7 +52,7 @@ MCmat <- function(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1, perturbatio
     ####################
     # Parallel option ##
     ####################
-    registerDoParallel(cores=min(ncores, detectCores()))
+    registerDoParallel(cores = min(ncores, parallel::detectCores()))
     Y.MH <-  foreach(i = 1:N, .combine = "acomb3", .multicombine = TRUE) %dopar% {
       MH_path(i)
     }
@@ -60,7 +61,7 @@ MCmat <- function(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1, perturbatio
     ####################
     ## Series option ###
     ####################
-    Y.MH <-  foreach(i=1:N, .combine='acomb3', .multicombine=TRUE, .packages="foreach") %do% {
+    Y.MH <-  foreach(i = 1:N, .combine = 'acomb3', .multicombine = TRUE, .packages = "foreach") %do% {
       MH_path(i)
     }
   }
@@ -86,6 +87,13 @@ default_network <- function(sigma) {
 }
 
 #' stars
+#' 
+#' @param sigma current estimate of sigma
+#' @param W corresponding count matrix
+#' @param base OTU index used for base
+#' @param perturbation size of purturbation used for to_log_ratios, defaults to 0.05
+#' @param network How to estimate network. Defaults to "default" (generalised inverse, aka naive). Other options include "diagonal", or a function that takes a sample covariance matrix and returns an estimate of the inverse covariance matrix (eg glasso or SpiecEasi)
+#' @param ncores number of cores to use, defaults to 1
 #' 
 #' Estimate the network using the package SpiecEasi
 stars <- function(sigma, W, base, perturbation, ncores) {

@@ -33,6 +33,7 @@ OLS <- function(X, Y) {
 #' Function to get mu from model output
 #'
 #' @param out model fit from LNM.EM or LNM.EM.nocov
+#' @param X optional covariates
 #'
 #'
 get_mu <- function(out, X = NULL) {
@@ -81,8 +82,14 @@ pick_base <- function(W) {
   which.max(taxa_sums)
 }
 
+
+#' Make design matrix
+#' 
+#' @param phyloseq_object A phyloseq object
+#' @param variables variable names
+#' 
 #' @export
 make_design_matrix <- function(phyloseq_object, variables) {
-  predictors <- phyloseq_object %>% sample_data %>% get_variable(variables)
+  predictors <- phyloseq_object %>% phyloseq::sample_data %>% phyloseq::get_variable(variables)
   model.matrix( ~predictors, data = predictors)
 }

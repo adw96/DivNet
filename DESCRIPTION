@@ -28,7 +28,6 @@ Suggests:
     SpiecEasi,
     testthat,
     phyloseq,
-    breakaway,
     ggplot2,
     R.rsp
 Encoding: UTF-8

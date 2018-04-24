@@ -136,6 +136,9 @@ fit_aitchison <- function(W,
     # update b0, means across OTUs
     b0 <- apply(Y_new, 2, mean)
     
+    # Add for global variables check
+    i <- NULL
+    
     # update sigma
     sigSumFun <- function(i) {
       return(crossprod(t(MCarray[i, 2:Q, 1:N]) - eY))
