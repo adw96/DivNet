@@ -1,12 +1,11 @@
 ---
-title: "Analysing phyloseq object with DivNet"
+title: "Analysing phyloseq objects with DivNet"
 author: "Amy Willis"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: pdf_document
 vignette: >
-  %\VignetteIndexEntry{getting-started}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Analysing phyloseq objects}
+  %\VignetteEncoding[utf8]{inputenc}
 ---
   
 ## Vignette Info
