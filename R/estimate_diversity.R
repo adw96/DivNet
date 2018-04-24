@@ -15,6 +15,8 @@
 #' @param ... TODO
 #' 
 #' @importFrom magrittr "%>%"
+#' @importFrom phyloseq otu_table
+#' @importFrom phyloseq sample_names
 #' 
 #' @author Amy Willis
 #' 
@@ -36,12 +38,12 @@ divnet <-  function(W,
     
     input_data <- W
     
-    W <- input_data %>% phyloseq::otu_table %>% as.matrix
+    W <- input_data %>% otu_table %>% as.matrix
     suppressWarnings({class(W) <- "matrix"})
     
     if (phyloseq::taxa_are_rows(input_data)) W <- W %>% t
     
-    samples_names <- input_data %>% phyloseq::sample_names
+    samples_names <- input_data %>% sample_names
     
     # make the design matrix
     if (is.character(X)) {

@@ -43,16 +43,19 @@ test_that("nonparametric variances", {
                    nsub = 3, B = 2, tuning="test"), "list")
   
 })
-test_that("parallel works", {
-  expect_is(divnet(my_counts, my_covariate, 
-                   variance="parametric",
-                   nsub = 3, B = 2, ncores = 4,
-                   tuning="test"), "list")
-  expect_is(divnet(my_counts, my_covariate, 
-                   variance="nonparametric", ncores = 4,
-                   nsub = 3, B = 2, tuning="test"), "list")
-  
-})
+
+# This cannot be tested with Travis or CRAN
+# 
+# test_that("parallel works", {
+#   expect_is(divnet(my_counts, my_covariate, 
+#                    variance="parametric",
+#                    nsub = 3, B = 2, ncores = 4,
+#                    tuning="test"), "list")
+#   expect_is(divnet(my_counts, my_covariate, 
+#                    variance="nonparametric", ncores = 4,
+#                    nsub = 3, B = 2, tuning="test"), "list")
+#   
+# })
 
 test_that("arguments are fine", {
   expect_is(divnet(my_counts, my_covariate,
@@ -62,8 +65,8 @@ test_that("arguments are fine", {
 
 test_that("phyloseq integration", {
   data(Lee)
-  expect_is(tax_glom(Lee, taxrank="Phylum") %>% 
+  expect_is(phyloseq::tax_glom(Lee, taxrank="Phylum") %>% 
               divnet(tuning = "test"), "list")
-  expect_is(tax_glom(Lee, taxrank="Phylum") %>% 
+  expect_is(phyloseq::tax_glom(Lee, taxrank="Phylum") %>% 
               divnet(X = "char", tuning = "test"), "list")
 })

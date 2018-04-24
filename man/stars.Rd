@@ -18,8 +18,6 @@ stars(sigma, W, base, perturbation, ncores)
 \item{ncores}{number of cores to use, defaults to 1
 
 Estimate the network using the package SpiecEasi}
-
-\item{network}{How to estimate network. Defaults to "default" (generalised inverse, aka naive). Other options include "diagonal", or a function that takes a sample covariance matrix and returns an estimate of the inverse covariance matrix (eg glasso or SpiecEasi)}
 }
 \description{
 stars

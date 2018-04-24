@@ -92,7 +92,6 @@ default_network <- function(sigma) {
 #' @param W corresponding count matrix
 #' @param base OTU index used for base
 #' @param perturbation size of purturbation used for to_log_ratios, defaults to 0.05
-#' @param network How to estimate network. Defaults to "default" (generalised inverse, aka naive). Other options include "diagonal", or a function that takes a sample covariance matrix and returns an estimate of the inverse covariance matrix (eg glasso or SpiecEasi)
 #' @param ncores number of cores to use, defaults to 1
 #' 
 #' Estimate the network using the package SpiecEasi
