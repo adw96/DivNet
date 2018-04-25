@@ -2,8 +2,7 @@
 DivNet
 =========
 
-
-[![Build Status](https://travis-ci.org/adw96/DivNet.svg?branch=master)](https://travis-ci.org/adw96/DivNet.svg?branch=master)
+[![Build Status](https://travis-ci.org/adw96/DivNet.svg?branch=master)](https://travis-ci.org/adw96/DivNet)
 
 
 DivNet is a method to estimate diversity when taxa in the community cooccur via a ecological network.
