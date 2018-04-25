@@ -17,7 +17,8 @@ Imports:
     stats,
     breakaway,
     doParallel,
-    utils
+    utils,
+    phyloseq
 Suggests:
     doSNOW,
     glasso,
@@ -27,7 +28,6 @@ Suggests:
     rmarkdown,
     SpiecEasi,
     testthat,
-    phyloseq,
     ggplot2,
     R.rsp
 Encoding: UTF-8
