@@ -94,5 +94,5 @@ pick_base <- function(W) {
 #' @export
 make_design_matrix <- function(phyloseq_object, variables) {
   predictors <- phyloseq_object %>% sample_data %>% get_variable(variables)
-  model.matrix( ~predictors, data = predictors)
+  model.matrix( ~predictors, data = predictors %>% as.data.frame)
 }

@@ -106,6 +106,8 @@ divnet <-  function(W,
     variance_estimates <- get_diversity_variance(nonparametric_list, samples_names)
     output_list <- c(output_list, variance_estimates)
   }
+  output_list <- c(output_list, X)
+  class(output_list) <- c("diversityEstimates", class(output_list))
   output_list
 }
 
@@ -226,4 +228,14 @@ parametric_variance <- function(fitted_aitchison,
                                 base = base,
                                 ncores = ncores, ...)
   get_diversities(fitted_model$fitted_z)
+}
+
+print.diversityEstimates <- function(dv, h0 = NULL) {
+  cat("An object of class diversityEstimates with the following elements:\n")
+  sapply(1:length(names(dv)), function(i) { cat("  - ", names(dv)[i], "\n")})
+  cat("An object of class diversityEstimates with the following elements:\n")
+  
+  if (!is.null(h0)) {
+    breakaway::betta(dv[[h0]], dv[[paste(h0, "-variance", sep="")]], dv[[X]])
+  }
 }
