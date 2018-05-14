@@ -8,6 +8,10 @@ cache: packages
 
 r_github_packages:
   - zdk123/SpiecEasi
+  - r-lib/covr
+
+after_success:
+  - Rscript -e 'covr::codecov()'
   
 bioc_packages:
   - phyloseq
