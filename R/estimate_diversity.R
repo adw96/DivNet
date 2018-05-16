@@ -236,6 +236,8 @@ print.diversityEstimates <- function(dv, h0 = NULL) {
   cat("An object of class diversityEstimates with the following elements:\n")
   
   if (!is.null(h0)) {
+    # global variables CMD CHECK fix
+    X <- NULL
     breakaway::betta(dv[[h0]], dv[[paste(h0, "-variance", sep="")]], dv[[X]])
   }
 }
