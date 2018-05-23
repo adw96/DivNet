@@ -1,17 +1,17 @@
 
 #' divnet
 #' 
-#' @param W TODO
-#' @param X TODO
-#' @param fitted_model object produced by fit_aitchison
-#' @param tuning TODO
+#' @param W An abundance table with taxa as columns and samples as rows; or a phyloseq object
+#' @param X The covariate matrix, with samples as rows and variables as columns. Defaults to NULL (samples are biological replicates).
+#' @param fitted_model object produced by fit_aitchison. Defaults to NULL.
+#' @param tuning settings for tuning the MC-MH algorithm. Options include NULL (defaults to "fast"), "fast", "careful" or a named list with components EMiter (number of EM iterations; 6 for fast, 10 for careful), EMburn (number of EM iterations to burn; 3 for fast, 5 for careful), MCiter (number of MC iterations; 500 for fast, 1000 for careful), MCburn (number of MC iterations to burn; 250 for fast, 500 for careful) and stepsize (variance used for MH samples; 0.01 for both fast and careful)
 #' @param perturbation Perturbation magnitude for zero values when calculating logratios.
-#' @param network TODO
+#' @param network How to estimate network. Defaults to NULL (the default), "default" (generalised inverse, aka naive). Other options include "diagonal", "stars" (requires glasso and SpiecEasi to be installed), or a function that you want to use to estimate the network
 #' @param base Base taxon index.
 #' @param ncores Number of cores to use for parallelization
 #' @param variance method to get variance of estimates. Current options are "parametric" for parametric bootstrap, "nonparametric" for nonparametric bootstrap, and "none" for no variance estimates
-#' @param B TODO
-#' @param nsub TODO
+#' @param B Number of bootstrap iterations for estimating the variance.
+#' @param nsub Number of subsamples for nonparametric bootstrap. Defaults to half the number of observed samples.
 #' @param ... TODO
 #' 
 #' @importFrom magrittr "%>%"
@@ -57,6 +57,13 @@ divnet <-  function(W,
   # yes, this is a good idea
   W <- W[ , which(colSums(W) > 0)]
   
+  if (nrow(W) == 1) {
+    stop("DivNet requires more than 1 sample")
+  }
+  if (ncol(W) == 2) {
+    stop("Cannot fit a network model with 2 taxa")
+  }
+  
   if (is.null(fitted_model)) {
     fitted_model <- fit_aitchison(W, 
                                   X = X, 
@@ -88,7 +95,10 @@ divnet <-  function(W,
     
     variance_estimates <- get_diversity_variance(parametric_list, samples_names)
     
-    output_list <- c(output_list, variance_estimates)
+    for(i in 1:length(variance_estimates)) {
+      output_list[[names(variance_estimates)[i]]] <-  variance_estimates[[i]]
+    }
+    
   } else if (variance == "nonparametric") {
     if (is.null(nsub)) nsub <- ceiling(dim(W)[1]/2)
     
@@ -104,10 +114,16 @@ divnet <-  function(W,
                                                            ...), 
                                     simplify=F)
     variance_estimates <- get_diversity_variance(nonparametric_list, samples_names)
-    output_list <- c(output_list, variance_estimates)
+    
+    for(i in 1:length(variance_estimates)) {
+      output_list[[names(variance_estimates)[i]]] <-  variance_estimates[[i]]
+    }
   }
-  output_list <- c(output_list, X)
+  
+  output_list[["X"]] <- X
+
   class(output_list) <- c("diversityEstimates", class(output_list))
+
   output_list
 }
 
@@ -230,12 +246,44 @@ parametric_variance <- function(fitted_aitchison,
   get_diversities(fitted_model$fitted_z)
 }
 
-print.diversityEstimates <- function(dv, h0 = NULL) {
-  cat("An object of class diversityEstimates with the following elements:\n")
+#' @export
+print.diversityEstimates <- function(dv) {
+  cat("An object of class `diversityEstimates` with the following elements:\n")
   sapply(1:length(names(dv)), function(i) { cat("  - ", names(dv)[i], "\n")})
-  cat("An object of class diversityEstimates with the following elements:\n")
-  
-  if (!is.null(h0)) {
-    breakaway::betta(dv[[h0]], dv[[paste(h0, "-variance", sep="")]], dv[[X]])
-  }
+  cat("Access individual components with, e.g., object$shannon and object$`shannon-variance`\n")
+  cat("Use function testDiversity() to test hypotheses about diversity")
 }
+# print(dv)
+
+# TODO make more like the phyloseq plot richness
+#' @export
+plot.diversityEstimates <- function(dv, xx = "samples", h0 = "shannon") {
+  lci <- dv[[h0]] - 2*sqrt(dv[[paste(h0, "-variance", sep="")]])
+  uci <- dv[[h0]] + 2*sqrt(dv[[paste(h0, "-variance", sep="")]])
+  df <- data.frame("names" = names(dv[[h0]]), 
+             "h0" = dv[[h0]], lci, uci, dv$X)
+  df$names <- factor(df$names, levels = df$names)
+  
+  ggplot(df, aes(x = names, xend = names)) +
+    geom_point(aes(x = names, y = h0)) +
+    geom_segment(aes(y = lci, yend = uci)) +
+    ylab(paste(h0, "estimate")) +
+    xlab(xx) +
+    theme_bw() + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+# plot(dv)
+# plot(dv, h0 = "simpson")
+# print(dv)
+
+#' @export
+testDiversity <- function(dv, h0 = "shannon") {
+  cat("Hypothesis testing:\n")
+  bt <- breakaway::betta(dv[[h0]], dv[[paste(h0, "-variance", sep="")]], X = dv[["X"]])
+  cat(paste("  p-value for global test:", bt$global[2], "\n"))
+  bt$table
+}
+# testDiversity(dv, "shannon")
+# testDiversity(dv, "simpson")
+
+### TODO: inverse simpson

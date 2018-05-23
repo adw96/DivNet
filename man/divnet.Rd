@@ -9,17 +9,17 @@ divnet(W, X = NULL, fitted_model = NULL, tuning = NULL,
   variance = "parametric", B = 5, nsub = NULL, ...)
 }
 \arguments{
-\item{W}{TODO}
+\item{W}{An abundance table with taxa as columns and samples as rows; or a phyloseq object}
 
-\item{X}{TODO}
+\item{X}{The covariate matrix, with samples as rows and variables as columns. Defaults to NULL (samples are biological replicates).}
 
-\item{fitted_model}{object produced by fit_aitchison}
+\item{fitted_model}{object produced by fit_aitchison. Defaults to NULL.}
 
-\item{tuning}{TODO}
+\item{tuning}{settings for tuning the MC-MH algorithm. Options include NULL (defaults to "fast"), "fast", "careful" or a named list with components EMiter (number of EM iterations; 6 for fast, 10 for careful), EMburn (number of EM iterations to burn; 3 for fast, 5 for careful), MCiter (number of MC iterations; 500 for fast, 1000 for careful), MCburn (number of MC iterations to burn; 250 for fast, 500 for careful) and stepsize (variance used for MH samples; 0.01 for both fast and careful)}
 
 \item{perturbation}{Perturbation magnitude for zero values when calculating logratios.}
 
-\item{network}{TODO}
+\item{network}{How to estimate network. Defaults to NULL (the default), "default" (generalised inverse, aka naive). Other options include "diagonal", "stars" (requires glasso and SpiecEasi to be installed), or a function that you want to use to estimate the network}
 
 \item{base}{Base taxon index.}
 
@@ -27,9 +27,9 @@ divnet(W, X = NULL, fitted_model = NULL, tuning = NULL,
 
 \item{variance}{method to get variance of estimates. Current options are "parametric" for parametric bootstrap, "nonparametric" for nonparametric bootstrap, and "none" for no variance estimates}
 
-\item{B}{TODO}
+\item{B}{Number of bootstrap iterations for estimating the variance.}
 
-\item{nsub}{TODO}
+\item{nsub}{Number of subsamples for nonparametric bootstrap. Defaults to half the number of observed samples.}
 
 \item{...}{TODO}
 }

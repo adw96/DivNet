@@ -55,7 +55,7 @@ to_log_ratios <- function(W, base, perturbation = 0.05) {
   tmp <- pmax(W, perturbation)
   Ztmp <- tmp/rowSums(tmp)
   Y_purterbed <- log(Ztmp[,-base]/Ztmp[,base])
-  return(Y_purterbed)
+  return(as.matrix(Y_purterbed))
 }
 
 

@@ -131,7 +131,7 @@ fit_aitchison <- function(W,
     
     Y_new <- t(apply(burnt, 3, colMeans))
     accepts <- Y_new[, 1] #  first column is acceptance ratio
-    Y_new <- Y_new[, 2:Q]
+    Y_new <- as.matrix(Y_new[, 2:Q])
     
     # update b0, means across OTUs
     b0 <- apply(Y_new, 2, mean)

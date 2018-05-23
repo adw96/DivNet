@@ -7,6 +7,14 @@ my_counts
 my_covariate <- cbind(1, rep(c(0,1), each = 3), rep(c(0,1), 3))
 my_covariate
 
+
+test_that("errors are thrown", {
+  expect_error(divnet(matrix(c(10, 20, 10, 1), nrow= 1)))  
+  expect_error(divnet(matrix(c(10, 20, 10, 1), ncol=2)))
+  expect_error(divnet(matrix(c(10, 20, 10, 1, 50, 0), ncol=2)))
+  expect_is(divnet(matrix(c(10, 20, 10, 1, 50, 0), nrow=2)), "list")
+})
+
 test_that("fitting the model is okay", {
   expect_true(TRUE)  
   expect_is(fit_aitchison(my_counts, tuning = "test"), "list")
