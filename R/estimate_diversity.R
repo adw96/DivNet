@@ -246,8 +246,15 @@ parametric_variance <- function(fitted_aitchison,
   get_diversities(fitted_model$fitted_z)
 }
 
+
+#' Print function 
+#' 
+#' @param x TODO
+#' @param ... TODO
+#' 
 #' @export
-print.diversityEstimates <- function(dv) {
+print.diversityEstimates <- function(x, ...) {
+  dv <- x
   cat("An object of class `diversityEstimates` with the following elements:\n")
   sapply(1:length(names(dv)), function(i) { cat("  - ", names(dv)[i], "\n")})
   cat("Access individual components with, e.g., object$shannon and object$`shannon-variance`\n")
@@ -255,27 +262,51 @@ print.diversityEstimates <- function(dv) {
 }
 # print(dv)
 
-# TODO make more like the phyloseq plot richness
+
+
+#' Plot function
+#' 
+#' TODO make more like the phyloseq plot richness
+#' 
+#' @param x TODO 
+#' @param ... TODO 
 #' @export
-plot.diversityEstimates <- function(dv, xx = "samples", h0 = "shannon") {
-  lci <- dv[[h0]] - 2*sqrt(dv[[paste(h0, "-variance", sep="")]])
-  uci <- dv[[h0]] + 2*sqrt(dv[[paste(h0, "-variance", sep="")]])
+plot.diversityEstimates <- function(x, ...) {
+  dv <- x
+  args <- match.call(expand.dots = TRUE)
+  if (is.null(args$xx)) {
+    args$xx <- "samples"
+  }
+  if (is.null(args$h0)) {
+    args$h0 <- "shannon"
+  }
+  xx <- args$xx
+  h0 <- args$h0
+  
+  lci <- dv[[h0]] - 2*sqrt(dv[[paste(h0, "-variance", sep = "")]])
+  uci <- dv[[h0]] + 2*sqrt(dv[[paste(h0, "-variance", sep = "")]])
   df <- data.frame("names" = names(dv[[h0]]), 
              "h0" = dv[[h0]], lci, uci, dv$X)
   df$names <- factor(df$names, levels = df$names)
   
-  ggplot(df, aes(x = names, xend = names)) +
-    geom_point(aes(x = names, y = h0)) +
-    geom_segment(aes(y = lci, yend = uci)) +
-    ylab(paste(h0, "estimate")) +
-    xlab(xx) +
-    theme_bw() + 
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  ggplot2::ggplot(df, ggplot2::aes(x = names, xend = names)) +
+    ggplot2::geom_point(ggplot2::aes(x = names, y = h0)) +
+    ggplot2::geom_segment(ggplot2::aes(y = lci, yend = uci)) +
+    ggplot2::ylab(paste(h0, "estimate")) +
+    ggplot2::xlab(xx) +
+    ggplot2::theme_bw() + 
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 }
 # plot(dv)
 # plot(dv, h0 = "simpson")
 # print(dv)
 
+#' Test diversity
+#' 
+#' TODO document
+#' @param dv TODO
+#' @param h0 TODO
+#' 
 #' @export
 testDiversity <- function(dv, h0 = "shannon") {
   cat("Hypothesis testing:\n")
