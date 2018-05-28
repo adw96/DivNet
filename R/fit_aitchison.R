@@ -81,9 +81,9 @@ fit_aitchison <- function(W,
   } else if (tuning == "test") {
     EMiter <- 4
     EMburn <- 2
-    MCiter <- 10
-    MCburn <- 5
-    stepsize <- 0.01
+    MCiter <- 5
+    MCburn <- 2
+    stepsize <- 0.05
   } else {
     EMiter <- 6
     EMburn <- 3

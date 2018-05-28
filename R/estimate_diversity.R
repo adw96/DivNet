@@ -12,7 +12,7 @@
 #' @param variance method to get variance of estimates. Current options are "parametric" for parametric bootstrap, "nonparametric" for nonparametric bootstrap, and "none" for no variance estimates
 #' @param B Number of bootstrap iterations for estimating the variance.
 #' @param nsub Number of subsamples for nonparametric bootstrap. Defaults to half the number of observed samples.
-#' @param ... TODO
+#' @param ... Additional parameters to be passed to the network function
 #' 
 #' @importFrom magrittr "%>%"
 #' @importFrom phyloseq otu_table
@@ -77,7 +77,6 @@ divnet <-  function(W,
   zz <- fitted_model$fitted_z
   output_list <- get_diversities(zz, samples_names)
   
-  # @Amy TODO parallelise
   if (variance == "parametric") {
     
     # resample from models
@@ -212,10 +211,8 @@ nonparametric_variance <- function(W,
                                 ...)
   eY <- matrix(NA, ncol = ncol(W)-1, nrow = nrow(W))
   eY[curly_b, ] <- fitted_model$fitted_y
-    # fitted_model$X %*% fitted_model$beta + 
-    # matrix(fitted_model$beta0 , ncol = ncol(W)-1, nrow = nsub, byrow=T)
-  
-  to_composition_matrix(Y=eY, base=base) %>% get_diversities
+  compositions <- to_composition_matrix(Y=eY, base=base) 
+  get_diversities(compositions)
 }
 
 
@@ -245,76 +242,3 @@ parametric_variance <- function(fitted_aitchison,
                                 ncores = ncores, ...)
   get_diversities(fitted_model$fitted_z)
 }
-
-
-#' Print function 
-#' 
-#' @param x TODO
-#' @param ... TODO
-#' 
-#' @export
-print.diversityEstimates <- function(x, ...) {
-  dv <- x
-  cat("An object of class `diversityEstimates` with the following elements:\n")
-  sapply(1:length(names(dv)), function(i) { cat("  - ", names(dv)[i], "\n")})
-  cat("Access individual components with, e.g., object$shannon and object$`shannon-variance`\n")
-  cat("Use function testDiversity() to test hypotheses about diversity")
-}
-# print(dv)
-
-
-
-#' Plot function
-#' 
-#' TODO make more like the phyloseq plot richness
-#' 
-#' @param x TODO 
-#' @param ... TODO 
-#' @export
-plot.diversityEstimates <- function(x, ...) {
-  dv <- x
-  args <- match.call(expand.dots = TRUE)
-  if (is.null(args$xx)) {
-    args$xx <- "samples"
-  }
-  if (is.null(args$h0)) {
-    args$h0 <- "shannon"
-  }
-  xx <- args$xx
-  h0 <- args$h0
-  
-  lci <- dv[[h0]] - 2*sqrt(dv[[paste(h0, "-variance", sep = "")]])
-  uci <- dv[[h0]] + 2*sqrt(dv[[paste(h0, "-variance", sep = "")]])
-  df <- data.frame("names" = names(dv[[h0]]), 
-             "h0" = dv[[h0]], lci, uci, dv$X)
-  df$names <- factor(df$names, levels = df$names)
-  
-  ggplot2::ggplot(df, ggplot2::aes(x = names, xend = names)) +
-    ggplot2::geom_point(ggplot2::aes(x = names, y = h0)) +
-    ggplot2::geom_segment(ggplot2::aes(y = lci, yend = uci)) +
-    ggplot2::ylab(paste(h0, "estimate")) +
-    ggplot2::xlab(xx) +
-    ggplot2::theme_bw() + 
-    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
-}
-# plot(dv)
-# plot(dv, h0 = "simpson")
-# print(dv)
-
-#' Test diversity
-#' 
-#' TODO document
-#' @param dv TODO
-#' @param h0 TODO
-#' 
-#' @export
-testDiversity <- function(dv, h0 = "shannon") {
-  cat("Hypothesis testing:\n")
-  bt <- breakaway::betta(dv[[h0]], dv[[paste(h0, "-variance", sep="")]], X = dv[["X"]])
-  cat(paste("  p-value for global test:", bt$global[2], "\n"))
-  bt$table
-}
-# testDiversity(dv, "shannon")
-# testDiversity(dv, "simpson")
-
-### TODO: inverse simpson

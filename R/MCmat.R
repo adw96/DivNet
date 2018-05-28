@@ -24,14 +24,15 @@
 #' @import foreach
 #'
 #' @export
-MCmat <- function(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1, perturbation = 0.05, network = "default", ncores = 1, ...) {
+MCmat <- function(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1, 
+                  perturbation = 0.05, network = "default", ncores = 1, ...) {
   
   if (network == "diagonal") {
     sigInv <- diagonal_network(sigma)
   } else if (network == "default") {
     sigInv <- default_network(sigma)
   } else if (network == "stars") {
-    sigInv <- stars(sigma, W, base = base, perturbation = perturbation, ncores = ncores)
+    sigInv <- stars(sigma, W, base = base, perturbation = perturbation, ncores = ncores, ...)
   } else { 
     sigInv <- try(network(sigma, ...), silent = T)
     if (class(sigInv) == "try-error") {

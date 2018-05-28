@@ -31,7 +31,7 @@ divnet(W, X = NULL, fitted_model = NULL, tuning = NULL,
 
 \item{nsub}{Number of subsamples for nonparametric bootstrap. Defaults to half the number of observed samples.}
 
-\item{...}{TODO}
+\item{...}{Additional parameters to be passed to the network function}
 }
 \description{
 divnet

@@ -4,8 +4,13 @@
 #' 
 #' @export
 shannon_true <- function(proportions) {
-  proportions <- proportions/sum(proportions)
-  -sum(proportions * log(proportions))
+  
+  if (all(is.na(proportions)) | (sum(proportions) - 1)^2 < 1e-8) {
+    output <- -sum(proportions * log(proportions))
+  } else {
+    stop("shannon_true needs a vector of proportions that sum to 1")
+  }
+  output
 }
 
 #' Simpson Index 
@@ -14,8 +19,13 @@ shannon_true <- function(proportions) {
 #' 
 #' @export
 simpson_true <- function(proportions) {
-  proportions <- proportions/sum(proportions)
-  sum(proportions^2)
+  
+  if (all(is.na(proportions)) | (sum(proportions) - 1)^2 < 1e-8) {
+    output <- sum(proportions^2)
+  } else {
+    stop("simpson_true needs a vector of proportions that sum to 1")
+  }
+  output
 }
 
 
@@ -27,9 +37,13 @@ simpson_true <- function(proportions) {
 #' 
 #' @export
 bc_fast <- function(p1s, p2s) {
-  p1s <- p1s/sum(p1s)
-  p2s <- p2s/sum(p2s)
-  1 - (pmin(p1s, p2s) %>% sum)
+  
+  if (all(is.na(p1s)) | all(is.na(p2s)) | ((sum(p1s) - 1)^2 < 1e-8 & (sum(p2s) - 1)^2 < 1e-8)) {
+    output <- 1 - (pmin(p1s, p2s) %>% sum)
+  } else {
+    stop("bc_fast needs a vector of proportions that sum to 1")
+  }
+  output
 }
 
 
@@ -40,9 +54,13 @@ bc_fast <- function(p1s, p2s) {
 #' 
 #' @export
 euc_fast <- function(p1s, p2s) {
-  p1s <- p1s/sum(p1s)
-  p2s <- p2s/sum(p2s)
-  (p1s - p2s)^2 %>% sum %>% sqrt
+  
+  if (all(is.na(p1s)) | all(is.na(p2s)) | ((sum(p1s) - 1)^2 < 1e-8 & (sum(p2s) - 1)^2 < 1e-8)) {
+    output <-  (p1s - p2s)^2 %>% sum %>% sqrt
+  } else {
+    stop("euc_fast needs a vector of proportions that sum to 1")
+  }
+  output
 }
 
 
@@ -84,15 +102,5 @@ euclidean_true <- function(p1s, p2s = NULL) {
     }
   }
   euc
-}
-
-#' Calculate Alpha
-#' 
-#' @param mu Amy TODO
-#' @param my_function Amy TODO
-#' 
-#' @export
-calculate_alpha <- function(mu, my_function) {
-  apply(mu %>% to_composition_matrix, 1, my_function)
 }
 

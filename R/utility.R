@@ -28,46 +28,6 @@ OLS <- function(X, Y) {
   matrix(b, nrow = p)
 }
 
-#' get_mu
-#'
-#' Function to get mu from model output
-#'
-#' @param out model fit from LNM.EM or LNM.EM.nocov
-#' @param X optional covariates
-#'
-#'
-get_mu <- function(out, X = NULL) {
-  N <- nrow(out$Y)
-  if (!is.null(out$b)) {
-    return(X %*% out$b + tcrossprod(rep(1, N), out$b0))
-  } else {
-    return(out$b0)
-  }
-}
-
-#' get_perturbation
-#'
-#' This function purturbates a row of the raw count matrix. Likely will not be used directly.
-#'
-#' @param Wi raw count data row
-#' @param base base OTU value
-#' @param perturbation how much to purturb zero counts, defaults to 0.05
-#'
-get_perturbation <- function(Wi, base, perturbation = 0.05) {
-  zeros <- which(Wi == 0)
-  nz <- length(zeros)
-  Q <- length(Wi)
-  Z_purt <- rep(0, Q)
-  if (nz != 0) {
-    Z_purt[zeros] <- (Wi[zeros] + perturbation)/(sum(Wi) + perturbation * nz)
-    Z_purt[-zeros] <- (Wi[-zeros])/(sum(Wi) + perturbation * nz)
-  } else {
-    Z_purt <- Wi/sum(Wi)
-  }
-  
-  # Return Y_purt
-  return(log(Z_purt[-base]/Z_purt[base]))
-}
 
 #' acomb3
 #'
