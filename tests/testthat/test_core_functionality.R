@@ -9,10 +9,10 @@ my_covariate
 
 
 test_that("errors are thrown", {
-  expect_error(divnet(matrix(c(10, 20, 10, 1), nrow= 1)))  
-  expect_error(divnet(matrix(c(10, 20, 10, 1), ncol=2)))
-  expect_error(divnet(matrix(c(10, 20, 10, 1, 50, 0), ncol=2)))
-  expect_is(divnet(matrix(c(10, 20, 10, 1, 50, 0), nrow=2)), "list")
+  expect_error(divnet(matrix(c(10, 20, 10, 1), nrow= 1), tuning="test"))  
+  expect_error(divnet(matrix(c(10, 20, 10, 1), ncol=2), tuning="test"))
+  expect_error(divnet(matrix(c(10, 20, 10, 1, 50, 0), ncol=2), tuning="test"))
+  expect_is(divnet(matrix(c(10, 20, 10, 1, 50, 0), nrow=2), tuning="test"), "list")
 })
 
 test_that("fitting the model is okay", {

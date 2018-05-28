@@ -1,17 +1,16 @@
-<img src="docs/logo.png" align="right"  />
-DivNet
-=========
+------------------------------------------------------------------------
 
-[![Build Status](https://travis-ci.org/adw96/DivNet.svg?branch=master)](https://travis-ci.org/adw96/DivNet)
-[![codecov.io](https://codecov.io/gh/adw96/DivNet/coverage.svg?branch=master)](https://codecov.io/gh/adw96/DivNet?branch=master)
+<img src="docs/logo.png" align="right"  />
+==========================================
+
+[![Build Status](https://travis-ci.org/adw96/DivNet.svg?branch=master)](https://travis-ci.org/adw96/DivNet) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/adw96/DivNet?branch=master&svg=true)](https://ci.appveyor.com/project/adw96/DivNet) [![codecov.io](https://codecov.io/gh/adw96/DivNet/coverage.svg?branch=master)](https://codecov.io/gh/adw96/DivNet?branch=master)
 
 DivNet: an R package to estimate diversity when taxa in the community cooccur via a ecological network.
 
 Willis, A.D. and Martin, B.D. (2018+) [*DivNet: Estimating diversity in networked communities*](https://www.biorxiv.org/content/early/2018/04/21/305045). Under review.
 
-DivNet isn't broken -- the dependence on phyloseq and ggplot2 is unfortunately causing the travis build to fail. DivNet is working just fine!
-
-## About ##
+About
+-----
 
 If you new the exact composition of a community (such as all of the microbes living on your skin), you could calculate the Shannon diversity of the community, or the Bray-Curtis distance between your skin's microbes and your cat's fur microbes. However, you will only ever observe a small fraction of the microbes on your skin from your experiment, so you have to estimate these diversity indices based on the data, and ideally you will get a confidence interval for those diversity indices.
 
@@ -21,21 +20,21 @@ See [here](https://github.com/adw96/DivNet/blob/master/vignettes/divnet-phyloseq
 
 Want a confidence interval for a different diversity index? Let us know by posting an [issue](https://github.com/adw96/DivNet/issues)!
 
-## Installation ##
+Installation
+------------
 
-
-```r
+``` r
 library(devtools)
 install_github("adw96/DivNet")
 library(DivNet)
 ```
 
-## Basic Usage ##
+Basic Usage
+-----------
 
 Let's analyse the Lee *et al.* dataset using DivNet. We could analyse at the ASV level, but to keep things simple let's analyse the phylum level diversity.
 
-
-```r
+``` r
 library(phyloseq)
 data(Lee)
 divnet_phylum <-  divnet(tax_glom(Lee, taxrank="Phylum"),
@@ -45,24 +44,25 @@ divnet_phylum
 ```
 
 To test if alpha-diversity (by default, Shannon) is equal across the values of the covariate X, we can run
-```r
+
+``` r
 testDiversity(divnet_phylum)
 ```
 
 and to plot the DivNet estimates of diversity we can run
-```r
+
+``` r
 library(ggplot2)
 plot(divnet_phylum)
 ```
 
-## Integration
+Integration
+-----------
 
-DivNet integrates with
-- [phyloseq](https://joey711.github.io/phyloseq/) (for reproducible microbiome analysis)
-- [breakaway](https://github.com/adw96/breakaway) (for hypothesis testing)
+DivNet integrates with - [phyloseq](https://joey711.github.io/phyloseq/) (for reproducible microbiome analysis) - [breakaway](https://github.com/adw96/breakaway) (for hypothesis testing)
 
-## Coming soon
+Coming soon
+-----------
 
-
-- DivNet will hopefully soon be available as a QIIME2 plug-in
-- The same philosophy of DivNet can be applied to estimating UniFrac and other diversity indices that are a function of phylogeny. Watch this space!
+-   DivNet will hopefully soon be available as a QIIME2 plug-in
+-   The same philosophy of DivNet can be applied to estimating UniFrac and other diversity indices that are a function of phylogeny. Watch this space!
