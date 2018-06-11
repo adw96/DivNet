@@ -7,11 +7,13 @@
 make_w(mu, Sigma, mm, base = NULL)
 }
 \arguments{
-\item{mu}{TODO}
+\item{mu}{Mean matrix. Rows are samples}
 
-\item{Sigma}{TODO}
+\item{Sigma}{Covariance matrix}
 
-\item{mm}{TODO}
+\item{mm}{Sampling depth (= number of individuals observed)}
+
+\item{base}{The base taxon for logratio transformations}
 }
 \description{
 Simulate counts

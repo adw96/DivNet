@@ -1,8 +1,9 @@
 #' Simulate counts
 #' 
-#' @param mu TODO
-#' @param Sigma TODO
-#' @param mm TODO
+#' @param mu Mean matrix. Rows are samples
+#' @param Sigma Covariance matrix 
+#' @param mm Sampling depth (= number of individuals observed)
+#' @param base The base taxon for logratio transformations
 #' 
 #' @export
 make_w <- function(mu, Sigma, mm, base = NULL) {

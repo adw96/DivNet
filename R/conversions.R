@@ -45,7 +45,7 @@ to_composition_matrix <- function(Y, base = NULL) {
 to_log_ratios <- function(W, base, perturbation = 0.05) {
   
   if (is.null(base)) {
-    error("to_log_ratios needs which taxon is base taxon")
+    stop("to_log_ratios needs which taxon is base taxon")
   }
   
   if (is.null(dim(W))) { # if a vector
