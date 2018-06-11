@@ -6,6 +6,9 @@
 \usage{
 pick_base(W)
 }
+\arguments{
+\item{W}{A taxon abundance matrix (taxa as columns)}
+}
 \description{
-pick_base
+Picks the base taxon
 }

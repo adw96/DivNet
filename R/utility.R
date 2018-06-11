@@ -38,6 +38,11 @@ OLS <- function(X, Y) {
 acomb3 <- function(...) abind(..., along = 3)
 
 #' pick_base
+#' 
+#' Picks the base taxon
+#' 
+#' @param W A taxon abundance matrix (taxa as columns)
+#' 
 pick_base <- function(W) {
   taxa_sums <- colSums(W)
   taxa_unobserved <- apply(W, 2, function(x) ifelse(any(x == 0), 0, 1))
