@@ -7,12 +7,12 @@
 to_log_ratios(W, base, perturbation = 0.05)
 }
 \arguments{
-\item{W}{raw count data, with OTUs as columns}
+\item{W}{Any compositional (count or proportion) data to be transformed, with OTUs as columns}
 
 \item{base}{base OTU value}
 
 \item{perturbation}{how much to purturb zero counts, defaults to 0.05}
 }
 \description{
-This function transforms from count data to logratios
+This function transforms from original scale to logratios
 }

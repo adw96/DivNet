@@ -4,7 +4,7 @@
 \alias{stars}
 \title{stars}
 \usage{
-stars(sigma, W, base, perturbation, ncores)
+stars(sigma, W, base, perturbation, ncores, ...)
 }
 \arguments{
 \item{sigma}{current estimate of sigma}
@@ -15,7 +15,9 @@ stars(sigma, W, base, perturbation, ncores)
 
 \item{perturbation}{size of purturbation used for to_log_ratios, defaults to 0.05}
 
-\item{ncores}{number of cores to use, defaults to 1
+\item{ncores}{number of cores to use, defaults to 1}
+
+\item{...}{other arguments to pass
 
 Estimate the network using the package SpiecEasi}
 }

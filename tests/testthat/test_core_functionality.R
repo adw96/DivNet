@@ -12,7 +12,8 @@ test_that("errors are thrown", {
   expect_error(divnet(matrix(c(10, 20, 10, 1), nrow= 1), tuning="test"))  
   expect_error(divnet(matrix(c(10, 20, 10, 1), ncol=2), tuning="test"))
   expect_error(divnet(matrix(c(10, 20, 10, 1, 50, 0), ncol=2), tuning="test"))
-  expect_is(divnet(matrix(c(10, 20, 10, 1, 50, 0), nrow=2), tuning="test"), "diversityEstimates")
+  expect_is(divnet(matrix(c(10, 20, 11, 1, 50, 1), nrow=2), 
+                   tuning="test"), "diversityEstimates")
 })
 
 test_that("fit_aitchison works", {
@@ -68,22 +69,3 @@ test_that("diversity indices work as expected", {
   expect_error(euc_fast(c(0.4, 0.5), c(0.2, 0.8)))
   
 })
-
-# test_that("conversions work as expected", {
-#   perturbed_counts <- my_counts
-#   perturbed_counts[,3] <- rpois(n, lambda=200)
-#   perturbed_counts
-#   
-#   i <- 2
-#   for (i in 1:5) {
-#     fa1 <- fit_aitchison(perturbed_counts, tuning = "test", base=i)
-#     fa1
-#     expect_equal(fa$fitted_z, to_composition_matrix(fa$fitted_y, base = i))
-#     expect_equal(fa$fitted_z[1,], to_composition(fa$fitted_y[1,], base = i))
-#   }
-#   # works: 1
-#   # doesn't work: 2, 3, 4, 5
-# })
-
-## TODO check that changing the base works as expected
-

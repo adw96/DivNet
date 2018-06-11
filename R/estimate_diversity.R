@@ -55,7 +55,10 @@ divnet <-  function(W,
   
   # remove taxa that weren't observed 
   # yes, this is a good idea
-  W <- W[ , which(colSums(W) > 0)]
+  if (any(colSums(W) == 0)) {
+    message("Removing absent taxa!")
+    W <- W[ , which(colSums(W) > 0)]
+  }
   
   if (nrow(W) == 1) {
     stop("DivNet requires more than 1 sample")
@@ -76,6 +79,8 @@ divnet <-  function(W,
   }
   zz <- fitted_model$fitted_z
   output_list <- get_diversities(zz, samples_names)
+  
+  base <- fitted_model$base
   
   if (variance == "parametric") {
     
@@ -231,7 +236,7 @@ parametric_variance <- function(fitted_aitchison,
   
   mw <- make_w(mu=fitted_aitchison$fitted_y, 
                Sigma = fitted_aitchison$sigma, 
-               mm=ms)
+               mm=ms, base = base)
   
   fitted_model <- fit_aitchison(mw,  
                                 X,

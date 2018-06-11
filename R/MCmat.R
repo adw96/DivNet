@@ -80,7 +80,14 @@ diagonal_network <- function(sigma) {
 default_network <- function(sigma) {
   test <- try(chol(sigma), silent = T)
   if (class(test) == "try-error") {
-    sigInv <- MASS::ginv(sigma)
+    test2 <- try(svd(sigma), silent = T)
+    if (class(test2) == "try-error") {
+      message("SVD failed; sigma is")
+      print(sigma)
+      stop()
+    } else {
+      sigInv <- MASS::ginv(sigma)
+    }
   } else {
     sigInv <- chol2inv(chol(sigma))
   }
@@ -94,9 +101,10 @@ default_network <- function(sigma) {
 #' @param base OTU index used for base
 #' @param perturbation size of purturbation used for to_log_ratios, defaults to 0.05
 #' @param ncores number of cores to use, defaults to 1
+#' @param ... other arguments to pass
 #' 
 #' Estimate the network using the package SpiecEasi
-stars <- function(sigma, W, base, perturbation, ncores) {
+stars <- function(sigma, W, base, perturbation, ncores, ...) {
   
   if (!requireNamespace("glasso", quietly = TRUE) | !requireNamespace("SpiecEasi", quietly = TRUE)) {
     stop("Packages glasso and SpiecEasi are needed for this function to work. \n

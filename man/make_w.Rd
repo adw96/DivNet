@@ -4,7 +4,7 @@
 \alias{make_w}
 \title{Simulate counts}
 \usage{
-make_w(mu, Sigma, mm)
+make_w(mu, Sigma, mm, base = NULL)
 }
 \arguments{
 \item{mu}{TODO}

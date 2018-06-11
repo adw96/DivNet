@@ -61,7 +61,6 @@ fit_aitchison <- function(W,
   }
   sigma <- var(Y_p - eY) # (Q-1) x (Q-1)
   
-  
 
   
   ## set up tuning parameters for EM-MH algorithm
@@ -200,6 +199,6 @@ fit_aitchison <- function(W,
   output_list$sigma <- sigma_em
   output_list$fitted_y <- fitted_y
   output_list$fitted_z <- to_composition_matrix(fitted_y, base=base)
-  
+  output_list$base <- base
   output_list
 }

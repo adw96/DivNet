@@ -5,10 +5,14 @@
 #' @param mm TODO
 #' 
 #' @export
-make_w <- function(mu, Sigma, mm) {
+make_w <- function(mu, Sigma, mm, base = NULL) {
   Q <- ncol(Sigma)
   N <- nrow(mu)
-  # Global variable fix
+  
+  if (ncol(Sigma) != ncol(mu)) {
+    stop("mu and Sigma are not the right dimensions")
+  }
+  # Global variable \fix
   i <- NULL
   if (length(mm) == 1) mm <- rep(mm, N)
   
@@ -16,7 +20,7 @@ make_w <- function(mu, Sigma, mm) {
     MASS::mvrnorm(n = 1, mu = mu[i, ], Sigma)
   }
   
-  compositions <- to_composition_matrix(Y) 
+  compositions <- to_composition_matrix(Y, base = base) 
   
   my_w <- foreach(i = 1:N, .combine = rbind) %do% {
     stats::rmultinom(n = 1, size = mm[i], prob = compositions[i,]) %>% c

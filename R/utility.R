@@ -37,9 +37,12 @@ OLS <- function(X, Y) {
 #' 
 acomb3 <- function(...) abind(..., along = 3)
 
+#' pick_base
 pick_base <- function(W) {
   taxa_sums <- colSums(W)
-  which.max(taxa_sums)
+  taxa_unobserved <- apply(W, 2, function(x) ifelse(any(x == 0), 0, 1))
+  if (all(taxa_unobserved == 0)) stop("Yikes! No taxa observed in all samples!\n Pick which taxon is to be the base")
+  which.max(taxa_sums*taxa_unobserved)
 }
 
 
