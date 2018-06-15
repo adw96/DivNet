@@ -3,24 +3,39 @@ context("Test output")
 
 data(Lee)
 lp <- phyloseq::tax_glom(Lee, taxrank="Phylum")
-t1 <- phy_tree(ape::rtree(20, tip.label = rownames(tax_table(lp)), br = runif))
-t2 <- phy_tree(ape::rtree(20, tip.label = rownames(tax_table(lp)), br = runif))
-ape::write.tree(t1, "t1.txt")
-ape::write.tree(t2, "t2.txt")
+# set.seed(1)
+# t1 <- phy_tree(ape::rtree(20, tip.label = rownames(tax_table(lp)), br = runif))
+# t2 <- phy_tree(ape::rtree(20, tip.label = rownames(tax_table(lp)), br = runif))
+# ape::write.tree(t1, "t1.txt")
+# ape::write.tree(t2, "t2.txt")
 
 
-test_that("UniFrac works", {
+test_that("phylodivnet runs", {
   expect_true(TRUE)  
-  
-  
   
   expect_is(phylodivnet(lp, 
                         "type", 
                         c("t1.txt", "t2.txt"), 
                         ncores = 1, 
-                        tuning = "test"), 
+                        tuning = "test",
+                        B = 2), 
             "list")
 })
+
+
+# 
+# test_that("phylodivnet works as expected", {
+#   expect_true(TRUE)  
+#   
+#   
+#   
+#   expect_is(phylodivnet(lp, 
+#                         "type", 
+#                         c("t1.txt", "t2.txt"), 
+#                         ncores = 1, 
+#                         tuning = "test"), 
+#             "list")
+# })
 # 
 # test_that("divnet works", {
 #   expect_is(divnet(my_counts, variance = 0, tuning="test"), "diversityEstimates")

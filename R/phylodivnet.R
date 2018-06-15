@@ -36,6 +36,10 @@ phylodivnet <-  function(W,
                          alpha = 0.05,
                          ...) {
   
+  ##################################################
+  ##### Step 0: Process data
+  ##################################################
+  
   if ("phyloseq" %in% class(W)) {
     
     input_data <- W
@@ -56,7 +60,7 @@ phylodivnet <-  function(W,
   }
   
   # remove taxa that weren't observed 
-  # yes, this is a good idea
+  # think more: this is a good idea?
   if (any(colSums(W) == 0)) {
     message("Removing absent taxa!")
     W <- W[ , which(colSums(W) > 0)]
@@ -68,7 +72,11 @@ phylodivnet <-  function(W,
   if (ncol(W) == 2) {
     stop("Cannot fit a network model with 2 taxa")
   }
+  if (is.null(ncores)) ncores <- 1
   
+  ##################################################
+  ##### Step 1: Fit compositional data model
+  ##################################################
   fitted_model <- fit_aitchison(W, 
                                 X = X, 
                                 tuning = tuning,
@@ -91,12 +99,13 @@ phylodivnet <-  function(W,
   } else {
     colnames(fitted_otu) <- colnames(input_data)
   }
+  
+  otu_table_fitted <- otu_table(fitted_otu, taxa_are_rows = F)
+  
   ##################################################
   ##### Step 1: Calculate theta-hat(T_i) for all i
   ##################################################
   message("Calculating UniFrac over different trees...\n")
-  
-  otu_table_fitted <- otu_table(fitted_otu, taxa_are_rows = F)
   
   get_unifrac_i <- function(i) {
     new_tree <- read_tree(trees[i]) 
@@ -105,27 +114,28 @@ phylodivnet <-  function(W,
     UniFrac(ps, weighted = T) %>% as.matrix
   }
   
-  if (!is.null(ncores)) {
-    message("parallel not supported yet, sorry!")
-    # cl <- makeCluster(ncores)  
-    # clusterEvalQ(cl, {
-    #   library(magrittr)
-    #   library(phyloseq)
-    #   library(DivNet)
-    # })
-    # clusterExport(cl, "trees")
-    # clusterExport(cl, "otu_table_fitted")
-    # # clusterExport(cl, "get_unifrac_i")
-    # unifracs <- parSapply(cl, 1:length(trees), 
-    #                       get_unifrac_i, 
-    #                       otus = otu_table_fitted, 
-    #                       simplify = F)
-    # stopCluster(cl)
-    # 
-  } #else {
-  unifracs <- sapply(1:length(trees), get_unifrac_i, simplify = F)
-  # }
-  
+  if (ncores > 1 & requireNamespace("doParallel", quietly = TRUE) &
+      requireNamespace("foreach", quietly = TRUE) &
+      requireNamespace("doSNOW", quietly = TRUE) 
+  ) {
+    ####################
+    # Parallel option ##
+    ####################
+    registerDoParallel(cores = min(ncores, parallel::detectCores()))
+    unifracs <-  foreach(i = 1:length(trees), .combine = "acomb3", .multicombine = TRUE) %dopar% {
+      get_unifrac_i(i)
+    }
+    stopImplicitCluster()
+  } else {
+    ####################
+    ## Series option ###
+    ####################
+    unifracs <-  foreach(i = 1:length(trees), .combine = 'acomb3',
+                         .multicombine = TRUE,
+                         .packages = "foreach") %do% {
+                           get_unifrac_i(i)
+                         }
+  }
   
   #########################
   ##### Step 2: Calculate theta-hat
@@ -162,23 +172,30 @@ phylodivnet <-  function(W,
                    new_tree)
     UniFrac(ps, weighted = T) %>% as.matrix
   }
-  # if (!is.null(ncores)) {
-  #   message("parallel not supported yet, sorry!")
-  #   cl <- makeCluster(ncores)  
-  #   clusterEvalQ(cl, {
-  #     library(magrittr)
-  #     library(phyloseq)
-  #     library(DivNet)
-  #   })
-  #   clusterExport(cl, c("fitted_y", "fitted_model", 
-  #                       "ms", "X_unique",
-  #                       "base", "trees"))
-  #   bs_unifracs <- parSapply(cl, 1:length(trees), parametric_bs, simplify = F)
-  #   stopCluster(cl)
-  # } else {
-    bs_unifracs <- sapply(1:B, parametric_bs, simplify = F)
-  # }
   
+  if (ncores > 1 & requireNamespace("doParallel", quietly = TRUE) &
+      requireNamespace("foreach", quietly = TRUE) &
+      requireNamespace("doSNOW", quietly = TRUE) 
+  ) {
+    ####################
+    # Parallel option ##
+    ####################
+    registerDoParallel(cores = min(ncores, parallel::detectCores()))
+    bs_unifracs <-  foreach(i = 1:B, .combine = "acomb3", .multicombine = TRUE) %dopar% {
+      parametric_bs(i)
+    }
+    stopImplicitCluster()
+  } else {
+    ####################
+    ## Series option ###
+    ####################
+    bs_unifracs <-  foreach(i = 1:B, .combine = 'acomb3',
+                         .multicombine = TRUE,
+                         .packages = "foreach") %do% {
+                           parametric_bs(i)
+                         }
+  }
+
   message("Finishing up...\n")
   bs_unifracs <- simplify2array(bs_unifracs)
   

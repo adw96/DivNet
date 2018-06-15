@@ -9,13 +9,20 @@ my_covariate
 
 # This cannot be tested with Travis or CRAN
 # 
-# test_that("parallel works", {
-#   expect_is(divnet(my_counts, my_covariate, 
-#                    variance="parametric",
-#                    nsub = 3, B = 2, ncores = 4,
-#                    tuning="test"), "list")
-#   expect_is(divnet(my_counts, my_covariate, 
-#                    variance="nonparametric", ncores = 4,
-#                    nsub = 3, B = 2, tuning="test"), "list")
-#   
-# })
+test_that("parallel works", {
+  expect_is(divnet(my_counts, my_covariate,
+                   variance="parametric",
+                   nsub = 3, B = 2, ncores = 4,
+                   tuning="test"), "list")
+  expect_is(divnet(my_counts, my_covariate,
+                   variance="nonparametric", ncores = 4,
+                   nsub = 3, B = 2, tuning="test"), "list")
+
+  expect_is(phylodivnet(lp, 
+                        "type", 
+                        c("t1.txt", "t2.txt"), 
+                        ncores = 4, 
+                        tuning = "test",
+                        B = 2), 
+            "list")
+})
