@@ -2,11 +2,10 @@
 # dn <- phyloseq::tax_glom(Lee, taxrank="Phylum") %>% 
 #   divnet(tuning = "test")
 # dn %>% names
-# 
 make_alpha_estimates <- function(dn) {
   my_alpha <- list()
   
-  my_alpha$shannon <- mapply(alpha_estimate, 
+  my_alpha$shannon <- mapply(breakaway::alpha_estimate, 
                              estimate = dn$shannon, 
                              error = dn$`shannon-variance`,
                              estimand = "Shannon",
@@ -20,7 +19,7 @@ make_alpha_estimates <- function(dn) {
                              SIMPLIFY = F) %>%
     alpha_estimates
   
-  my_alpha$simpson <- mapply(alpha_estimate, 
+  my_alpha$simpson <- mapply(breakaway::alpha_estimate, 
                              estimate = dn$simpson, 
                              error = dn$`simpson-variance`,
                              estimand = "Simpson",
@@ -34,4 +33,4 @@ make_alpha_estimates <- function(dn) {
   
   my_alpha
 }
-make_alpha_estimates(dn)$shannon 
+# make_alpha_estimates(dn)$shannon 
