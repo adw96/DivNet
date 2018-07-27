@@ -131,42 +131,81 @@ divnet <-  function(W,
   
   # Adding class alpha-estimates
   if (!is.null(output_list$shannon)) {
-    output_list$shannon <- mapply(breakaway::alpha_estimate, 
-                                  estimate = output_list$shannon, 
-                                  error = sqrt(output_list$`shannon-variance`),
-                                  estimand = "Shannon",
-                                  name = "DivNet",
-                                  #interval = NULL,
-                                  #interval_type = NULL,
-                                  #type = NULL,
-                                  model = "Aitchison",
-                                  #warnings = NULL,
-                                  frequentist = TRUE,
-                                  parametric = TRUE,
-                                  reasonable = TRUE,
-                                  other = list(fitted_model = fitted_model),
-                                  SIMPLIFY = F) %>%
-      alpha_estimates
-    output_list$`shannon-variance` <- NULL
+    if (!is.null(output_list$`shannon-variance`)) {
+      output_list$shannon <- mapply(breakaway::alpha_estimate, 
+                                    estimate = output_list$shannon, 
+                                    error = output_list$`shannon-variance`,
+                                    estimand = "Shannon",
+                                    name = "DivNet",
+                                    #interval = NULL,
+                                    #interval_type = NULL,
+                                    #type = NULL,
+                                    model = "Aitchison",
+                                    #warnings = NULL,
+                                    frequentist = TRUE,
+                                    parametric = TRUE,
+                                    reasonable = TRUE,
+                                    other = list(fitted_model = fitted_model),
+                                    SIMPLIFY = F) %>%
+        alpha_estimates
+      output_list$`shannon-variance` <- NULL
+    } else {
+      output_list$shannon <- mapply(breakaway::alpha_estimate, 
+                                    estimate = output_list$shannon, 
+                                    #error = output_list$`shannon-variance`,
+                                    estimand = "Shannon",
+                                    name = "DivNet",
+                                    #interval = NULL,
+                                    #interval_type = NULL,
+                                    #type = NULL,
+                                    model = "Aitchison",
+                                    #warnings = NULL,
+                                    frequentist = TRUE,
+                                    parametric = TRUE,
+                                    reasonable = TRUE,
+                                    other = list(fitted_model = fitted_model),
+                                    SIMPLIFY = F) %>%
+        alpha_estimates
+    }
+
   }
   if (!is.null(output_list$simpson)) {
-    output_list$simpson <- mapply(breakaway::alpha_estimate, 
-                                  estimate = output_list$simpson, 
-                                  error = sqrt(output_list$`simpson-variance`),
-                                  estimand = "Simpson",
-                                  name = "DivNet",
-                                  #interval = NULL,
-                                  #interval_type = NULL,
-                                  #type = NULL,
-                                  model = "Aitchison",
-                                  #warnings = NULL,
-                                  frequentist = TRUE,
-                                  parametric = TRUE,
-                                  reasonable = TRUE,
-                                  other = list(fitted_model = fitted_model),
-                                  SIMPLIFY = F) %>%
-      alpha_estimates
-    output_list$`simpson-variance` <- NULL
+    if (!is.null(output_list$`simpson-variance`)) {
+      output_list$simpson <- mapply(breakaway::alpha_estimate, 
+                                    estimate = output_list$simpson, 
+                                    error = output_list$`simpson-variance`, 
+                                    estimand = "Simpson",
+                                    name = "DivNet",
+                                    #interval = NULL,
+                                    #interval_type = NULL,
+                                    #type = NULL,
+                                    model = "Aitchison",
+                                    #warnings = NULL,
+                                    frequentist = TRUE,
+                                    parametric = TRUE,
+                                    reasonable = TRUE,
+                                    other = list(fitted_model = fitted_model),
+                                    SIMPLIFY = F) %>%
+        alpha_estimates
+      output_list$`simpson-variance` <- NULL
+    } else {
+      output_list$simpson <- mapply(breakaway::alpha_estimate, 
+                                    estimate = output_list$simpson, 
+                                    #error = output_list$`simpson-variance`, 
+                                    estimand = "Simpson",
+                                    name = "DivNet",
+                                    #interval = NULL,
+                                    #interval_type = NULL,
+                                    #type = NULL,
+                                    model = "Aitchison",
+                                    #warnings = NULL,
+                                    frequentist = TRUE,
+                                    parametric = TRUE,
+                                    reasonable = TRUE,
+                                    other = list(fitted_model = fitted_model),
+                                    SIMPLIFY = F) %>%
+        alpha_estimates
+    }
   }
   
 
