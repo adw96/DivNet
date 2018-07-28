@@ -17,6 +17,10 @@
 #' @importFrom magrittr "%>%"
 #' @importFrom phyloseq otu_table
 #' @importFrom phyloseq sample_names
+#' @importFrom breakaway alpha_estimate
+#' @importFrom breakaway alpha_estimates
+#' @importClassesFrom phyloseq phyloseq
+#' @importClassesFrom breakaway alpha_estimate alpha_estimates
 #' 
 #' @import phyloseq
 #' @import breakaway
@@ -135,7 +139,7 @@ divnet <-  function(W,
   # Adding class alpha-estimates
   if (!is.null(output_list$shannon)) {
     if (!is.null(output_list$`shannon-variance`)) {
-      output_list$shannon <- mapply(breakaway::alpha_estimate, 
+      output_list$shannon <- mapply(alpha_estimate, 
                                     estimate = output_list$shannon, 
                                     error = output_list$`shannon-variance`,
                                     estimand = "Shannon",
@@ -153,7 +157,7 @@ divnet <-  function(W,
         alpha_estimates
       output_list$`shannon-variance` <- NULL
     } else {
-      output_list$shannon <- mapply(breakaway::alpha_estimate, 
+      output_list$shannon <- mapply(alpha_estimate, 
                                     estimate = output_list$shannon, 
                                     #error = output_list$`shannon-variance`,
                                     estimand = "Shannon",
