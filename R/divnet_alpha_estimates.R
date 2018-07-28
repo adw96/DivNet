@@ -5,7 +5,7 @@
 make_alpha_estimates <- function(dn) {
   my_alpha <- list()
   
-  my_alpha$shannon <- mapply(breakaway::alpha_estimate, 
+  my_alpha$shannon <- mapply(breakaway:::alpha_estimate, 
                              estimate = dn$shannon, 
                              error = dn$`shannon-variance`,
                              estimand = "Shannon",
@@ -17,9 +17,9 @@ make_alpha_estimates <- function(dn) {
                              parametric = TRUE,
                              reasonable = TRUE,
                              SIMPLIFY = F) %>%
-    alpha_estimates
+    breakaway:::alpha_estimates
   
-  my_alpha$simpson <- mapply(breakaway::alpha_estimate, 
+  my_alpha$simpson <- mapply(breakaway:::alpha_estimate, 
                              estimate = dn$simpson, 
                              error = dn$`simpson-variance`,
                              estimand = "Simpson",
@@ -29,7 +29,7 @@ make_alpha_estimates <- function(dn) {
                              parametric = TRUE,
                              reasonable = TRUE,
                              SIMPLIFY = F) %>%
-    alpha_estimates
+    breakaway:::alpha_estimates
   
   my_alpha
 }
