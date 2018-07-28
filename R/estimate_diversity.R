@@ -18,6 +18,9 @@
 #' @importFrom phyloseq otu_table
 #' @importFrom phyloseq sample_names
 #' 
+#' @import phyloseq
+#' @import breakaway
+#' 
 #' @author Amy Willis
 #' 
 #' @export
