@@ -36,6 +36,8 @@ phylodivnet <-  function(W,
                          alpha = 0.05,
                          ...) {
   
+  # fix for global variable problem
+  i <- NULL
   ##################################################
   ##### Step 0: Process data
   ##################################################

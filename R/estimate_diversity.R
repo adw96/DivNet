@@ -17,6 +17,13 @@
 #' @importFrom magrittr "%>%"
 #' @importFrom phyloseq otu_table
 #' @importFrom phyloseq sample_names
+# #' @importFrom breakaway alpha_estimate
+# #' @importFrom breakaway alpha_estimates
+# #' @importClassesFrom phyloseq phyloseq
+# #' @importClassesFrom breakaway alpha_estimate alpha_estimates
+#' 
+#' @import phyloseq
+#' @import breakaway
 #' 
 #' @author Amy Willis
 #' 
@@ -106,6 +113,20 @@ divnet <-  function(W,
       output_list[[names(variance_estimates)[i]]] <-  variance_estimates[[i]]
     }
     
+    # Add variance to alpha_diversity class
+    for(i in 1:nrow(W)) {
+      output_list$shannon[[i]]$error <- sqrt(variance_estimates$`shannon-variance`)[i]
+      output_list$shannon[[i]]$interval <- c(output_list$shannon[[i]]$estimate - 2*output_list$shannon[[i]]$error,
+                                             output_list$shannon[[i]]$estimate + 2*output_list$shannon[[i]]$error)
+      output_list$shannon[[i]]$interval_type <- "symmetric"
+      
+      output_list$simpson[[i]]$error <- sqrt(variance_estimates$`simpson-variance`)[i]
+      output_list$simpson[[i]]$interval <- c(output_list$simpson[[i]]$estimate - 2*output_list$simpson[[i]]$error,
+                                             output_list$simpson[[i]]$estimate + 2*output_list$simpson[[i]]$error)
+      output_list$simpson[[i]]$interval_type <- "symmetric"
+    }
+    variance_estimates$`shannon-variance` <- variance_estimates$`simpson-variance` <- NULL
+    
   } else if (variance == "nonparametric") {
     if (is.null(nsub)) nsub <- ceiling(dim(W)[1]/2)
     
@@ -139,10 +160,42 @@ get_diversities <- function(zz, samples_names = NULL) {
   output_list <- list()
   
   # Estimate Shannon diversity
-  output_list[["shannon"]] <- apply(zz, 1, shannon_true)
+  shannon_tmp <- apply(zz, 1, shannon_true)
+  output_list[["shannon"]] <- breakaway::alpha_estimates(mapply(breakaway::alpha_estimate, 
+                                    estimate = shannon_tmp, 
+                                   #error = shannon_sd,
+                                    estimand = "Shannon",
+                                    name = "DivNet",
+                                    # interval = c(shannon_tmp - 2*shannon_sd,
+                                    #             shannon_tmp + 2*shannon_sd),
+                                    # interval_type = "symmetric",
+                                    #type = NULL,
+                                    model = "Aitchison",
+                                    #warnings = NULL,
+                                    frequentist = TRUE,
+                                    parametric = TRUE,
+                                    reasonable = TRUE,
+                                    # other = list(fitted_model = fitted_model),
+                                    SIMPLIFY = F))
   
   # Estimate Simpson
-  output_list[["simpson"]] <- apply(zz, 1, simpson_true)
+  simpson_tmp <- apply(zz, 1, simpson_true)
+  output_list[["simpson"]] <- breakaway::alpha_estimates(mapply(breakaway::alpha_estimate, 
+                                                                estimate = simpson_tmp, 
+                                                                #error = simpson_sd,
+                                                                estimand = "Simpson",
+                                                                name = "DivNet",
+                                                                #interval = c(simpson_tmp - 2*simpson_sd,
+                                                                #             simpson_tmp + 2*simpson_sd),
+                                                                #interval_type = "symmetric",
+                                                                #type = NULL,
+                                                                model = "Aitchison",
+                                                                #warnings = NULL,
+                                                                frequentist = TRUE,
+                                                                parametric = TRUE,
+                                                                reasonable = TRUE,
+                                                                # other = list(fitted_model = fitted_model),
+                                                                SIMPLIFY = F))
   
   # Estimate Bray Curtis
   output_list[["bray-curtis"]] <- bray_curtis_true(zz)
@@ -166,14 +219,15 @@ get_diversity_variance <- function(list_of_fitted_models, samples_names = NULL) 
   output_list <- list()
   
   # na.rm = TRUE because nonparametric bootstrap works by subsampling
+
   output_list[["shannon-variance"]]  <- list_of_fitted_models %>% 
-    lapply(function(x) x$shannon) %>% 
-    simplify2array %>% 
+    lapply(function(x) sapply(x$shannon, function(x) x$estimate)) %>%
+    simplify2array %>%
     apply(1, var, na.rm = TRUE)
-  
+
   output_list[["simpson-variance"]]  <- list_of_fitted_models %>% 
-    lapply(function(x) x$simpson) %>% 
-    simplify2array %>% 
+    lapply(function(x) sapply(x$simpson, function(x) x$estimate)) %>%
+    simplify2array %>%
     apply(1, var, na.rm = TRUE)
   
   output_list[["bray-curtis-variance"]] <- list_of_fitted_models %>% 

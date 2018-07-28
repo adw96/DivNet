@@ -17,7 +17,7 @@ make_alpha_estimates <- function(dn) {
                              parametric = TRUE,
                              reasonable = TRUE,
                              SIMPLIFY = F) %>%
-    alpha_estimates
+    breakaway::alpha_estimates
   
   my_alpha$simpson <- mapply(breakaway::alpha_estimate, 
                              estimate = dn$simpson, 
@@ -29,7 +29,7 @@ make_alpha_estimates <- function(dn) {
                              parametric = TRUE,
                              reasonable = TRUE,
                              SIMPLIFY = F) %>%
-    alpha_estimates
+    breakaway::alpha_estimates
   
   my_alpha
 }
