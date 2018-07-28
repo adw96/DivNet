@@ -139,7 +139,7 @@ divnet <-  function(W,
   # Adding class alpha-estimates
   if (!is.null(output_list$shannon)) {
     if (!is.null(output_list$`shannon-variance`)) {
-      output_list$shannon <- mapply(breakaway:::alpha_estimate, 
+      output_list$shannon <- mapply(breakaway::alpha_estimate, 
                                     estimate = output_list$shannon, 
                                     error = output_list$`shannon-variance`,
                                     estimand = "Shannon",
@@ -154,10 +154,10 @@ divnet <-  function(W,
                                     reasonable = TRUE,
                                     other = list(fitted_model = fitted_model),
                                     SIMPLIFY = F) %>%
-        breakaway:::alpha_estimates
+        breakaway::alpha_estimates
       output_list$`shannon-variance` <- NULL
     } else {
-      output_list$shannon <- mapply(breakaway:::alpha_estimate, 
+      output_list$shannon <- mapply(breakaway::alpha_estimate, 
                                     estimate = output_list$shannon, 
                                     #error = output_list$`shannon-variance`,
                                     estimand = "Shannon",
@@ -172,13 +172,13 @@ divnet <-  function(W,
                                     reasonable = TRUE,
                                     other = list(fitted_model = fitted_model),
                                     SIMPLIFY = F) %>%
-        breakaway:::alpha_estimates
+        breakaway::alpha_estimates
     }
 
   }
   if (!is.null(output_list$simpson)) {
     if (!is.null(output_list$`simpson-variance`)) {
-      output_list$simpson <- mapply(breakaway:::alpha_estimate, 
+      output_list$simpson <- mapply(breakaway::alpha_estimate, 
                                     estimate = output_list$simpson, 
                                     error = output_list$`simpson-variance`, 
                                     estimand = "Simpson",
@@ -193,10 +193,10 @@ divnet <-  function(W,
                                     reasonable = TRUE,
                                     other = list(fitted_model = fitted_model),
                                     SIMPLIFY = F) %>%
-        breakaway:::alpha_estimates
+        breakaway::alpha_estimates
       output_list$`simpson-variance` <- NULL
     } else {
-      output_list$simpson <- mapply(breakaway:::alpha_estimate, 
+      output_list$simpson <- mapply(breakaway::alpha_estimate, 
                                     estimate = output_list$simpson, 
                                     #error = output_list$`simpson-variance`, 
                                     estimand = "Simpson",
@@ -211,7 +211,7 @@ divnet <-  function(W,
                                     reasonable = TRUE,
                                     other = list(fitted_model = fitted_model),
                                     SIMPLIFY = F) %>%
-        breakaway:::alpha_estimates
+        breakaway::alpha_estimates
     }
   }
   

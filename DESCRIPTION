@@ -6,8 +6,8 @@ Authors@R: c(person("Amy", "Willis", email = "adwillis@uw.ed", role = c("aut", "
 Description: Estimate alpha- and beta- diversity of a community where taxa interact.
 License: GPL (>= 2)
 Depends: R (>= 3.2),
-          phyloseq,
-          breakaway
+          phyloseq (>= 1.24.0),
+          breakaway (>= 4.4)
 Imports:
     abind,
     dplyr,
