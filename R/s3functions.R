@@ -38,9 +38,9 @@ plot.diversityEstimates <- function(x, ...) {
   h0 <- args$h0
   if (h0 %in% c("shannon", "simpson")) {
     ests <- sapply(dv[[h0]], function(x) x$estimate)
-    vars <- sapply(dv[[h0]], function(x) x$error)
-    lci <- ests - 2*sqrt(vars)
-    uci <- ests + 2*sqrt(vars)
+    # vars <- sapply(dv[[h0]], function(x) x$error)
+    lci <- sapply(dv[[h0]], function(x) x$interval[1])
+    uci <- sapply(dv[[h0]], function(x) x$interval[2])
     df <- data.frame("names" = names(ests), 
                      "h0" = ests, lci, uci, dv$X)
   } else {
