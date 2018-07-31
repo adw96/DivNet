@@ -7,7 +7,7 @@ Description: Estimate alpha- and beta- diversity of a community where taxa inter
 License: GPL (>= 2)
 Depends: R (>= 3.2),
           phyloseq (>= 1.18.0),
-          breakaway (>= 4.4)
+          breakaway (>= 4.5)
 Imports:
     abind,
     dplyr,
@@ -22,7 +22,7 @@ Imports:
 Suggests:
     doSNOW,
     glasso,
-    knitr, 
+    knitr,
     parallel,
     PDSCE,
     rmarkdown,
