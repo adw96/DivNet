@@ -147,16 +147,22 @@ divnet <-  function(W,
     for(i in 1:length(variance_estimates)) {
       output_list[[names(variance_estimates)[i]]] <-  variance_estimates[[i]]
     }
+  } else {
+    warning("No variance estimate is computed")
   }
   
   output_list[["X"]] <- X
-
+  
   class(output_list) <- c("diversityEstimates", class(output_list))
 
   output_list
 }
 
 get_diversities <- function(zz, samples_names = NULL) {
+  
+  ## Note: at this point, variances have not been 
+  # estimated, and so the error and interval fields
+  # are empty for now
   
   output_list <- list()
   
