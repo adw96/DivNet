@@ -55,7 +55,7 @@ phylodivnet <-  function(W,
     
     # make the design matrix
     if (is.character(X)) {
-      X <- make_design_matrix(input_data, X)
+      X <- breakaway::make_design_matrix(input_data, X)
     }
   } else {
     samples_names <- rownames(W)

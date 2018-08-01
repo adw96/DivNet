@@ -14,6 +14,7 @@
 #' @param nsub Number of subsamples for nonparametric bootstrap. Defaults to half the number of observed samples.
 #' @param ... Additional parameters to be passed to the network function
 #' 
+#' @importFrom breakaway make_design_matrix
 #' @importFrom magrittr "%>%"
 #' @importFrom phyloseq otu_table
 #' @importFrom phyloseq sample_names
@@ -54,7 +55,7 @@ divnet <-  function(W,
     
     # make the design matrix
     if (is.character(X)) {
-      X <- make_design_matrix(input_data, X)
+      X <- breakaway::make_design_matrix(input_data, X)
     } else if (is.null(X)) {
       xx <- input_data %>% sample_data %>% rownames 
       X <- model.matrix(~xx)

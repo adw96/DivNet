@@ -7,15 +7,15 @@ vignette: >
   %\VignetteIndexEntry{Analysing phyloseq objects}
   %\VignetteEncoding[utf8]{inputenc}
 ---
-  
+
 ## Vignette Info
-  
+
   Mike Lee, a bioinformatics wizard, recently put together some fantastic tutorials on bioinformatics for analysing microbiome data at [link](astrobiomike.github.io). Mike has very kindly allowed us to distribute the phyloseq data object from this tutorial via DivNet. In this tutorial we're going to analyse this data set.
-  
+
 ## Preliminaries
-  
-Let's take a quick look at the Lee et al dataset. 
-  
+
+Let's take a quick look at the Lee et al dataset.
+
 ```{r}
 library(magrittr)
 library(phyloseq)
@@ -28,16 +28,16 @@ Lee
 
 ## What does DivNet do that I can't do already?
 
-The idea behind DivNet, just like the idea behind breakaway, is that you don't care about your samples. You care about the population that your samples were drawn from. So Mike doesn't care about the X mL of sea scum that he scraped off these basalts, he cares about all of the microbes that live on those basalts. For example, if we knew the true relative abundances of all of the phyla living on seafloor basalts, we could calculate the true Shannon diversity at the phylum level of microbes living on seafloor basalt, and compare it to the, e.g., true Shannon diversity of microbes living on land basalts. In order to do this comparison, we need an estimate of the Shannon diversity of microbes living on seafloor basalts. 
+The idea behind DivNet, just like the idea behind breakaway, is that you don't care about your samples. You care about the population that your samples were drawn from. So Mike doesn't care about the X mL of sea scum that he scraped off these basalts, he cares about all of the microbes that live on those basalts. For example, if we knew the true relative abundances of all of the phyla living on seafloor basalts, we could calculate the true Shannon diversity at the phylum level of microbes living on seafloor basalt, and compare it to the, e.g., true Shannon diversity of microbes living on land basalts. In order to do this comparison, we need an estimate of the Shannon diversity of microbes living on seafloor basalts.
 
 One approach to getting such an estimate is to consider the  Shannon diversity of the samples that we took:
 
 ```{r}
-tax_glom(Lee, taxrank="Phylum") %>% 
+tax_glom(Lee, taxrank="Phylum") %>%
   estimate_richness(measures = "Shannon") %>% c
 ```
 
-These numbers tell us something about the X mL of  microbial matter that we observed. However, while we hope that they are reflective of all microbial matter living on those rocks, the samples were inexhaustive (we didn't get all the microbes on the rocks into the MiSeq), and so the relative abundances that we observed are definitely not the relative abundances of all phyla on the rock. There are likely missing taxa (that are on the rocks but not in the sample), over sampled taxa (that were observed in greater proportion in the sample than live on the rock), and under sampled taxa (that were observed in lower proportion). 
+These numbers tell us something about the X mL of  microbial matter that we observed. However, while we hope that they are reflective of all microbial matter living on those rocks, the samples were inexhaustive (we didn't get all the microbes on the rocks into the MiSeq), and so the relative abundances that we observed are definitely not the relative abundances of all phyla on the rock. There are likely missing taxa (that are on the rocks but not in the sample), over sampled taxa (that were observed in greater proportion in the sample than live on the rock), and under sampled taxa (that were observed in lower proportion).
 
 By taking advantage of biological replicates and covariate information, DivNet works to get a more complete picture of the diversity of the microbes on the rocks. Let's take a look to see how it works.
 
@@ -46,14 +46,14 @@ By taking advantage of biological replicates and covariate information, DivNet w
 It's tempting to jump right in and run `divnet(Lee)`, but DivNet gets more expensive as the number of taxa increases. For this reason, were going to analyse the data at a higher taxonomic level than ASVs. Let's look at the phylum level (just to illustrate!).  
 
 ```{r}
-lee_phylum <- tax_glom(Lee, taxrank="Phylum") 
+lee_phylum <- tax_glom(Lee, taxrank="Phylum")
 lee_phylum
 ```
 
-20 taxa is incredibly manageable! Let's go ahead and run divnet. My computer has 4 cores, so I am just going to run in parallel with the `ncores` argument. 
+20 taxa is incredibly manageable! Let's go ahead and run divnet. My computer has 4 cores, so I am just going to run in parallel with the `ncores` argument.
 
 ```{r, results = "hide"}
-divnet_phylum <- lee_phylum %>% 
+divnet_phylum <- lee_phylum %>%
   divnet(ncores = 4)
 ```
 
@@ -65,7 +65,7 @@ Let's take a look at what the output of DivNet is: a list of diversity indices a
 divnet_phylum %>% names
 ```
 
-For each of the 4 diversity indices mentioned above, we have an estimate of the diversity index of the population from which that sample was drawn. So the estimated Shannon index is 
+For each of the 4 diversity indices mentioned above, we have an estimate of the diversity index of the population from which that sample was drawn. So the estimated Shannon index is
 
 ```{r}
 divnet_phylum$shannon
@@ -95,20 +95,20 @@ Let's now compare the plug-in Shannon index with the divnet estimates
 ```{r}
 shannon_estimates <- data.frame("char" = tax_glom(Lee, taxrank="Phylum") %>% sample_data %>%
         get_variable("char"),
-      "sample" = tax_glom(Lee, taxrank="Phylum") %>% 
+      "sample" = tax_glom(Lee, taxrank="Phylum") %>%
             estimate_richness(measures = "Shannon") %$% Shannon,
       "DivNet.est" = divnet_phylum_char$shannon,
       "DivNet.var" = divnet_phylum_char$`shannon-variance`)
 
 library(ggplot2)
-ggplot(shannon_estimates, aes(x = char)) + 
+ggplot(shannon_estimates, aes(x = char)) +
   geom_point(aes(y = sample), col = "red", cex = 3) +
   geom_point(aes(y = DivNet.est), col = "blue") +
   geom_linerange(aes(ymin = DivNet.est - 2*sqrt(DivNet.var),
                      ymax = DivNet.est + 2*sqrt(DivNet.var)), col = "blue")+
   xlab("Basalt characteristic") +
   ylab("Shannon diversity estimate\n(phylum level)")
-# 
+#
 # plot_bar(tax_glom(Lee, taxrank="Phylum"), x = "char", facet_grid = ~Phylum)
 # plot_bar(Lee, fill="Phylum")
 # Lee %>%
@@ -116,16 +116,16 @@ ggplot(shannon_estimates, aes(x = char)) +
 #     plot_bar(fill="Phylum")
 ```
 
-You will notice that the plug-in  estimates of Shannon diversity are different for each sample, but there is only a single DivNet estimate for each  characteristic (along with error bars). For characteristics for which many samples were observed, there are smaller error bars than for samples for which there was only one sample (seems reasonable -- we had less data). 
+You will notice that the plug-in  estimates of Shannon diversity are different for each sample, but there is only a single DivNet estimate for each  characteristic (along with error bars). For characteristics for which many samples were observed, there are smaller error bars than for samples for which there was only one sample (seems reasonable -- we had less data).
 
 For glassy and water samples, the estimated diversity is in the middle of the individual diversity estimates, while for altered samples the estimated diversity is lower. That's because the water and glassy samples are much more similar to each other in terms of relative abundances than the altered samples, as we can see from the distribution of Bray-Curtis distances between the samples:
 
 ```{r}
-data.frame("altered" = distance(lee_phylum %>% subset_samples(char == "altered"), "bray") %>% 
-             quantile(c(0.25, 0.75)), 
-           "water" = distance(lee_phylum %>% subset_samples(char == "water"), "bray") %>% 
-             quantile(c(0.25, 0.75)), 
-           "glassy" = distance(lee_phylum %>% subset_samples(char == "glassy"), "bray") %>% 
+data.frame("altered" = distance(lee_phylum %>% subset_samples(char == "altered"), "bray") %>%
+             quantile(c(0.25, 0.75)),
+           "water" = distance(lee_phylum %>% subset_samples(char == "water"), "bray") %>%
+             quantile(c(0.25, 0.75)),
+           "glassy" = distance(lee_phylum %>% subset_samples(char == "glassy"), "bray") %>%
              quantile(c(0.25, 0.75)))
 ```
 
@@ -135,9 +135,9 @@ As a result, when information from the glassy samples is amalgamated using DivNe
 merge_samples(lee_phylum, "char") %>%
   estimate_richness(measures = "Shannon")
 ```
-## Where do the variance estimates come from? 
+## Where do the variance estimates come from?
 
-When taxa cluster together (spatially), you can imagine that your samples are more likely to be different from each other. For example, you may happen upon a patch of Microbe A in your first sample, but get a patch of Microbe B in your second sample. The statistics word for this is variance, and it is well studied that dependence structures (like spatial organisation) lead to greater variance. Plug-in estimates of diversity (the ones you're familiar with: where you just take the sample data and calculate the diversity index on it) ignore any dependence structure. This leads to understatements of variance (samples are more varying than the model that underpins the estimate allows), and exaggerated risk of concluding significant differences when none exist (p values are smaller than they should be, leading to an increased Type 1 error rate). 
+When taxa cluster together (spatially), you can imagine that your samples are more likely to be different from each other. For example, you may happen upon a patch of Microbe A in your first sample, but get a patch of Microbe B in your second sample. The statistics word for this is variance, and it is well studied that dependence structures (like spatial organisation) lead to greater variance. Plug-in estimates of diversity (the ones you're familiar with: where you just take the sample data and calculate the diversity index on it) ignore any dependence structure. This leads to understatements of variance (samples are more varying than the model that underpins the estimate allows), and exaggerated risk of concluding significant differences when none exist (p values are smaller than they should be, leading to an increased Type 1 error rate).
 DivNet addresses this by explicitly estimating those dependence structures, and then using them to come up with variance estimates (useful for the error bars). Let's see that in action.
 
 ## Hypothesis testing with DivNet
@@ -145,25 +145,25 @@ DivNet addresses this by explicitly estimating those dependence structures, and 
 I think the most common way ecologists currently test hypotheses about diversity is with a t-test. For example, if biological replicates are available, they would take the estimated index for one group and compared to the estimated index of the second group (Don't stop reading! You shouldn't do this!):
 
 ```{r}
-plugin <- tax_glom(Lee, taxrank="Phylum") %>% 
+plugin <- tax_glom(Lee, taxrank="Phylum") %>%
             estimate_richness(measures = "Shannon") %$% Shannon
 char <- Lee %>% sample_data %$% char
-t.test(plugin[char == "altered"], 
+t.test(plugin[char == "altered"],
        plugin[char == "glassy"])$p.value
 ```
 
-Underpinning this approach is a major problem: the plug-in estimates of diversity are not very good because they don't account for missing taxa or undersampling or oversampling of taxa. For the Shannon index, estimated diversity is too low, with a known negative bias. They are also based on the multinomial model, which ignores taxon-taxon interactions and the additional variance attributable to them. 
+Underpinning this approach is a major problem: the plug-in estimates of diversity are not very good because they don't account for missing taxa or undersampling or oversampling of taxa. For the Shannon index, estimated diversity is too low, with a known negative bias. They are also based on the multinomial model, which ignores taxon-taxon interactions and the additional variance attributable to them.
 
-DivNet addresses these problems by accounting for oversampling and undersampling, and modelling these interactions. This gives us better variance estimates with which to do hypothesis testing. 
+DivNet addresses these problems by accounting for oversampling and undersampling, and modelling these interactions. This gives us better variance estimates with which to do hypothesis testing.
 
-Let's say we want to compare the Shannon index across the different characteristics. The package `breakaway` provides an implementation for statistical inference for alpha diversity called `betta`. We are going to use this function here for inference on the Shannon index. 
+Let's say we want to compare the Shannon index across the different characteristics. The package `breakaway` provides an implementation for statistical inference for alpha diversity called `betta`. We are going to use this function here for inference on the Shannon index.
 
  To set this up, we need a vector of our alpha diversity estimates, a vector of the standard errors in these estimates, and a design matrix
 
 ```{r}
 estimates <- divnet_phylum_char$shannon
 ses <- sqrt(divnet_phylum_char$`shannon-variance`)
-X <- make_design_matrix(lee_phylum, "char")
+X <- breakaway::make_design_matrix(lee_phylum, "char")
 library(breakaway)
 betta(estimates, ses, X)$table
 ```
@@ -175,4 +175,3 @@ On the other hand, we do see  some differences in alpha diversity across the dif
 ```{r}
 betta(estimates, ses, X)$global[2]
 ```
-
