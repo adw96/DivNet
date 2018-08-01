@@ -2,8 +2,7 @@
 % Please edit documentation in R/beta_diversity_helper.R
 \name{simplifyBeta}
 \alias{simplifyBeta}
-\title{A function to facilitate viewing and manipulating 
-beta diversity estimates}
+\title{A function to facilitate viewing and manipulating beta diversity estimates}
 \usage{
 simplifyBeta(dv, physeq, measure, x)
 }
@@ -20,6 +19,5 @@ simplifyBeta(dv, physeq, measure, x)
 A data frame with the ecosystems, beta diversity estimates, and CIs
 }
 \description{
-A function to facilitate viewing and manipulating 
-beta diversity estimates
+A function to facilitate viewing and manipulating beta diversity estimates
 }
