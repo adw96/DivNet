@@ -36,28 +36,33 @@ phylodivnet <-  function(W,
                          alpha = 0.05,
                          ...) {
   
+  # fix for global variable problem
+  i <- NULL
   ##################################################
   ##### Step 0: Process data
   ##################################################
   
-  if ("phyloseq" %in% class(W)) {
-    
-    input_data <- W
-    
-    W <- input_data %>% otu_table %>% as.matrix
-    suppressWarnings({class(W) <- "matrix"})
-    
-    if (phyloseq::taxa_are_rows(input_data)) W <- W %>% t
-    
-    samples_names <- input_data %>% sample_names
-    
-    # make the design matrix
-    if (is.character(X)) {
-      X <- make_design_matrix(input_data, X)
-    }
-  } else {
-    samples_names <- rownames(W)
+  stopifnot("phyloseq" %in% class(W))
+  
+  input_data <- W
+  
+  W <- input_data %>% otu_table %>% as.matrix
+  suppressWarnings({class(W) <- "matrix"})
+  
+  if (phyloseq::taxa_are_rows(input_data)) W <- W %>% t
+  
+  samples_names <- input_data %>% sample_names
+  
+  # make the design matrix
+  if (is.character(X)) {
+    X <- breakaway::make_design_matrix(input_data, X)
   }
+  
+  if (is.null(trees)) {
+    trees <- phy_tree(W)
+  }
+  
+  
   
   # remove taxa that weren't observed 
   # think more: this is a good idea?
@@ -190,12 +195,12 @@ phylodivnet <-  function(W,
     ## Series option ###
     ####################
     bs_unifracs <-  foreach(i = 1:B, .combine = 'acomb3',
-                         .multicombine = TRUE,
-                         .packages = "foreach") %do% {
-                           parametric_bs(i)
-                         }
+                            .multicombine = TRUE,
+                            .packages = "foreach") %do% {
+                              parametric_bs(i)
+                            }
   }
-
+  
   message("Finishing up...\n")
   bs_unifracs <- simplify2array(bs_unifracs)
   

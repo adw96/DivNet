@@ -36,11 +36,20 @@ plot.diversityEstimates <- function(x, ...) {
   }
   xx <- args$xx
   h0 <- args$h0
-  
-  lci <- dv[[h0]] - 2*sqrt(dv[[paste(h0, "-variance", sep = "")]])
-  uci <- dv[[h0]] + 2*sqrt(dv[[paste(h0, "-variance", sep = "")]])
-  df <- data.frame("names" = names(dv[[h0]]), 
-                   "h0" = dv[[h0]], lci, uci, dv$X)
+  if (h0 %in% c("shannon", "simpson")) {
+    ests <- sapply(dv[[h0]], function(x) x$estimate)
+    # vars <- sapply(dv[[h0]], function(x) x$error)
+    lci <- sapply(dv[[h0]], function(x) x$interval[1])
+    uci <- sapply(dv[[h0]], function(x) x$interval[2])
+    df <- data.frame("names" = names(ests), 
+                     "h0" = ests, lci, uci, dv$X)
+  } else {
+    lci <- dv[[h0]] - 2*sqrt(dv[[paste(h0, "-variance", sep = "")]])
+    uci <- dv[[h0]] + 2*sqrt(dv[[paste(h0, "-variance", sep = "")]])
+    df <- data.frame("names" = names(dv[[h0]]), 
+                     "h0" = dv[[h0]], lci, uci, dv$X)
+  }
+
   df$names <- factor(df$names, levels = df$names)
   
   ggplot2::ggplot(df, ggplot2::aes(x = names, xend = names)) +
@@ -67,7 +76,13 @@ plot.diversityEstimates <- function(x, ...) {
 #' @export
 testDiversity <- function(dv, h0 = "shannon") {
   cat("Hypothesis testing:\n")
-  bt <- breakaway::betta(dv[[h0]], dv[[paste(h0, "-variance", sep="")]], X = dv[["X"]])
+  if (h0 %in% c("shannon", "simpson")) {
+    bt <- breakaway::betta(sapply(dv[[h0]], function(x) x$estimate), 
+                           sapply(dv[[h0]], function(x) x$error),
+                           X = dv[["X"]])
+  } else {
+    bt <- breakaway::betta(dv[[h0]], dv[[paste(h0, "-variance", sep="")]], X = dv[["X"]])
+  }
   cat(paste("  p-value for global test:", bt$global[2], "\n"))
   bt$table
 }
