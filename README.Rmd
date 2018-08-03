@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# <img src="docs/logo.png" align="right"  />
+# DivNet <img src="docs/divnet-logo.png" align="right" width="165px"/>
 
 
 [![Build Status](https://travis-ci.org/adw96/DivNet.svg?branch=master)](https://travis-ci.org/adw96/DivNet)

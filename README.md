@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 
-<img src="docs/logo.png" align="right"  />
-==========================================
+DivNet <img src="docs/divnet-logo.png" align="right" width="165px"/>
+====================================================================
 
 [![Build Status](https://travis-ci.org/adw96/DivNet.svg?branch=master)](https://travis-ci.org/adw96/DivNet) <!-- [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/adw96/DivNet?branch=master&svg=true)](https://ci.appveyor.com/project/adw96/DivNet) --> [![codecov.io](https://codecov.io/gh/adw96/DivNet/coverage.svg?branch=master)](https://codecov.io/gh/adw96/DivNet?branch=master)
 
