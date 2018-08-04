@@ -24,8 +24,7 @@ simplifyBeta <- function(dv,
     sample_data %>% 
     get_variable(x) 
   names(vars) <- physeq %>% 
-    sample_data %>% 
-    get_variable(c("X.SampleID")) 
+    sample_names
   
   dv[[measure]] %>%
     data.frame %>%

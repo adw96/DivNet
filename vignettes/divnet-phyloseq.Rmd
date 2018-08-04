@@ -10,7 +10,7 @@ vignette: >
 
 ## Vignette Info
 
-  Mike Lee, a bioinformatics wizard, recently put together some fantastic tutorials on bioinformatics for analysing microbiome data at [link](astrobiomike.github.io). Mike has very kindly allowed us to distribute the phyloseq data object from this tutorial via DivNet. In this tutorial we're going to analyse this data set.
+Mike Lee, a bioinformatics wizard, recently put together some fantastic tutorials on bioinformatics for analysing microbiome data at [link](astrobiomike.github.io). Mike has very kindly allowed us to distribute the phyloseq data object from this tutorial via DivNet. In this tutorial we're going to analyse this data set.
 
 ## Preliminaries
 
@@ -19,6 +19,7 @@ Let's take a quick look at the Lee et al dataset.
 ```{r}
 library(magrittr)
 library(phyloseq)
+library(breakaway)
 library(DivNet)
 data(Lee)
 Lee
@@ -34,7 +35,8 @@ One approach to getting such an estimate is to consider the  Shannon diversity o
 
 ```{r}
 tax_glom(Lee, taxrank="Phylum") %>%
-  estimate_richness(measures = "Shannon") %>% c
+  sample_richness %>%
+  plot
 ```
 
 These numbers tell us something about the X mL of  microbial matter that we observed. However, while we hope that they are reflective of all microbial matter living on those rocks, the samples were inexhaustive (we didn't get all the microbes on the rocks into the MiSeq), and so the relative abundances that we observed are definitely not the relative abundances of all phyla on the rock. There are likely missing taxa (that are on the rocks but not in the sample), over sampled taxa (that were observed in greater proportion in the sample than live on the rock), and under sampled taxa (that were observed in lower proportion).
@@ -68,16 +70,12 @@ divnet_phylum %>% names
 For each of the 4 diversity indices mentioned above, we have an estimate of the diversity index of the population from which that sample was drawn. So the estimated Shannon index is
 
 ```{r}
-divnet_phylum$shannon
+divnet_phylum$shannon %>% head
 ```
 
-and the variance of the estimate is
+and the variance of the estimate is also shown.
 
-```{r}
-divnet_phylum$`shannon-variance`
-```
-
-Why are the estimates all the same? We didn't tell DivNet about any covariate information, so it just assumes that all the samples are from the same population. But we have information about the samples and the conditions under which they observed:
+Why are the estimates all different? We didn't tell DivNet about any covariate information, so it just assumes that all the samples are from different populations. But we have information about the samples and the conditions under which they observed:
 
 ```{r}
 lee_phylum %>% sample_data
@@ -93,27 +91,12 @@ divnet_phylum_char <- lee_phylum %>%
 Let's now compare the plug-in Shannon index with the divnet estimates
 
 ```{r}
-shannon_estimates <- data.frame("char" = tax_glom(Lee, taxrank="Phylum") %>% sample_data %>%
-        get_variable("char"),
-      "sample" = tax_glom(Lee, taxrank="Phylum") %>%
-            estimate_richness(measures = "Shannon") %$% Shannon,
-      "DivNet.est" = divnet_phylum_char$shannon,
-      "DivNet.var" = divnet_phylum_char$`shannon-variance`)
-
 library(ggplot2)
-ggplot(shannon_estimates, aes(x = char)) +
-  geom_point(aes(y = sample), col = "red", cex = 3) +
-  geom_point(aes(y = DivNet.est), col = "blue") +
-  geom_linerange(aes(ymin = DivNet.est - 2*sqrt(DivNet.var),
-                     ymax = DivNet.est + 2*sqrt(DivNet.var)), col = "blue")+
+divnet_phylum_char$shannon %>% 
+  plot(lee_phylum, color = "char") +
   xlab("Basalt characteristic") +
-  ylab("Shannon diversity estimate\n(phylum level)")
-#
-# plot_bar(tax_glom(Lee, taxrank="Phylum"), x = "char", facet_grid = ~Phylum)
-# plot_bar(Lee, fill="Phylum")
-# Lee %>%
-#   transform_sample_counts(function(x){x/sum(x)}) %>%
-#     plot_bar(fill="Phylum")
+  ylab("Shannon diversity estimate\n(phylum level)") +
+  coord_cartesian(ylim = c(0,2))
 ```
 
 You will notice that the plug-in  estimates of Shannon diversity are different for each sample, but there is only a single DivNet estimate for each  characteristic (along with error bars). For characteristics for which many samples were observed, there are smaller error bars than for samples for which there was only one sample (seems reasonable -- we had less data).
@@ -121,19 +104,24 @@ You will notice that the plug-in  estimates of Shannon diversity are different f
 For glassy and water samples, the estimated diversity is in the middle of the individual diversity estimates, while for altered samples the estimated diversity is lower. That's because the water and glassy samples are much more similar to each other in terms of relative abundances than the altered samples, as we can see from the distribution of Bray-Curtis distances between the samples:
 
 ```{r}
-data.frame("altered" = distance(lee_phylum %>% subset_samples(char == "altered"), "bray") %>%
-             quantile(c(0.25, 0.75)),
-           "water" = distance(lee_phylum %>% subset_samples(char == "water"), "bray") %>%
-             quantile(c(0.25, 0.75)),
-           "glassy" = distance(lee_phylum %>% subset_samples(char == "glassy"), "bray") %>%
-             quantile(c(0.25, 0.75)))
+simplifyBeta(divnet_phylum_char, lee_phylum, "bray-curtis", "char")
+
+# You can plot this easily
+simplifyBeta(divnet_phylum_char, lee_phylum, "bray-curtis", "char") %>%
+  ggplot(aes(x = interaction(Covar1, Covar2), 
+             y = beta_est,
+             col = interaction(Covar1, Covar2))) +
+  geom_point() +
+  geom_linerange(aes(ymin = lower, ymax = upper)) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlab("") + ylab("Estimates of Bray-Curtis distance")
 ```
 
 As a result, when information from the glassy samples is amalgamated using DivNet, there is similar information from the samples, and so the diversity is sort of averaged. In contrast, there is conflicting information from altered samples, giving the different picture overall. It's somewhat similar to the result that we get when we amalgamate across characteristics and then estimate the diversity:
 
 ```{r}
 merge_samples(lee_phylum, "char") %>%
-  estimate_richness(measures = "Shannon")
+  sample_shannon
 ```
 ## Where do the variance estimates come from?
 
