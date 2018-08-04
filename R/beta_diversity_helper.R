@@ -20,11 +20,8 @@ simplifyBeta <- function(dv,
   
   beta_var_matrix <- dv[[paste(measure, "-variance", sep = "")]]
   
-  vars <- physeq %>% 
-    sample_data %>% 
-    get_variable(x) 
-  names(vars) <- physeq %>% 
-    sample_names
+  vars <- physeq %>% sample_data %>% get_variable(x) 
+  names(vars) <- physeq %>% sample_names
   
   dv[[measure]] %>%
     data.frame %>%

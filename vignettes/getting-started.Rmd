@@ -1,5 +1,5 @@
 ---
-title: "Getting started with DivNet"
+title: "Analysing amplicon data with DivNet"
 author: "Amy Willis"
 output: pdf_document
 vignette: >
@@ -10,90 +10,155 @@ vignette: >
 
 ## Vignette Info
 
-This vignette will lead you through
+Mike Lee, a bioinformatics wizard, recently put together some fantastic tutorials on bioinformatics for analysing microbiome data at [link](astrobiomike.github.io). Mike has very kindly allowed us to distribute the phyloseq data object from this tutorial via DivNet. In this tutorial we're going to analyse this data set.
 
-- loading the package
-- the syntax needed for DivNet to run
-- interpreting the output
-- inference using DivNet
+## Preliminaries
 
-If there is something that you would like explained please feel free to request it!
-
-## Loading the package and data
-
-Download the latest version of the package from github.
+Let's take a quick look at the Lee et al dataset.
 
 ```{r}
-### Run the first two lines at home! ####
-# install.packages("devtools")
-# devtools::install_github("adw96/DivNet")
+library(magrittr)
+library(phyloseq)
+library(breakaway)
 library(DivNet)
+data(Lee)
+Lee
 ```
 
-Amy loathes dealing with the CRAN  moderators, so for the foreseeable future, this package will be available via github only. Bryan is a good sport though, so it may go up there at some point.
+16 samples, 1490 ASVs, and taxonomy information. Fantastic!
 
-## Running DivNet
+## What does DivNet do that I can't do already?
 
-We're going to create a fake mini dataset to illustrate the syntax. If you want to learn about the phyloseq syntax, check out the phyloseq vignette.
+The idea behind DivNet, just like the idea behind breakaway, is that you don't care about your samples. You care about the population that your samples were drawn from. So Mike doesn't care about the X mL of sea scum that he scraped off these basalts, he cares about all of the microbes that live on those basalts. For example, if we knew the true relative abundances of all of the phyla living on seafloor basalts, we could calculate the true Shannon diversity at the phylum level of microbes living on seafloor basalt, and compare it to the, e.g., true Shannon diversity of microbes living on land basalts. In order to do this comparison, we need an estimate of the Shannon diversity of microbes living on seafloor basalts.
 
-The first argument in the syntax is a matrix or data frame containing the matrix of taxa abundances. The samples must be listed in the rows, and the taxa must be listed through the columns, like this:
-
-```{r, echo=TRUE}
-set.seed(1)
-my_counts <- matrix(rpois(30, lambda=10), nrow = 6)
-rownames(my_counts) <- paste("Sample", 1:6, sep = "")
-colnames(my_counts) <- paste("Taxon", 1:5, sep = "")
-
-my_counts
-```
-Note that this is for 6 samples with 5 taxa.
-
-Estimating diversity is then as simple as running the following:
-
-```{r, results="hide"}
-estimated_diversities <- divnet(my_counts)
-```
-
-```{r, echo=TRUE}
-estimated_diversities
-```
-
-## Speeding up DivNet
-
-If you have multiple cores on your computer, you can run one of the commutationally intense steps of the algorithm in parallel by specifying the number of cores you want to use:
-
-```{r, results="hide"}
-estimated_diversities <- divnet(my_counts, ncores = 4)
-```
-
-
-## Running DivNet with covariates
-
-We're going to create a fake mini dataset to illustrate the abundance table + covariates syntax. Suppose that the first 3 observations belong to one group (e.g., untreated) and the second 3 observations belong to another group (e.g., treated). Our covariate matrix would then look like this:
+One approach to getting such an estimate is to consider the  Shannon diversity of the samples that we took:
 
 ```{r}
-my_covariate <- cbind(1, rep(c(0,1), each = 3))
-my_covariate
+tax_glom(Lee, taxrank="Phylum") %>%
+  sample_richness %>%
+  plot
 ```
 
-Alternatively, if you had a vector specifying the groups, you could turn it into this matrix in the following way
+These numbers tell us something about the X mL of  microbial matter that we observed. However, while we hope that they are reflective of all microbial matter living on those rocks, the samples were inexhaustive (we didn't get all the microbes on the rocks into the MiSeq), and so the relative abundances that we observed are definitely not the relative abundances of all phyla on the rock. There are likely missing taxa (that are on the rocks but not in the sample), over sampled taxa (that were observed in greater proportion in the sample than live on the rock), and under sampled taxa (that were observed in lower proportion).
+
+By taking advantage of biological replicates and covariate information, DivNet works to get a more complete picture of the diversity of the microbes on the rocks. Let's take a look to see how it works.
+
+## Using DivNet
+
+It's tempting to jump right in and run `divnet(Lee)`, but DivNet gets more expensive as the number of taxa increases. For this reason, were going to analyse the data at a higher taxonomic level than ASVs. Let's look at the phylum level (just to illustrate!).  
 
 ```{r}
-tmt <- rep(c("untreated", "treated"), each = 3)
-my_covariate <- model.matrix( ~., data = as.data.frame(tmt))
+lee_phylum <- tax_glom(Lee, taxrank="Phylum")
+lee_phylum
 ```
 
-This matrix becomes the second argument to DivNet
-```{r, results="hide"}
-estimated_diversities_tmt <- divnet(my_counts, 
-                                X = my_covariate,
-                                ncores = 4)
+20 taxa is incredibly manageable! Let's go ahead and run divnet. My computer has 4 cores, so I am just going to run in parallel with the `ncores` argument.
+
+```{r, results = "hide"}
+divnet_phylum <- lee_phylum %>%
+  divnet(ncores = 4)
 ```
+
+Hopefully that didn't take too long! If you don't want to run in parallel, you can ignore the `ncores`  argument.
+
+Let's take a look at what the output of DivNet is: a list of diversity indices and some variances.
 
 ```{r}
-estimated_diversities_tmt
+divnet_phylum %>% names
 ```
 
-## Interpretation
+For each of the 4 diversity indices mentioned above, we have an estimate of the diversity index of the population from which that sample was drawn. So the estimated Shannon index is
 
-Coming soon
+```{r}
+divnet_phylum$shannon %>% head
+```
+
+and the variance of the estimate is also shown.
+
+Why are the estimates all different? We didn't tell DivNet about any covariate information, so it just assumes that all the samples are from different populations. But we have information about the samples and the conditions under which they observed:
+
+```{r}
+lee_phylum %>% sample_data
+```
+
+Let's use this to estimate the Shannon diversity of basalts of different characteristics (`char`) using DivNet.
+
+```{r, results = "hide"}
+divnet_phylum_char <- lee_phylum %>%
+  divnet(X = "char", ncores = 4)
+```
+
+Let's now compare the plug-in Shannon index with the divnet estimates
+
+```{r}
+library(ggplot2)
+divnet_phylum_char$shannon %>% 
+  plot(lee_phylum, color = "char") +
+  xlab("Basalt characteristic") +
+  ylab("Shannon diversity estimate\n(phylum level)") +
+  coord_cartesian(ylim = c(0,2))
+```
+
+You will notice that the plug-in  estimates of Shannon diversity are different for each sample, but there is only a single DivNet estimate for each  characteristic (along with error bars). For characteristics for which many samples were observed, there are smaller error bars than for samples for which there was only one sample (seems reasonable -- we had less data).
+
+For glassy and water samples, the estimated diversity is in the middle of the individual diversity estimates, while for altered samples the estimated diversity is lower. That's because the water and glassy samples are much more similar to each other in terms of relative abundances than the altered samples, as we can see from the distribution of Bray-Curtis distances between the samples:
+
+```{r}
+simplifyBeta(divnet_phylum_char, lee_phylum, "bray-curtis", "char")
+
+# You can plot this easily
+simplifyBeta(divnet_phylum_char, lee_phylum, "bray-curtis", "char") %>%
+  ggplot(aes(x = interaction(Covar1, Covar2), 
+             y = beta_est,
+             col = interaction(Covar1, Covar2))) +
+  geom_point() +
+  geom_linerange(aes(ymin = lower, ymax = upper)) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlab("") + ylab("Estimates of Bray-Curtis distance")
+```
+
+As a result, when information from the glassy samples is amalgamated using DivNet, there is similar information from the samples, and so the diversity is sort of averaged. In contrast, there is conflicting information from altered samples, giving the different picture overall. It's somewhat similar to the result that we get when we amalgamate across characteristics and then estimate the diversity:
+
+```{r}
+merge_samples(lee_phylum, "char") %>%
+  sample_shannon
+```
+## Where do the variance estimates come from?
+
+When taxa cluster together (spatially), you can imagine that your samples are more likely to be different from each other. For example, you may happen upon a patch of Microbe A in your first sample, but get a patch of Microbe B in your second sample. The statistics word for this is variance, and it is well studied that dependence structures (like spatial organisation) lead to greater variance. Plug-in estimates of diversity (the ones you're familiar with: where you just take the sample data and calculate the diversity index on it) ignore any dependence structure. This leads to understatements of variance (samples are more varying than the model that underpins the estimate allows), and exaggerated risk of concluding significant differences when none exist (p values are smaller than they should be, leading to an increased Type 1 error rate).
+DivNet addresses this by explicitly estimating those dependence structures, and then using them to come up with variance estimates (useful for the error bars). Let's see that in action.
+
+## Hypothesis testing with DivNet
+
+I think the most common way ecologists currently test hypotheses about diversity is with a t-test. For example, if biological replicates are available, they would take the estimated index for one group and compared to the estimated index of the second group (Don't stop reading! You shouldn't do this!):
+
+```{r}
+plugin <- tax_glom(Lee, taxrank="Phylum") %>%
+            estimate_richness(measures = "Shannon") %$% Shannon
+char <- Lee %>% sample_data %$% char
+t.test(plugin[char == "altered"],
+       plugin[char == "glassy"])$p.value
+```
+
+Underpinning this approach is a major problem: the plug-in estimates of diversity are not very good because they don't account for missing taxa or undersampling or oversampling of taxa. For the Shannon index, estimated diversity is too low, with a known negative bias. They are also based on the multinomial model, which ignores taxon-taxon interactions and the additional variance attributable to them.
+
+DivNet addresses these problems by accounting for oversampling and undersampling, and modelling these interactions. This gives us better variance estimates with which to do hypothesis testing.
+
+Let's say we want to compare the Shannon index across the different characteristics. The package `breakaway` provides an implementation for statistical inference for alpha diversity called `betta`. We are going to use this function here for inference on the Shannon index.
+
+ To set this up, we need a vector of our alpha diversity estimates, a vector of the standard errors in these estimates, and a design matrix
+
+```{r}
+estimates <- divnet_phylum_char$shannon %>% summary %$% estimate
+ses <- sqrt(divnet_phylum_char$`shannon-variance`)
+X <- breakaway::make_design_matrix(lee_phylum, "char")
+betta(estimates, ses, X)$table
+```
+
+The intercept term is our altered basalts (they are the only ones that aren't listed), and so all comparisons are made to this baseline. We see that there are no significant differences between altered and glassy, as we saw before with the t-test, but now the p value is 0.53 not 0.12.  I think that this is the great thing about DivNet -- hypothesis testing now reflects instability in microbiomes  better than plug-in estimates.
+
+On the other hand, we do see  some differences in alpha diversity across the different groups: biofilm and water basalts have significantly different diversity (at the phylum level) than altered basalts. If we want to do the global test of whether or not there are differences across categories, we can get the p value as follows:
+
+```{r}
+betta(estimates, ses, X)$global[2]
+```
