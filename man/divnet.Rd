@@ -21,7 +21,7 @@ divnet(W, X = NULL, fitted_model = NULL, tuning = NULL,
 
 \item{network}{How to estimate network. Defaults to NULL (the default), "default" (generalised inverse, aka naive). Other options include "diagonal", "stars" (requires glasso and SpiecEasi to be installed), or a function that you want to use to estimate the network}
 
-\item{base}{Base taxon index.}
+\item{base}{Base taxon index. If NULL, will use `pick_base` to choose a taxon. If no taxa are observed in all samples, an error will be thrown. In that case, we recommend trying a number of different highly abundant taxa to confirm the results are robust to the taxon choice.}
 
 \item{ncores}{Number of cores to use for parallelization}
 
