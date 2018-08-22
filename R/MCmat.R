@@ -62,6 +62,9 @@ MCmat <- function(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1,
     ####################
     ## Series option ###
     ####################
+    if (ncores > 1) {
+      warning("Running in series; one of the packages doParallel, foreach or doSNOW is missing")
+    }
     Y.MH <-  foreach(i = 1:N, .combine = 'acomb3', .multicombine = TRUE, .packages = "foreach") %do% {
       MH_path(i)
     }
