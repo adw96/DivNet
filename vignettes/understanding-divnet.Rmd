@@ -1,0 +1,85 @@
+---
+title: "Understanding DivNet"
+noauthor: "Amy Willis"
+output: pdf_document
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Getting Started}
+  %\VignetteEncoding[utf8]{inputenc}
+---
+
+Amy tries to unravel some curious behaviour in DivNet
+
+```{r}
+devtools::install_github("adw96/breakaway")
+library(breakaway)
+library(magrittr)
+library(phyloseq)
+library(DivNet)
+data(Lee)
+Lee
+lee_phylum <- tax_glom(Lee, taxrank="Phylum")
+```
+
+```{r, results = "hide"}
+divnet_phylum_char <- lee_phylum %>%
+  divnet(X = "char", ncores = 4)
+```
+
+Let's now compare the plug-in Shannon index with the divnet estimates
+
+```{r}
+library(ggplot2)
+dv_plot <- divnet_phylum_char$shannon %>% 
+  plot(lee_phylum, color = "char") +
+  xlab("Basalt characteristic") +
+  ylab("Shannon diversity estimate\n(phylum level)") +
+  coord_cartesian(ylim = c(0,2))
+
+naive_plot <- lee_phylum %>%
+  sample_shannon %>%
+  plot(lee_phylum, color = "char")  +
+  coord_cartesian(ylim = c(0,2))
+
+ggpubr::ggarrange(dv_plot, naive_plot)
+```
+
+## Why are the altered estimates so much lower than the sample estimates?
+
+Let's try subsetting into just altered and carbonate:
+
+```{r}
+dv_a <- lee_phylum %>%
+  subset_samples(char %in% c("altered", "carbonate")) %>% divnet(X = "char", ncores = 4)
+dv_a$shannon %>% 
+  plot(lee_phylum, "char") +
+  coord_cartesian(ylim = c(0,2))
+```
+
+The estimates are about 1.4, which is what we'd expect. Let's try other combinations
+
+```{r}
+dv_ab <- lee_phylum %>%
+  subset_samples(char %in% c("altered", "biofilm")) %>% 
+  divnet(X = "char", ncores = 4)
+dv_ab$shannon %>% 
+  plot(lee_phylum, "char") +
+  coord_cartesian(ylim = c(0,2))
+```
+
+Now they are lower! Hmmm. 
+
+```{r}
+lee_phylum %>%
+  sample_richness %>%
+  plot(lee_phylum, color = "char") 
+```
+
+Ok, so the altered specimens have much higher richness than the other types. I wonder if that's leading to the discrepancy?
+
+```{r}
+lee_phylum %>% otu_table
+lee_phylum %>% sample_data
+lee_phylum %>% 
+  plot_bar()
+```
