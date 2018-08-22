@@ -11,7 +11,7 @@ divnet(W, X = NULL, fitted_model = NULL, tuning = NULL,
 \arguments{
 \item{W}{An abundance table with taxa as columns and samples as rows; or a phyloseq object}
 
-\item{X}{The covariate matrix, with samples as rows and variables as columns. Defaults to NULL (samples are biological replicates).}
+\item{X}{The covariate matrix, with samples as rows and variables as columns. Defaults to NULL (sample_names are the covariates).}
 
 \item{fitted_model}{object produced by fit_aitchison. Defaults to NULL.}
 

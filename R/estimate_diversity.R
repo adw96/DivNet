@@ -2,7 +2,7 @@
 #' divnet
 #' 
 #' @param W An abundance table with taxa as columns and samples as rows; or a phyloseq object
-#' @param X The covariate matrix, with samples as rows and variables as columns. Defaults to NULL (samples are biological replicates).
+#' @param X The covariate matrix, with samples as rows and variables as columns. Defaults to NULL (sample_names are the covariates).
 #' @param fitted_model object produced by fit_aitchison. Defaults to NULL.
 #' @param tuning settings for tuning the MC-MH algorithm. Options include NULL (defaults to "fast"), "fast", "careful" or a named list with components EMiter (number of EM iterations; 6 for fast, 10 for careful), EMburn (number of EM iterations to burn; 3 for fast, 5 for careful), MCiter (number of MC iterations; 500 for fast, 1000 for careful), MCburn (number of MC iterations to burn; 250 for fast, 500 for careful) and stepsize (variance used for MH samples; 0.01 for both fast and careful)
 #' @param perturbation Perturbation magnitude for zero values when calculating logratios.
@@ -63,6 +63,11 @@ divnet <-  function(W,
   } else {
     samples_names <- rownames(W)
   }
+  
+  if (all(is.na(X))) {
+    X <- matrix(1, ncol=1, nrow=nrow(W))
+  }
+  
   
   # remove taxa that weren't observed 
   # yes, this is a good idea
