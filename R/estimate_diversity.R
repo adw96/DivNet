@@ -7,7 +7,7 @@
 #' @param tuning settings for tuning the MC-MH algorithm. Options include NULL (defaults to "fast"), "fast", "careful" or a named list with components EMiter (number of EM iterations; 6 for fast, 10 for careful), EMburn (number of EM iterations to burn; 3 for fast, 5 for careful), MCiter (number of MC iterations; 500 for fast, 1000 for careful), MCburn (number of MC iterations to burn; 250 for fast, 500 for careful) and stepsize (variance used for MH samples; 0.01 for both fast and careful)
 #' @param perturbation Perturbation magnitude for zero values when calculating logratios.
 #' @param network How to estimate network. Defaults to NULL (the default), "default" (generalised inverse, aka naive). Other options include "diagonal", "stars" (requires glasso and SpiecEasi to be installed), or a function that you want to use to estimate the network
-#' @param base Base taxon index. If NULL, will use `pick_base` to choose a taxon. If no taxa are observed in all samples, an error will be thrown. In that case, we recommend trying a number of different highly abundant taxa to confirm the results are robust to the taxon choice. 
+#' @param base Base taxon index (a number), or the name of the taxon (must be a column name of W, or a taxon name if W is a phyloseq object). If NULL, will use `pick_base` to choose a taxon. If no taxa are observed in all samples, an error will be thrown. In that case, we recommend trying a number of different highly abundant taxa to confirm the results are robust to the taxon choice. 
 #' @param ncores Number of cores to use for parallelization
 #' @param variance method to get variance of estimates. Current options are "parametric" for parametric bootstrap, "nonparametric" for nonparametric bootstrap, and "none" for no variance estimates
 #' @param B Number of bootstrap iterations for estimating the variance.
@@ -82,6 +82,15 @@ divnet <-  function(W,
   if (ncol(W) == 2) {
     stop("Cannot fit a network model with 2 taxa")
   }
+  
+  if (class(base) == "character") {
+    if (base %in% colnames(W)) {
+      base <- which(base == colnames(W))
+    } else {
+      stop("base not found in taxon names. base taxon may be unobserved in all samples, or you may have a typo.")
+    }
+  }
+  
   
   if (is.null(fitted_model)) {
     fitted_model <- fit_aitchison(W, 
