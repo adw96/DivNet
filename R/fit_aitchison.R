@@ -43,6 +43,8 @@ fit_aitchison <- function(W,
   output_list$X <- X
   no_covariates <- ncol(X) == 0
   
+  X_c <- scale(X, scale = FALSE)
+  
   # base taxon
   if (is.null(base)) { 
     base <- pick_base(W)
@@ -56,8 +58,8 @@ fit_aitchison <- function(W,
   b0 <- colMeans(Y_p)
   eY <- tcrossprod(rep(1, N), b0) 
   if (!no_covariates)  {
-    b <- OLS(X, Y_p)
-    eY <- eY + X %*% b
+    b <- OLS(X_c, Y_p)
+    eY <- eY + X_c %*% b
   }
   sigma <- var(Y_p - eY) # (Q-1) x (Q-1)
   
@@ -148,8 +150,8 @@ fit_aitchison <- function(W,
     # update b
     eY <- tcrossprod(rep(1, N), b0) 
     if (!no_covariates)  {
-      b <- OLS(X, Y_new)
-      eY <- eY + X %*% b
+      b <- OLS(X_c, Y_new)
+      eY <- eY + X_c %*% b
     }
     
     ### STORE after updating
@@ -188,7 +190,7 @@ fit_aitchison <- function(W,
     b_EM <- apply(b_list_reduced, c(1, 2), mean)
     output_list$beta <- b_EM
     
-    fitted_y <- X %*% b_EM + matrix(b0_EM, ncol = Q-1, nrow = N, byrow=T)
+    fitted_y <- X_c %*% b_EM + matrix(b0_EM, ncol = Q-1, nrow = N, byrow=T)
     
   }
   
