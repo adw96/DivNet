@@ -64,7 +64,7 @@ divnet <-  function(W,
     samples_names <- rownames(W)
   }
   
-  if (all(is.na(X))) {
+  if (is.null(X)) {
     X <- matrix(1, ncol=1, nrow=nrow(W))
   }
   
@@ -161,14 +161,17 @@ divnet <-  function(W,
     for(i in 1:length(variance_estimates)) {
       output_list[[names(variance_estimates)[i]]] <-  variance_estimates[[i]]
     }
+  } else if (variance == 0 | variance == "none") {
+    # do nothing, no warning
   } else {
     warning("No variance estimate is computed")
   }
   
   output_list[["X"]] <- X
+  output_list[["fitted_z"]] <- zz
   
   class(output_list) <- c("diversityEstimates", class(output_list))
-
+  
   output_list
 }
 
@@ -183,21 +186,21 @@ get_diversities <- function(zz, samples_names = NULL) {
   # Estimate Shannon diversity
   shannon_tmp <- apply(zz, 1, shannon_true)
   output_list[["shannon"]] <- breakaway::alpha_estimates(mapply(breakaway::alpha_estimate, 
-                                    estimate = shannon_tmp, 
-                                   #error = shannon_sd,
-                                    estimand = "Shannon",
-                                    name = "DivNet",
-                                    # interval = c(shannon_tmp - 2*shannon_sd,
-                                    #             shannon_tmp + 2*shannon_sd),
-                                    # interval_type = "symmetric",
-                                    #type = NULL,
-                                    model = "Aitchison",
-                                    #warnings = NULL,
-                                    frequentist = TRUE,
-                                    parametric = TRUE,
-                                    reasonable = TRUE,
-                                    # other = list(fitted_model = fitted_model),
-                                    SIMPLIFY = F))
+                                                                estimate = shannon_tmp, 
+                                                                #error = shannon_sd,
+                                                                estimand = "Shannon",
+                                                                name = "DivNet",
+                                                                # interval = c(shannon_tmp - 2*shannon_sd,
+                                                                #             shannon_tmp + 2*shannon_sd),
+                                                                # interval_type = "symmetric",
+                                                                #type = NULL,
+                                                                model = "Aitchison",
+                                                                #warnings = NULL,
+                                                                frequentist = TRUE,
+                                                                parametric = TRUE,
+                                                                reasonable = TRUE,
+                                                                # other = list(fitted_model = fitted_model),
+                                                                SIMPLIFY = F))
   
   # Estimate Simpson
   simpson_tmp <- apply(zz, 1, simpson_true)
@@ -240,12 +243,12 @@ get_diversity_variance <- function(list_of_fitted_models, samples_names = NULL) 
   output_list <- list()
   
   # na.rm = TRUE because nonparametric bootstrap works by subsampling
-
+  
   output_list[["shannon-variance"]]  <- list_of_fitted_models %>% 
     lapply(function(x) sapply(x$shannon, function(x) x$estimate)) %>%
     simplify2array %>%
     apply(1, var, na.rm = TRUE)
-
+  
   output_list[["simpson-variance"]]  <- list_of_fitted_models %>% 
     lapply(function(x) sapply(x$simpson, function(x) x$estimate)) %>%
     simplify2array %>%
