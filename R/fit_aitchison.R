@@ -40,8 +40,9 @@ fit_aitchison <- function(W,
   intercept_columns <- apply(X, 2, function(x) max(x) != min(x))
   X <- X[ , intercept_columns] %>% as.matrix
   
-  output_list$X <- X
   no_covariates <- ncol(X) == 0
+  X_c <- scale(X, scale = FALSE)
+  output_list$X <- X_c
   
   X_c <- scale(X, scale = FALSE)
   

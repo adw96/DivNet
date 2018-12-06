@@ -24,9 +24,12 @@ test_that("fit_aitchison works", {
 })
 
 test_that("divnet works", {
-  expect_is(divnet(my_counts, variance = 0, tuning="test"), "diversityEstimates")
-  expect_is(divnet(my_counts, my_discrete_covariate, variance = 0, tuning="test"), "diversityEstimates")
-  expect_is(divnet(my_counts, X = my_continuous_covariate, variance = 0, tuning="test"), "diversityEstimates")
+  expect_is(divnet(my_counts, variance = 0, tuning="test"), 
+            "diversityEstimates")
+  expect_is(divnet(my_counts, my_discrete_covariate, variance = 0, tuning="test"), 
+            "diversityEstimates")
+  expect_is(divnet(my_counts, X = my_continuous_covariate, variance = 0, tuning="test"), 
+            "diversityEstimates")
 })
 
 test_that("arguments are fine", {
