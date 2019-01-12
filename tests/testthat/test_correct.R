@@ -33,6 +33,7 @@ test_that("Identical observations give identical estimates", {
 
 
 test_that("DivNet estimates are basically correct", {
+  n_taxa <- 6
   my_counts <- matrix(c(rep(c(rep(100, n_taxa/2), rep(0, n_taxa/2)), n/2),
                         rep(c(rep(0, n_taxa/2), rep(100, n_taxa/2)), n/2)),
                       nrow = n, ncol = n_taxa, byrow=T)
