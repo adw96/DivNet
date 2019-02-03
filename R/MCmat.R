@@ -109,14 +109,23 @@ default_network <- function(sigma) {
 #' Estimate the network using the package SpiecEasi
 stars <- function(sigma, W, base, perturbation, ncores, ...) {
   
-  if (!requireNamespace("glasso", quietly = TRUE) | !requireNamespace("SpiecEasi", quietly = TRUE)) {
-    stop("Packages glasso and SpiecEasi are needed for this function to work. \n
+  if (!requireNamespace("glasso", quietly = TRUE) | !requireNamespace("SpiecEasi", quietly = TRUE) |
+      !requireNamespace("pulsar", quietly = TRUE) | !requireNamespace("huge", quietly = TRUE)) {
+    stop("Packages glasso, pulsar and SpiecEasi are needed for this function to work. \n
          Please install them.",
          call. = FALSE)
   }
+  
   Y_p <- to_log_ratios(W, base = base, perturbation = perturbation)
-  inverse_covariance_estimate <- SpiecEasi::sparseiCov(data=Y_p, method = "glasso")
-  selected <- SpiecEasi::icov.select(inverse_covariance_estimate, rep.num=5, ncores = ncores)
-  gl <- glasso::glasso(sigma, rho = selected$opt.lambda)
+  print("pulsar::getMaxCov(Y_p)")
+  print(pulsar::getMaxCov(Y_p))
+  hugeargs <- list(lambda=seq(from=ifelse(is.nan(pulsar::getMaxCov(Y_p)), 50, pulsar::getMaxCov(Y_p)), 
+                              to = 0.01, length.out=5), 
+                   verbose=FALSE)
+  
+  out.p <- pulsar(Y_p, fun=huge::huge, fargs=hugeargs,
+                  rep.num=10, criterion='stars', ncores=1)
+  gl <- glasso::glasso(sigma, rho = lams[out.p$stars$opt.index])
   gl$wi
+  
 }
