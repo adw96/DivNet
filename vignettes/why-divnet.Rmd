@@ -18,6 +18,9 @@ We're going to think about biological replicates for now, and how variable they 
 
 
 ```{r}
+library(magrittr)
+library(DivNet)
+
 counts <- c(10, 20, 30, 10, 1, 100)
 my_mu <- counts/sum(counts)
 (c(exp(my_mu), 1)/(c(exp(my_mu), 1) %>% sum)) %>% round(digits = 2)
