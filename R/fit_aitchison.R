@@ -145,7 +145,7 @@ fit_aitchison <- function(W,
     sigSumFun <- function(i) {
       return(crossprod(t(MCarray[i, 2:Q, 1:N]) - eY))
     }
-    sigSum <- foreach(i = (MCburn + 1):MCiter, .combine = "+") %do% sigSumFun(i)
+    sigSum <- Reduce(`+`, lapply((MCburn + 1):MCiter, sigSumFun))
     sigma <- sigSum/(N * (MCiter - MCburn))
     
     # update b
