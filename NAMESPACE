@@ -43,3 +43,7 @@ importFrom(tibble,add_column)
 importFrom(tibble,rownames_to_column)
 importFrom(tidyr,gather)
 importFrom(utils,globalVariables)
+
+useDynLib(DivNet)
+import(RcppEigen)
+importFrom(Rcpp, evalCpp)

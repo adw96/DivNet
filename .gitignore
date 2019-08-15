@@ -4,3 +4,5 @@ divnet-test.R
 .Rhistory
 .RData
 .Ruserdata
+
+*.Rproj

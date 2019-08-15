@@ -1,0 +1,111 @@
+---
+title: "Speeding up MCMat"
+author: "Ryan M. Moore"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(parallel)
+library(profvis)
+library(tictoc)
+library(magrittr)
+library(phyloseq)
+library(breakaway)
+library(DivNet)
+library(ggplot2)
+library(microbenchmark)
+library(devtools)
+devtools::install_github("tpq/peakRAM")
+library(peakRAM)
+data(Lee)
+Lee
+```
+
+Make a smaller dataset to work with.
+
+```{r}
+ct <- otu_table(Lee)
+
+# Order by decreasing taxa abund and sample abund.
+ct <- ct[order(-rowSums(ct)), order(-colSums(ct))]
+
+# Keep only top taxa
+ntaxa_keep <- 25
+ct_sub <- ct[1:ntaxa_keep, ]
+
+lee2 <- Lee
+otu_table(lee2) <- ct_sub
+```
+
+
+```{r}
+lee2
+```
+
+Profile DivNet function.
+
+```{r}
+tic("DivNet lee_phylum")
+profvis(
+  interval = 0.1,
+  expr = {
+    dn_char <- divnet(lee2, X = "char", ncores = 1, B = 5)
+})
+toc()
+```
+
+Tic toc to check ncores.
+
+```{r}
+tic("ncores = 1")
+dn_char <- divnet(lee2, X = "char", ncores = 1, B = 5)
+toc()
+
+tic("ncores = 2")
+dn_char <- divnet(lee2, X = "char", ncores = 2, B = 5)
+toc()
+
+tic("ncores = 3")
+dn_char <- divnet(lee2, X = "char", ncores = 3, B = 5)
+
+toc()
+```
+
+More tic toc, but this time varying the number of taxa.
+
+```{r}
+set.seed(12345)
+# Keep only top taxa
+ntaxa_keep <- 25
+ct_sub <- ct[1:ntaxa_keep, ]
+
+lee2 <- Lee
+otu_table(lee2) <- ct_sub
+
+for (i in c(25, 50, 75)) { #, 100, 150, 200)) {
+  for (iter in 1:3) {
+    ct_sub <- ct[1:i, ]
+    
+    lee3 <- Lee
+    otu_table(lee3) <- ct_sub
+    
+    tic(paste0("i is ", i))
+    divnet(lee3, X = "char", ncores = 1, B = 5)
+    toc()
+  }
+}
+```
+
+Check the ram with different number of cores.
+
+```{r}
+peakRAM(
+  divnet(lee2, X = "char", ncores = 1, B = 5),
+  divnet(lee2, X = "char", ncores = 2, B = 5),
+  divnet(lee2, X = "char", ncores = 3, B = 5)
+)
+```
+
+
