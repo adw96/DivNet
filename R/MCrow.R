@@ -7,7 +7,7 @@
 #' @param Yi row of logratio matrix
 #' @param Wi corresponding row of count matrix
 #' @param eYi current expected value of logratio matrix
-#' @param Q number of OTUs minus the base, or length of Yi
+#' @param Q number of OTUs, or length of Wi
 #' @param base OTU index used for base
 #' @param sigInv current estimate of sigma inverse
 #' @param MCiter number of MC samples to generate
