@@ -14,6 +14,8 @@ typedef Eigen::Map<Eigen::MatrixXd> MappedMatrixXd;
 // nrow counts = no. samples
 // ncol couts = no. otus
 
+// Return value is a list of mc_iters x notus matrices
+
 // [[Rcpp::export]]
 std::vector<Rcpp::NumericMatrix>
 eigen_mc_array(const Rcpp::NumericMatrix r_logratios,
@@ -29,6 +31,8 @@ eigen_mc_array(const Rcpp::NumericMatrix r_logratios,
   MappedMatrixXd counts(as<MappedMatrixXd>(r_counts));
   MappedMatrixXd expected_logratios(as<MappedMatrixXd>(r_expected_logratios));
   MappedMatrixXd sigma_inverse(as<MappedMatrixXd>(r_sigma_inverse));
+
+  // TODO:  We could replace this with Rcpp's rnorm.
 
   default_random_engine generator;
 
@@ -73,8 +77,17 @@ eigen_mc_array(const Rcpp::NumericMatrix r_logratios,
 
     // The main MCiter loop
     for (int iter = 0; iter < mc_iters; ++iter) {
-      for (int i = 0; i < Yi.size(); ++i) {
-        Yi_star(i) = Yi(i) + norm_dist(generator);
+      if (iter == 0) {
+        // The first iteration, take the original Yi values.
+        for (int i = 0; i < Yi.size(); ++i) {
+          Yi_star(i) = Yi(i) + norm_dist(generator);
+        }
+      } else {
+        // For subsequent iterations, pull Yi_MH values from the last
+        // MC iteration.
+        for (int i = 0; i < Yi.size(); ++i) {
+          Yi_star(i) = Yi_MH(iter, i) + norm_dist(generator);
+        }
       }
 
       // Denominator
@@ -83,11 +96,6 @@ eigen_mc_array(const Rcpp::NumericMatrix r_logratios,
 
       // Numerator
       Eq5pt2 = (Wi_no_base * (Yi_star - Yi)).sum();
-
-      // If anything any sigma_inverse is NaN, then Eq5pt3 and 4 will
-      // be NaN.  Then fullRat will be too.  If this happens a lot we
-      // might save time by checking for NaN before doing the actual
-      // matrix multiplication.
 
       Eq5pt3 = -0.5 * ((Yi_star - eYi).transpose() * sigma_inverse) * (Yi_star - eYi);
 
