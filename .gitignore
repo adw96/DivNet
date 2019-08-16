@@ -6,3 +6,6 @@ divnet-test.R
 .Ruserdata
 
 *.Rproj
+
+src/*.so
+src/*.o

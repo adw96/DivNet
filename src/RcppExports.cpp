@@ -6,27 +6,49 @@
 
 using namespace Rcpp;
 
-// eigen_MCrow
-Eigen::MatrixXd eigen_MCrow(const Eigen::VectorXd Yi, const Eigen::VectorXd Wi, const Eigen::VectorXd eYi, const int Q, const int base, const Eigen::MatrixXd sigInv, const int MCiter, const double stepsize);
-RcppExport SEXP _DivNet_eigen_MCrow(SEXP YiSEXP, SEXP WiSEXP, SEXP eYiSEXP, SEXP QSEXP, SEXP baseSEXP, SEXP sigInvSEXP, SEXP MCiterSEXP, SEXP stepsizeSEXP) {
+// eigen_mc_array
+std::vector<Rcpp::NumericMatrix> eigen_mc_array(const Rcpp::NumericMatrix r_logratios, const Rcpp::NumericMatrix r_counts, const Rcpp::NumericMatrix r_expected_logratios, const int base_otu, const Rcpp::NumericMatrix r_sigma_inverse, const int mc_iters, const double stepsize);
+RcppExport SEXP _DivNet_eigen_mc_array(SEXP r_logratiosSEXP, SEXP r_countsSEXP, SEXP r_expected_logratiosSEXP, SEXP base_otuSEXP, SEXP r_sigma_inverseSEXP, SEXP mc_itersSEXP, SEXP stepsizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd >::type Yi(YiSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd >::type Wi(WiSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd >::type eYi(eYiSEXP);
-    Rcpp::traits::input_parameter< const int >::type Q(QSEXP);
-    Rcpp::traits::input_parameter< const int >::type base(baseSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type sigInv(sigInvSEXP);
-    Rcpp::traits::input_parameter< const int >::type MCiter(MCiterSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix >::type r_logratios(r_logratiosSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix >::type r_counts(r_countsSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix >::type r_expected_logratios(r_expected_logratiosSEXP);
+    Rcpp::traits::input_parameter< const int >::type base_otu(base_otuSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix >::type r_sigma_inverse(r_sigma_inverseSEXP);
+    Rcpp::traits::input_parameter< const int >::type mc_iters(mc_itersSEXP);
     Rcpp::traits::input_parameter< const double >::type stepsize(stepsizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(eigen_MCrow(Yi, Wi, eYi, Q, base, sigInv, MCiter, stepsize));
+    rcpp_result_gen = Rcpp::wrap(eigen_mc_array(r_logratios, r_counts, r_expected_logratios, base_otu, r_sigma_inverse, mc_iters, stepsize));
+    return rcpp_result_gen;
+END_RCPP
+}
+// start_profiler
+SEXP start_profiler(SEXP str);
+RcppExport SEXP _DivNet_start_profiler(SEXP strSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type str(strSEXP);
+    rcpp_result_gen = Rcpp::wrap(start_profiler(str));
+    return rcpp_result_gen;
+END_RCPP
+}
+// stop_profiler
+SEXP stop_profiler();
+RcppExport SEXP _DivNet_stop_profiler() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(stop_profiler());
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_DivNet_eigen_MCrow", (DL_FUNC) &_DivNet_eigen_MCrow, 8},
+    {"_DivNet_eigen_mc_array", (DL_FUNC) &_DivNet_eigen_mc_array, 7},
+    {"_DivNet_start_profiler", (DL_FUNC) &_DivNet_start_profiler, 1},
+    {"_DivNet_stop_profiler", (DL_FUNC) &_DivNet_stop_profiler, 0},
     {NULL, NULL, 0}
 };
 
