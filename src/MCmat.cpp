@@ -86,7 +86,7 @@ eigen_mc_array(const Rcpp::NumericMatrix r_logratios,
         // For subsequent iterations, pull Yi_MH values from the last
         // MC iteration.
         for (int i = 0; i < Yi.size(); ++i) {
-          Yi_star(i) = Yi_MH(iter, i) + norm_dist(generator);
+          Yi_star(i) = Yi_MH(iter - 1, i) + norm_dist(generator);
         }
       }
 
