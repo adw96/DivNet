@@ -123,10 +123,37 @@ fit_aitchison <- function(W,
   for (em in 1:EMiter) {
     utils::setTxtProgressBar(pb, em-1)
     #start <- proc.time()
-
+    
+    if (network == "diagonal") {
+      sigInv <- diagonal_network(sigma)
+    } else if (network == "default") {
+      sigInv <- default_network(sigma)
+    } else if (network == "stars") {
+      sigInv <- stars(sigma, W, base = base, perturbation = perturbation, ncores = ncores, ...)
+    } else {
+      sigInv <- try(network(sigma, ...), silent = T)
+      if (class(sigInv) == "try-error") {
+        stop("Cannot use supplied network option?")
+      }
+    }
+    
     # MC step
-    MCarray <- MCmat(Y = Y_p, W = W, eY = eY, N = N, Q = Q, base = base, sigma = sigma, MCiter = MCiter, 
-                     stepsize = stepsize, network = network, ncores = ncores, ...)
+    #MCarray <- MCmat(Y = Y_p, W = W, eY = eY, N = N, Q = Q, base = base, sigma = sigma, MCiter = MCiter, 
+    #                 stepsize = stepsize, network = network, ncores = ncores, ...)
+
+    MCarray <- eigen_mc_array(
+      Y_p,
+      W,
+      eY,
+      base,
+      sigInv,
+      MCiter,
+      stepsize
+    )
+    assign("g_MCarray_before", MCarray, globalenv())
+    MCarray <- unlist(MCarray)
+    attr(MCarray, "dim") <- c(MCiter, Q, N)
+    assign("g_MCarray_after", MCarray, globalenv())
     
     # MC burn-in
     burnt <- MCarray[(MCburn + 1):MCiter, , ]
