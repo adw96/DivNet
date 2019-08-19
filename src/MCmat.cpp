@@ -32,14 +32,6 @@ eigen_mc_array(const Rcpp::NumericMatrix r_logratios,
   MappedMatrixXd expected_logratios(as<MappedMatrixXd>(r_expected_logratios));
   MappedMatrixXd sigma_inverse(as<MappedMatrixXd>(r_sigma_inverse));
 
-  // TODO:  We could replace this with Rcpp's rnorm.
-
-  default_random_engine generator;
-
-  normal_distribution<double> norm_dist(0.0, stepsize);
-  // This is the interval [0.0, 1.0)
-  uniform_real_distribution<double> unif_dist(0.0, 1.0);
-
   // Original function, N is num samples aka counts.rows()
   // Original function, Q is num OTUs aka counts.cols()
 
@@ -86,7 +78,7 @@ eigen_mc_array(const Rcpp::NumericMatrix r_logratios,
         // For subsequent iterations, pull Yi_MH values from the last
         // MC iteration.
         for (int i = 0; i < Yi.size(); ++i) {
-          Yi_star(i) = Yi_MH(iter - 1, i) + norm_dist(generator);
+          Yi_star(i) = Yi_MH(iter - 1, i) + R::rnorm(0, stepsize);
         }
       }
 
@@ -111,7 +103,7 @@ eigen_mc_array(const Rcpp::NumericMatrix r_logratios,
         acceptance = 1;
       }
 
-      if (isnan(acceptance) || unif_dist(generator) < acceptance) {
+      if (isnan(acceptance) || R::runif(0, 1) < acceptance) {
         Yi_MH(iter, 0) = 1;
         for (int j = 1; j < Yi.size(); ++j) {
           Yi_MH(iter, j) = Yi_star(j);
