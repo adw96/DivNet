@@ -64,7 +64,7 @@ fit_aitchison <- function(W,
   }
   sigma <- var(Y_p - eY) # (Q-1) x (Q-1)
   
-
+  
   
   ## set up tuning parameters for EM-MH algorithm
   if (is.null(tuning)) tuning <- "fast"
@@ -137,23 +137,21 @@ fit_aitchison <- function(W,
       }
     }
     
-    # MC step
-    #MCarray <- MCmat(Y = Y_p, W = W, eY = eY, N = N, Q = Q, base = base, sigma = sigma, MCiter = MCiter, 
-    #                 stepsize = stepsize, network = network, ncores = ncores, ...)
-
-    MCarray <- eigen_mc_array(
+    ret_val <- eigen_mc_array(
       Y_p,
       W,
       eY,
       base,
       sigInv,
       MCiter,
+      MCburn,
       stepsize
     )
-    assign("g_MCarray_before", MCarray, globalenv())
+    MCarray <- ret_val$mc
+    sigma <- ret_val$sigma
+    
     MCarray <- unlist(MCarray)
     attr(MCarray, "dim") <- c(MCiter, Q, N)
-    assign("g_MCarray_after", MCarray, globalenv())
     
     # MC burn-in
     burnt <- MCarray[(MCburn + 1):MCiter, , ]
@@ -167,13 +165,6 @@ fit_aitchison <- function(W,
     
     # Add for global variables check
     i <- NULL
-    
-    # update sigma
-    sigSumFun <- function(i) {
-      return(crossprod(t(MCarray[i, 2:Q, 1:N]) - eY))
-    }
-    sigSum <- Reduce(`+`, lapply((MCburn + 1):MCiter, sigSumFun))
-    sigma <- sigSum/(N * (MCiter - MCburn))
     
     # update b
     eY <- tcrossprod(rep(1, N), b0) 

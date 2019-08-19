@@ -17,14 +17,15 @@ typedef Eigen::Map<Eigen::MatrixXd> MappedMatrixXd;
 // Return value is a list of mc_iters x notus matrices
 
 // [[Rcpp::export]]
-std::vector<Rcpp::NumericMatrix>
+Rcpp::List
 eigen_mc_array(const Rcpp::NumericMatrix r_logratios,
-                const Rcpp::NumericMatrix r_counts,
-                const Rcpp::NumericMatrix r_expected_logratios,
-                const int base_otu,
-                const Rcpp::NumericMatrix r_sigma_inverse,
-                const int mc_iters,
-                const double stepsize)
+               const Rcpp::NumericMatrix r_counts,
+               const Rcpp::NumericMatrix r_expected_logratios,
+               const int base_otu,
+               const Rcpp::NumericMatrix r_sigma_inverse,
+               const int mc_iters,
+               const int iters_to_burn,
+               const double stepsize)
 {
 
   MappedMatrixXd logratios(as<MappedMatrixXd>(r_logratios));
@@ -40,6 +41,11 @@ eigen_mc_array(const Rcpp::NumericMatrix r_logratios,
 
   int mci = 0;
   std::vector<NumericMatrix> mc;
+  vector<MatrixXd> per_iter_lrs;
+  for (int i = 0; i < mc_iters; ++i) {
+    per_iter_lrs.push_back(MatrixXd(notus - 1, nsamples).setZero());
+  }
+
 
   for (int sidx = 0; sidx < nsamples; ++sidx) {
     const Eigen::VectorXd Yi = logratios.row(sidx);
@@ -72,13 +78,13 @@ eigen_mc_array(const Rcpp::NumericMatrix r_logratios,
       if (iter == 0) {
         // The first iteration, take the original Yi values.
         for (int i = 0; i < Yi.size(); ++i) {
-          Yi_star(i) = Yi(i) + norm_dist(generator);
+          Yi_star(i) = Yi(i) + R::rnorm(0, stepsize);
         }
       } else {
         // For subsequent iterations, pull Yi_MH values from the last
         // MC iteration.
-        for (int i = 0; i < Yi.size(); ++i) {
-          Yi_star(i) = Yi_MH(iter - 1, i) + R::rnorm(0, stepsize);
+        for (int i = 1; i < notus; ++i) {
+          Yi_star(i - 1) = Yi_MH(iter - 1, i) + R::rnorm(0, stepsize); // first column is the acceptance
         }
       }
 
@@ -105,19 +111,65 @@ eigen_mc_array(const Rcpp::NumericMatrix r_logratios,
 
       if (isnan(acceptance) || R::runif(0, 1) < acceptance) {
         Yi_MH(iter, 0) = 1;
-        for (int j = 1; j < Yi.size(); ++j) {
-          Yi_MH(iter, j) = Yi_star(j);
+        for (int j = 1; j < notus; ++j) {
+          Yi_MH(iter, j) = Yi_star(j - 1);  // Yi_star has otus-1 items
         }
       } else {
         Yi_MH(iter, 0) = 0;
-        for (int j = 1; j < Yi.size(); ++j) {
-          Yi_MH(iter, j) = Yi(j);
+        for (int j = 1; j < notus; ++j) {
+          Yi_MH(iter, j) = Yi(j - 1); // Yi_star has otus-1 items
         }
+      }
+
+      // Add the logratios to the other data frame.
+      MatrixXd & these_lrs = per_iter_lrs[iter];
+      for (int j = 1; j < notus - 1; ++j) {
+        these_lrs(j - 1, sidx) = Yi_MH(iter, j);
       }
     }
 
     mc.push_back(Yi_MH);
   }
 
-  return mc;
+  MatrixXd sigma = MatrixXd(notus - 1, notus - 1).setZero();
+  for (int iter = iters_to_burn; iter < mc_iters; ++iter) { // per_iter_lrs
+    MatrixXd & these_lrs = per_iter_lrs[iter];
+
+    MatrixXd tmp = these_lrs.transpose() - expected_logratios;
+    MatrixXd cprod = tmp.transpose() * tmp;
+
+    sigma += cprod;
+  }
+
+  sigma /= (nsamples * (mc_iters - iters_to_burn));
+
+  return List::create(Named("mc") = wrap(mc),
+                      Named("sigma") = wrap(sigma));
+}
+
+// [[Rcpp::export]]
+std::vector<Eigen::MatrixXd>
+thing()
+{
+  int mc_iters = 10;
+  int notus = 5;
+  int nsamples = 2;
+  int n = 0;
+
+  vector<MatrixXd> per_iter_lrs;
+  for (int i = 0; i < mc_iters; ++i) {
+    per_iter_lrs.push_back(MatrixXd(nsamples, notus - 1).setZero());
+  }
+
+  for (int i = 0; i < mc_iters; ++i) {
+    MatrixXd & tmp = per_iter_lrs[i];
+
+    for (int sidx = 0; sidx < nsamples; ++sidx) {
+      for (int oidx = 0; oidx < notus - 1; ++oidx) {
+        tmp(sidx, oidx) = n++;
+      }
+    }
+  }
+
+  return per_iter_lrs;
 }
