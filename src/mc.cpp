@@ -17,6 +17,7 @@ typedef Eigen::Map<Eigen::MatrixXd> MappedMatrixXd;
 //' @param Wi A single row/sample of the count matrix
 //'
 //' @return A count vector minus the `base_otu`
+// [[Rcpp::export]]
 VectorXd
 remove_base_otu(const int base_otu,
                 const Eigen::Ref<Eigen::VectorXd> Wi)
@@ -49,6 +50,7 @@ remove_base_otu(const int base_otu,
 //' @param sigma_inverse Current estimate of sigma inverse
 //' @param Yi_MH An mc_iters x Wi.size() (no. otus) matrix to hold the MC iteration results.  This param will be modified in place.
 //' @param per_iter_lrs A vector that stores an (no. otus - 1 ie Yi.size()) x no. samples matrix for each MC iteration.  This param will be modified in place.
+// [[Rcpp::export]]
 void
 mc_loop(const int sidx,
         const int mc_iters,
