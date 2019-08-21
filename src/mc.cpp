@@ -1,11 +1,8 @@
 #include <RcppEigen.h>
-// [[Rcpp::depends(RcppParallel)]]
-#include <RcppParallel.h>
 
 using namespace std;
 using namespace Rcpp;
 using namespace Eigen;
-using namespace RcppParallel;
 
 // Convenience type for mapped MatrixXd
 typedef Eigen::Map<Eigen::MatrixXd> MappedMatrixXd;

@@ -110,17 +110,36 @@ divnet <-  function(W,
   if (variance == "parametric") {
     
     # resample from models
-    parametric_list <- replicate(B, 
-                                 parametric_variance(fitted_model, 
-                                                     W = W,
-                                                     X = X, 
-                                                     tuning = tuning,
-                                                     perturbation = perturbation, 
-                                                     network = network,
-                                                     base = base,
-                                                     ncores = ncores,
-                                                     ...), 
-                                 simplify=F)
+    if (ncores == 1) {
+      parametric_list <- replicate(B, 
+                                   parametric_variance(fitted_model, 
+                                                       W = W,
+                                                       X = X, 
+                                                       tuning = tuning,
+                                                       perturbation = perturbation, 
+                                                       network = network,
+                                                       base = base,
+                                                       ncores = ncores,
+                                                       ...), 
+                                   simplify=F)
+      
+    } else {
+      message(paste("making regular cluster with ", ncores, " cores."))
+      cl <- parallel::makeCluster(ncores)
+      doParallel::registerDoParallel(cl)
+      parametric_list <- foreach(i = 1:B, .multicombine = TRUE) %dopar% {
+        parametric_variance(fitted_model,
+                            W = W,
+                            X = X,
+                            tuning = tuning,
+                            perturbation = perturbation,
+                            network = network,
+                            base = base,
+                            ncores = ncores,
+                            ...)        
+      }
+      parallel::stopCluster(cl)
+    }      
     
     variance_estimates <- get_diversity_variance(parametric_list, samples_names)
     
