@@ -137,12 +137,12 @@ fit_aitchison <- function(W,
       }
     }
     
-    ret_val <- eigen_mc_array(
+    ret_val <- run_mc(
       Y_p,
       W,
       eY,
-      base,
       sigInv,
+      base,
       MCiter,
       MCburn,
       stepsize
