@@ -49,19 +49,3 @@ run_mc <- function(logratios, counts, expected_logratios, sigma_inverse, base_ot
     .Call('_DivNet_run_mc', PACKAGE = 'DivNet', logratios, counts, expected_logratios, sigma_inverse, base_otu, mc_iters, iters_to_burn, stepsize)
 }
 
-eigen_bdc_svd <- function(mat) {
-    .Call('_DivNet_eigen_bdc_svd', PACKAGE = 'DivNet', mat)
-}
-
-eigen_jacobi_svd <- function(mat) {
-    .Call('_DivNet_eigen_jacobi_svd', PACKAGE = 'DivNet', mat)
-}
-
-eigen_ginv <- function(mat, tolerance) {
-    .Call('_DivNet_eigen_ginv', PACKAGE = 'DivNet', mat, tolerance)
-}
-
-eigen_chol <- function(mat) {
-    .Call('_DivNet_eigen_chol', PACKAGE = 'DivNet', mat)
-}
-

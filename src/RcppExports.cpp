@@ -24,58 +24,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// eigen_bdc_svd
-Rcpp::List eigen_bdc_svd(Rcpp::NumericMatrix mat);
-RcppExport SEXP _DivNet_eigen_bdc_svd(SEXP matSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type mat(matSEXP);
-    rcpp_result_gen = Rcpp::wrap(eigen_bdc_svd(mat));
-    return rcpp_result_gen;
-END_RCPP
-}
-// eigen_jacobi_svd
-Rcpp::List eigen_jacobi_svd(Rcpp::NumericMatrix mat);
-RcppExport SEXP _DivNet_eigen_jacobi_svd(SEXP matSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type mat(matSEXP);
-    rcpp_result_gen = Rcpp::wrap(eigen_jacobi_svd(mat));
-    return rcpp_result_gen;
-END_RCPP
-}
-// eigen_ginv
-Rcpp::NumericMatrix eigen_ginv(Rcpp::NumericMatrix mat, const double tolerance);
-RcppExport SEXP _DivNet_eigen_ginv(SEXP matSEXP, SEXP toleranceSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type mat(matSEXP);
-    Rcpp::traits::input_parameter< const double >::type tolerance(toleranceSEXP);
-    rcpp_result_gen = Rcpp::wrap(eigen_ginv(mat, tolerance));
-    return rcpp_result_gen;
-END_RCPP
-}
-// eigen_chol
-Rcpp::NumericMatrix eigen_chol(Rcpp::NumericMatrix mat);
-RcppExport SEXP _DivNet_eigen_chol(SEXP matSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type mat(matSEXP);
-    rcpp_result_gen = Rcpp::wrap(eigen_chol(mat));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_DivNet_run_mc", (DL_FUNC) &_DivNet_run_mc, 8},
-    {"_DivNet_eigen_bdc_svd", (DL_FUNC) &_DivNet_eigen_bdc_svd, 1},
-    {"_DivNet_eigen_jacobi_svd", (DL_FUNC) &_DivNet_eigen_jacobi_svd, 1},
-    {"_DivNet_eigen_ginv", (DL_FUNC) &_DivNet_eigen_ginv, 2},
-    {"_DivNet_eigen_chol", (DL_FUNC) &_DivNet_eigen_chol, 1},
     {NULL, NULL, 0}
 };
 
