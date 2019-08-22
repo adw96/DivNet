@@ -1,0 +1,102 @@
+---
+title: "Eigen--R interface"
+author: "Ryan M. Moore"
+date: "2019-08-22"
+output:
+  html_document:
+    df_print: paged
+---
+
+# Overview
+
+Some basic checks to see which ways of passing in and converting matrices from R to RcppEigen are most efficient.
+
+# Rcpp functions
+
+First a couple of different Rcpp functions for transposing a matrix.
+
+```{r include=FALSE}
+# Takes NumericMatrix, maps it, returns NumericMatrix with wrap()
+Rcpp::cppFunction(depends = "RcppEigen",
+'
+Rcpp::NumericMatrix
+ct1(const Rcpp::NumericMatrix mat)
+{
+  Eigen::Map<Eigen::MatrixXd> mapped_mat(as<Eigen::Map<Eigen::MatrixXd>>(mat));
+
+  return wrap(mapped_mat.transpose());
+}
+')
+
+
+
+# Takes MatrixXd returns MatrixXd
+Rcpp::cppFunction(depends = "RcppEigen",
+'
+Eigen::MatrixXd
+ct2(const Eigen::MatrixXd mat)
+{
+  return mat.transpose();
+}
+')
+
+# Takes MatrixXd returns NumericMatrix with wrap()
+Rcpp::cppFunction(depends = "RcppEigen",
+'
+Rcpp::NumericMatrix
+ct3(const Eigen::MatrixXd mat)
+{
+  return wrap(mat.transpose());
+}
+')
+
+
+# Takes NumericMatrix, maps it, returns MatrixXd
+Rcpp::cppFunction(depends = "RcppEigen",
+'
+Eigen::MatrixXd
+ct4(const Rcpp::NumericMatrix mat)
+{
+  Eigen::Map<Eigen::MatrixXd> mapped_mat(as<Eigen::Map<Eigen::MatrixXd>>(mat));
+
+  return mapped_mat.transpose();
+}
+')
+```
+
+# Test them out
+
+Running benchmarks of the different functions.  Both for small and larger matrices.
+
+```{r}
+msmall <- matrix(rnorm(100 * 100), ncol = 100)
+mbig <- matrix(rnorm(1000 * 1000), ncol = 1000)
+
+microbenchmark(
+  ct1(msmall),
+  ct2(msmall),
+  ct3(msmall),
+  ct4(msmall),
+  ct1(mbig),
+  ct2(mbig),
+  ct3(mbig),
+  ct4(mbig)
+)
+
+peakRAM(
+  ct1(msmall),
+  ct2(msmall),
+  ct3(msmall),
+  ct4(msmall),
+  ct1(mbig),
+  ct2(mbig),
+  ct3(mbig),
+  ct4(mbig)
+)
+```
+
+# Wrap up
+
+The differences aren't too extreme.  But it looks like the best is either `ct1()` or `ct4()`.  `ct1()` probably is better as that is how they do it in the [example document](https://cran.r-project.org/web/packages/RcppEigen/vignettes/RcppEigen-Introduction.pdf).
+
+Basically it is, take a `NumericMatrix`, map that to the `EigenMap` with `Rcpp::as`.  Do the work in Eigen.  Then `Rcpp::wrap` the result and have the return type as something from `Rcpp`.

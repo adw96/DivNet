@@ -1,0 +1,164 @@
+---
+title: "Speeding up MCMat"
+author: "Ryan M. Moore"
+date: "2019-08-22"
+output:
+  html_document:
+    df_print: paged
+---
+
+# Set up
+
+```{r}
+library(doParallel)
+library(parallel)
+library(profvis)
+library(tictoc)
+library(magrittr)
+library(phyloseq)
+library(breakaway)
+library(DivNet)
+library(ggplot2)
+library(microbenchmark)
+library(devtools)
+library(peakRAM)
+data(Lee)
+Lee
+```
+
+Make a smaller dataset to work with.
+
+```{r}
+ct <- otu_table(Lee)
+
+# Order by decreasing taxa abund and sample abund.
+ct <- ct[order(-rowSums(ct)), order(-colSums(ct))]
+
+# Keep only top taxa
+ntaxa_keep <- 25
+ct_sub <- ct[1:ntaxa_keep, ]
+
+lee2 <- Lee
+otu_table(lee2) <- ct_sub
+```
+
+```{r}
+ct_sub <- ct[1:25, ]
+lee25 <- Lee
+otu_table(lee25) <- ct_sub
+
+ct_sub <- ct[1:50, ]
+lee50 <- Lee
+otu_table(lee50) <- ct_sub
+
+ct_sub <- ct[1:100, ]
+lee100 <- Lee
+otu_table(lee100) <- ct_sub
+
+ct_sub <- ct[1:200, ]
+lee200 <- Lee
+otu_table(lee200) <- ct_sub
+
+ct_sub <- ct[1:250, ]
+lee250 <- Lee
+otu_table(lee250) <- ct_sub
+
+ct_sub <- ct[1:500, ]
+lee500 <- Lee
+otu_table(lee500) <- ct_sub
+
+ct_sub <- ct[1:1000, ]
+lee1000 <- Lee
+otu_table(lee1000) <- ct_sub
+
+```
+
+# Basic R profiling
+
+Profile DivNet function.
+
+```{r}
+tic("DivNet lee_phylum")
+profvis(
+  interval = 0.1,
+  expr = {
+    dn_char <- divnet(lee100, X = "char", ncores = 1, B = 5)
+})
+toc()
+```
+
+# Varying ncores 
+
+## Runtime
+
+Tic toc to check ncores while holding `ntaxa` constant.
+
+```{r}
+dataset <- lee200
+
+tic("ncores = 1")
+dn_char <- divnet(dataset, X = "char", ncores = 1, B = 6)
+toc()
+
+tic("ncores = 2")
+dn_char <- divnet(dataset, X = "char", ncores = 2, B = 6)
+toc()
+
+tic("ncores = 3")
+dn_char <- divnet(dataset, X = "char", ncores = 3, B = 6)
+toc()
+```
+
+## RAM usage
+
+Check the ram with different number of cores.
+
+```{r}
+dataset <- lee250
+peakRAM(
+  divnet(dataset, X = "char", ncores = 1, B = 6),
+  divnet(dataset, X = "char", ncores = 2, B = 6),
+  divnet(dataset, X = "char", ncores = 3, B = 6)
+)
+```
+
+# Varying ntaxa
+
+## Runtime
+
+More tic toc, but this time varying the number of taxa.
+
+```{r}
+set.seed(12345)
+# Keep only top taxa
+ntaxa_keep <- 25
+ct_sub <- ct[1:ntaxa_keep, ]
+
+for (i in c(25, 50, 100, 250, 500, 1000)) {
+  for (iter in 1:3) {
+    ct_sub <- ct[1:i, ]
+    
+    lee3 <- Lee
+    otu_table(lee3) <- ct_sub
+    
+    tic(i)
+    divnet(lee3, X = "char", ncores = 1, B = 5)
+    toc()
+  }
+}
+```
+
+## RAM usage
+
+Check the ram with different number of taxa.
+
+
+```{r}
+
+peakRAM(
+  divnet(lee25,  X = "char", ncores = 1, B = 5),
+  divnet(lee50,  X = "char", ncores = 1, B = 5),
+  divnet(lee100, X = "char", ncores = 1, B = 5),
+  divnet(lee200, X = "char", ncores = 1, B = 5)
+)
+```
