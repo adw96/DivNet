@@ -110,7 +110,7 @@ divnet <-  function(W,
   if (variance == "parametric") {
     
     # resample from models
-    if (ncores == 1) {
+    if (is.null(ncores) || ncores == 1) {
       parametric_list <- replicate(B, 
                                    parametric_variance(fitted_model, 
                                                        W = W,
