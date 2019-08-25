@@ -52,7 +52,7 @@ remove_base_otu(const int base_otu,
 void
 mc_loop(const int sidx,
         const int mc_iters,
-        const int stepsize,
+        const double stepsize,
         const Eigen::Ref<Eigen::VectorXd> Yi,
         const Eigen::Ref<Eigen::VectorXd> Wi,
         const Eigen::Ref<Eigen::VectorXd> Wi_no_base,
@@ -116,8 +116,15 @@ mc_loop(const int sidx,
       }
     } else {
       Yi_MH(iter, 0) = 0;
-      for (int j = 1; j < notus; ++j) {
-        Yi_MH(iter, j) = Yi(j - 1); // Yi_star has otus-1 items
+
+      if (iter == 0) { // reuse orig Yi vals
+        for (int j = 1; j < notus; ++j) {
+          Yi_MH(iter, j) = Yi(j - 1); // Yi_star has otus-1 items
+        }
+      } else { // use the last iteration
+        for (int j = 1; j < notus; ++j) {
+          Yi_MH(iter, j) = Yi_MH(iter - 1, j);
+        }
       }
     }
 
@@ -183,7 +190,7 @@ run_mc(const Rcpp::NumericMatrix logratios,
     // Wi minus the base OTU
     VectorXd Wi_no_base = remove_base_otu(base_otu, Wi);
 
-    MatrixXd Yi_MH = MatrixXd(mc_iters, notus);
+    MatrixXd Yi_MH = MatrixXd(mc_iters, notus).setZero();
 
     // Modifies Yi_MH and per_iter_lrs.
     mc_loop(sidx,
