@@ -18,7 +18,6 @@ MCrow <- function(Yi, Wi, eYi, Q, base, sigInv, MCiter, stepsize = 1) {
   # extra column for acceptance indicator
   Yi.MH <- matrix(0, MCiter, Q)
   
-  
   for (i in 1:MCiter) {
     # cat(i,'\n') proposal
     Yi.star <- Yi + rnorm(Q - 1, 0, stepsize)
