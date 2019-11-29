@@ -99,6 +99,8 @@ default_network <- function(sigma) {
 
 #' stars
 #' 
+#' Estimate the network using the package SpiecEasi
+#' 
 #' @param sigma current estimate of sigma
 #' @param W corresponding count matrix
 #' @param base OTU index used for base
@@ -106,7 +108,7 @@ default_network <- function(sigma) {
 #' @param ncores number of cores to use, defaults to 1
 #' @param ... other arguments to pass
 #' 
-#' Estimate the network using the package SpiecEasi
+#' 
 stars <- function(sigma, W, base, perturbation, ncores, ...) {
   
   if (!requireNamespace("glasso", quietly = TRUE) | !requireNamespace("SpiecEasi", quietly = TRUE) |
