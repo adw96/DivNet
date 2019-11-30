@@ -1,11 +1,12 @@
 ---
 title: "Understanding DivNet"
 noauthor: "Amy Willis"
-output: pdf_document
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
 vignette: >
+  %\VignetteIndexEntry{Understanding DivNet}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{Getting Started}
-  %\VignetteEncoding[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
 ---
 
 Amy tries to unravel some curious behaviour in DivNet
