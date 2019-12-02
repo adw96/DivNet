@@ -1,3 +1,7 @@
+vignettes/understanding-divnet.Rmd
+vignettes/why-divnet.Rmd
+divnet-build-and-test.R
+*.Rproj
 divnet-test.R
 .DS_Store
 .Rproj.user

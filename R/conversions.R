@@ -53,11 +53,13 @@ to_log_ratios <- function(W, base, perturbation = 0.05) {
   } 
   
   if (all(W %% 1 == 0)) {
-    W <- pmax(W, perturbation)
+    W <- apply(W, 2, pmax, perturbation)
     W <- W/rowSums(W)
   }
   
-  Y_purterbed <- log(W[,-base]/W[,base])
-  return(Y_purterbed)
+  Y_perturbed <- log(W[,-base]/W[,base])
+  
+  stopifnot(!any(is.na(Y_perturbed)))
+  return(Y_perturbed)
 }
 

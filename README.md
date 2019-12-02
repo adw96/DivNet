@@ -23,8 +23,12 @@ Want a confidence interval for a different diversity index? Let us know by posti
 Installation
 ------------
 
+`DivNet` is currently available via GitHub, and can be installed as follows. Please note that you will need to install the latest version of `breakaway` to install `DivNet`; this is included in the following commands:
+
 ``` r
+# install.packages("devtools")   ## run this line if you do not already have devtools installed
 library(devtools)
+install_github("adw96/breakaway")
 install_github("adw96/DivNet")
 library(DivNet)
 ```

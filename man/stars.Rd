@@ -17,10 +17,8 @@ stars(sigma, W, base, perturbation, ncores, ...)
 
 \item{ncores}{number of cores to use, defaults to 1}
 
-\item{...}{other arguments to pass
-
-Estimate the network using the package SpiecEasi}
+\item{...}{other arguments to pass}
 }
 \description{
-stars
+Estimate the network using the package SpiecEasi
 }

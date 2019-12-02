@@ -1,11 +1,12 @@
 ---
 title: "Analysing amplicon data with DivNet"
 author: "Amy Willis"
-output: pdf_document
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Getting Started}
-  %\VignetteEncoding[utf8]{inputenc}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ## Vignette Info
