@@ -5,14 +5,14 @@
 #' @export
 shannon_true <- function(proportions) {
   
-  if (all(is.na(proportions)) | (sum(proportions) - 1)^2 < 1e-8) {
-    output <- -sum(proportions * log(proportions))
+  if (all(is.na(proportions)) | (sum(proportions) - 1)^2 < 1e-10) {
+    input <- proportions[proportions > 0] 
+    output <- -sum(input*log(input, base=exp(1)))
   } else {
     stop("shannon_true needs a vector of proportions that sum to 1")
   }
   output
 }
-
 #' Simpson Index 
 #' 
 #' @param proportions proportions
