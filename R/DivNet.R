@@ -10,6 +10,10 @@
 #' @importFrom utils globalVariables
 #' @importFrom mvnfast rmvn
 #'
+#' @useDynLib DivNet
+#' @importFrom Rcpp evalCpp
+#' @import RcppEigen
+
 #' @name DivNet-package
 #' @aliases DivNet
 NULL
