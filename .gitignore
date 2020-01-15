@@ -12,3 +12,6 @@ divnet-test.R
 my-vignettes
 profiles
 working
+src/*.o
+src/*.so
+src/*backup*

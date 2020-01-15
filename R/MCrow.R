@@ -12,9 +12,39 @@
 #' @param sigInv current estimate of sigma inverse
 #' @param MCiter number of MC samples to generate
 #' @param stepsize variance used for MH samples, defaults to 1. Tweak to adjust acceptance ratio
-#'
-#'
 MCrow <- function(Yi, Wi, eYi, Q, base, sigInv, MCiter, stepsize = 1) {
+  # extra column for acceptance indicator
+  Yi.MH <- matrix(0, MCiter, Q)
+  
+  # Precompute all the normal dist. vals we will need.
+  norm_vals <- matrix(
+    rnorm((Q - 1) * MCiter, 0, stepsize),
+    ncol = MCiter
+  )
+  
+  # Precompute all uniform dist. vals we will need.
+  unif_vals <- runif(MCiter)
+  
+  # Calculate this once for speed.
+  Wi_no_base <- Wi[-base]
+  
+  Yi.star.all <- Yi + norm_vals
+  
+  Yi.MH <- mcrow_mc_iteration(MCiter,
+                              unif_vals,
+                              Wi,
+                              Wi_no_base,
+                              Yi,
+                              Yi.star.all,
+                              eYi,
+                              sigInv)
+  
+  ## returns a matrix Yi.MH: MH samples of row, first column ind if accepted (MCiter rows, Q cols)
+  return(Yi.MH)
+}
+
+
+MCrow.old <- function(Yi, Wi, eYi, Q, base, sigInv, MCiter, stepsize = 1) {
   # extra column for acceptance indicator
   Yi.MH <- matrix(0, MCiter, Q)
 
