@@ -42,7 +42,7 @@ MCmat <- function(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1,
   # Global variables check fix
   i <- NULL
   MH_path <- function(i) {
-    MCrow(Yi = Y[i, ], Wi = W[i, ], eYi = eY[i, ], Q = Q, base = base, sigInv = sigInv, MCiter = MCiter,
+    mcrow_MCrow(Yi = Y[i, ], Wi = W[i, ], eYi = eY[i, ], base = base, sigInv = sigInv, MCiter = MCiter,
           stepsize = stepsize)
   }
 

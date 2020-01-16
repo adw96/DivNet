@@ -22,47 +22,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// mcrow_mc_iteration__old
-Eigen::MatrixXd mcrow_mc_iteration__old(const int num_iters, const Eigen::VectorXd& unif_rand_vals, const Eigen::VectorXd& Wi, const Eigen::VectorXd& Wi_no_base, const Eigen::VectorXd& Yi, const Eigen::MatrixXd& Yi_star_all, const Eigen::VectorXd& eYi, const Eigen::MatrixXd& sigma_inverse);
-RcppExport SEXP _DivNet_mcrow_mc_iteration__old(SEXP num_itersSEXP, SEXP unif_rand_valsSEXP, SEXP WiSEXP, SEXP Wi_no_baseSEXP, SEXP YiSEXP, SEXP Yi_star_allSEXP, SEXP eYiSEXP, SEXP sigma_inverseSEXP) {
+// mcrow_MCrow
+Eigen::MatrixXd mcrow_MCrow(const Eigen::VectorXd& Yi, const Eigen::VectorXd& Wi, const Eigen::VectorXd& eYi, const int base, const Eigen::MatrixXd& sigInv, const int MCiter, const double stepsize);
+RcppExport SEXP _DivNet_mcrow_MCrow(SEXP YiSEXP, SEXP WiSEXP, SEXP eYiSEXP, SEXP baseSEXP, SEXP sigInvSEXP, SEXP MCiterSEXP, SEXP stepsizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int >::type num_iters(num_itersSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type unif_rand_vals(unif_rand_valsSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Wi(WiSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Wi_no_base(Wi_no_baseSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Yi(YiSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type Yi_star_all(Yi_star_allSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Wi(WiSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type eYi(eYiSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type sigma_inverse(sigma_inverseSEXP);
-    rcpp_result_gen = Rcpp::wrap(mcrow_mc_iteration__old(num_iters, unif_rand_vals, Wi, Wi_no_base, Yi, Yi_star_all, eYi, sigma_inverse));
-    return rcpp_result_gen;
-END_RCPP
-}
-// mcrow_mc_iteration
-Eigen::MatrixXd mcrow_mc_iteration(const int num_iters, const double stepsize, const Eigen::VectorXd& unif_rand_vals, const Eigen::VectorXd& Wi, const Eigen::VectorXd& Wi_no_base, const Eigen::VectorXd& Yi, const Eigen::VectorXd& eYi, const Eigen::MatrixXd& sigma_inverse);
-RcppExport SEXP _DivNet_mcrow_mc_iteration(SEXP num_itersSEXP, SEXP stepsizeSEXP, SEXP unif_rand_valsSEXP, SEXP WiSEXP, SEXP Wi_no_baseSEXP, SEXP YiSEXP, SEXP eYiSEXP, SEXP sigma_inverseSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int >::type num_iters(num_itersSEXP);
+    Rcpp::traits::input_parameter< const int >::type base(baseSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type sigInv(sigInvSEXP);
+    Rcpp::traits::input_parameter< const int >::type MCiter(MCiterSEXP);
     Rcpp::traits::input_parameter< const double >::type stepsize(stepsizeSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type unif_rand_vals(unif_rand_valsSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Wi(WiSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Wi_no_base(Wi_no_baseSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Yi(YiSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type eYi(eYiSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type sigma_inverse(sigma_inverseSEXP);
-    rcpp_result_gen = Rcpp::wrap(mcrow_mc_iteration(num_iters, stepsize, unif_rand_vals, Wi, Wi_no_base, Yi, eYi, sigma_inverse));
+    rcpp_result_gen = Rcpp::wrap(mcrow_MCrow(Yi, Wi, eYi, base, sigInv, MCiter, stepsize));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
     {"_DivNet_mcrow_full_ratio", (DL_FUNC) &_DivNet_mcrow_full_ratio, 6},
-    {"_DivNet_mcrow_mc_iteration__old", (DL_FUNC) &_DivNet_mcrow_mc_iteration__old, 8},
-    {"_DivNet_mcrow_mc_iteration", (DL_FUNC) &_DivNet_mcrow_mc_iteration, 8},
+    {"_DivNet_mcrow_MCrow", (DL_FUNC) &_DivNet_mcrow_MCrow, 7},
     {NULL, NULL, 0}
 };
 

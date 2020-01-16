@@ -98,18 +98,14 @@ mcrow_make_yi_star(const double stepsize,
   return Yi_star;
 }
 
-
-
-// [[Rcpp::export]]
 Eigen::MatrixXd
-mcrow_mc_iteration__old(const int num_iters,
-                        const Eigen::VectorXd& unif_rand_vals,
-                        const Eigen::VectorXd& Wi,
-                        const Eigen::VectorXd& Wi_no_base,
-                        const Eigen::VectorXd& Yi,
-                        const Eigen::MatrixXd& Yi_star_all,
-                        const Eigen::VectorXd& eYi,
-                        const Eigen::MatrixXd& sigma_inverse)
+mcrow_mc_iteration(const int num_iters,
+                   const double stepsize,
+                   const Eigen::VectorXd& Wi,
+                   const Eigen::VectorXd& Wi_no_base,
+                   const Eigen::VectorXd& Yi,
+                   const Eigen::VectorXd& eYi,
+                   const Eigen::MatrixXd& sigma_inverse)
 {
 
   // Note that Wi length is the number of OTUs.
@@ -119,8 +115,11 @@ mcrow_mc_iteration__old(const int num_iters,
   // Yi.MH <- matrix(0, MCiter, Q)
   MatrixXd Yi_MH = MatrixXd(num_iters, notus).setZero();
 
+  // Set up the random number gen
+  Rcpp::RNGScope rcpp_rngScope_gen;
+
   for (int i = 0; i < num_iters; ++i) {
-    VectorXd Yi_star = Yi_star_all.col(i);
+    VectorXd Yi_star = mcrow_make_yi_star(stepsize, Yi);
 
     double full_ratio = mcrow_full_ratio(Wi,
                                          Wi_no_base,
@@ -132,7 +131,7 @@ mcrow_mc_iteration__old(const int num_iters,
     double acceptance = mcrow_acceptance(full_ratio);
 
     // Note: The original code checked for is.nan for acceptance.....
-    if (unif_rand_vals(i) < acceptance) {
+    if (R::runif(0, 1) < acceptance) {
       Yi_MH(i, 0) = 1; // accepted!
 
       // TODO switch to Yi_MH.ncols
@@ -159,61 +158,56 @@ mcrow_mc_iteration__old(const int num_iters,
   return Yi_MH;
 }
 
-// [[Rcpp::export]]
-Eigen::MatrixXd
-mcrow_mc_iteration(const int num_iters,
-                   const double stepsize,
-                   const Eigen::VectorXd& unif_rand_vals,
-                   const Eigen::VectorXd& Wi,
-                   const Eigen::VectorXd& Wi_no_base,
-                   const Eigen::VectorXd& Yi,
-                   const Eigen::VectorXd& eYi,
-                   const Eigen::MatrixXd& sigma_inverse)
+// This is a zero based index!!!!!!!!!
+Eigen::VectorXd
+remove_element(const int idx_to_remove,
+               const Eigen::VectorXd v)
 {
+  VectorXd new_v(v.size() - 1);
 
-  // Note that Wi length is the number of OTUs.
-  const int notus = Wi.size();
-
-  // # extra column for acceptance indicator
-  // Yi.MH <- matrix(0, MCiter, Q)
-  MatrixXd Yi_MH = MatrixXd(num_iters, notus).setZero();
-
-  for (int i = 0; i < num_iters; ++i) {
-    VectorXd Yi_star = mcrow_make_yi_star(stepsize, Yi);
-
-    double full_ratio = mcrow_full_ratio(Wi,
-                                         Wi_no_base,
-                                         Yi,
-                                         Yi_star,
-                                         eYi,
-                                         sigma_inverse);
-
-    double acceptance = mcrow_acceptance(full_ratio);
-
-    // Note: The original code checked for is.nan for acceptance.....
-    if (unif_rand_vals(i) < acceptance) {
-      Yi_MH(i, 0) = 1; // accepted!
-
-      // TODO switch to Yi_MH.ncols
-      for (int j = 1; j < notus; ++j) {
-        Yi_MH(i, j) = Yi_star(j - 1); // Yi_star has one fewer item!
-      }
-    } else {
-      Yi_MH(i, 0) = 0; // not accepted
-
-      // If we're on the first iteration, use the original Yi vals,
-      // else use the last iterations.
-      if (i == 0) {
-        for (int j = 1; j < notus; ++j) {
-          Yi_MH(i, j) = Yi(j - 1); // Yi has one fewer item!
-        }
-      } else {
-        for (int j = 1; j < notus; ++j) {
-          Yi_MH(i, j) = Yi_MH(i - 1, j);
-        }
-      }
+  int new_idx = 0;
+  for (int i = 0; i < v.size(); ++i) {
+    if (i != idx_to_remove) {
+      new_v(new_idx++) = v(i);
     }
   }
+
+  return new_v;
+}
+
+//' MCrow
+//'
+//' This function simulates MC step for a single row.
+//'
+//' @author Ryan Moore
+//'
+//' @param Yi row of logratio matrix
+//' @param Wi corresponding row of count matrix
+//' @param eYi current expected value of logratio matrix
+//' @param base OTU index used for base (1-based index)
+//' @param sigInv current estimate of sigma inverse
+//' @param MCiter number of MC samples to generate
+//' @param stepsize variance used for MH samples. Tweak to adjust acceptance ratio
+// [[Rcpp::export]]
+Eigen::MatrixXd
+mcrow_MCrow(const Eigen::VectorXd& Yi,
+            const Eigen::VectorXd& Wi,
+            const Eigen::VectorXd& eYi,
+            const int base,
+            const Eigen::MatrixXd& sigInv,
+            const int MCiter,
+            const double stepsize)
+{
+  // Remove base from Wi
+  VectorXd Wi_no_base = remove_element(base - 1, Wi);
+
+  MatrixXd Yi_MH = mcrow_mc_iteration(MCiter,
+                                      stepsize,
+                                      Wi,
+                                      Wi_no_base,
+                                      Yi,
+                                      eYi,
+                                      sigInv);
 
   return Yi_MH;
 }
