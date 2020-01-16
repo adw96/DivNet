@@ -3,10 +3,6 @@
 
 using namespace Eigen;
 
-// Convenience type for mapped MatrixXd
-typedef Eigen::Map<Eigen::MatrixXd> MappedMatrixXd;
-typedef Eigen::Map<Eigen::VectorXd> MappedVectorXd;
-
 double
 Eq5pt1(const Eigen::VectorXd& Wi,
        const Eigen::VectorXd& Yi,
@@ -51,7 +47,6 @@ Eq5pt4(const Eigen::VectorXd& Yi,
   return -0.5 * ((vec.transpose() * sigma_inverse) * vec)(0,0); // first element!
 }
 
-// [[Rcpp::export]]
 double
 mcrow_full_ratio(const Eigen::VectorXd& Wi,
                  const Eigen::VectorXd& Wi_no_base,
@@ -66,11 +61,11 @@ mcrow_full_ratio(const Eigen::VectorXd& Wi,
     Eq5pt4(Yi, eYi, sigma_inverse);
 }
 
-// TODO exp can fail!
 // acceptance <- min(1, exp(fullRat))
 double
 mcrow_acceptance(const double full_ratio)
 {
+  // TODO exp can fail!
   double full_ratio_exp = exp(full_ratio);
 
   if (full_ratio_exp < 1) {
@@ -134,7 +129,6 @@ mcrow_mc_iteration(const int num_iters,
     if (R::runif(0, 1) < acceptance) {
       Yi_MH(i, 0) = 1; // accepted!
 
-      // TODO switch to Yi_MH.ncols
       for (int j = 1; j < notus; ++j) {
         Yi_MH(i, j) = Yi_star(j - 1); // Yi_star has one fewer item!
       }
