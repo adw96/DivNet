@@ -80,14 +80,93 @@ mcrow_acceptance(const double full_ratio)
   }
 }
 
+Eigen::VectorXd
+mcrow_make_yi_star(const double stepsize,
+                   const Eigen::VectorXd& Yi)
+{
+  VectorXd Yi_star(Yi.size());
+
+  // This class calls GetRNGState in it's constructor and PutRNGState
+  // in its destructure, which update .Random.seed properly.  Since we
+  // don't export this function, we must do this manually.
+  Rcpp::RNGScope rcpp_rngScope_gen;
+
+  for (int i = 0; i < Yi_star.size(); ++i) {
+    Yi_star(i) = Yi(i) + R::rnorm(0, stepsize);
+  }
+
+  return Yi_star;
+}
+
+
+
+// [[Rcpp::export]]
+Eigen::MatrixXd
+mcrow_mc_iteration__old(const int num_iters,
+                        const Eigen::VectorXd& unif_rand_vals,
+                        const Eigen::VectorXd& Wi,
+                        const Eigen::VectorXd& Wi_no_base,
+                        const Eigen::VectorXd& Yi,
+                        const Eigen::MatrixXd& Yi_star_all,
+                        const Eigen::VectorXd& eYi,
+                        const Eigen::MatrixXd& sigma_inverse)
+{
+
+  // Note that Wi length is the number of OTUs.
+  const int notus = Wi.size();
+
+  // # extra column for acceptance indicator
+  // Yi.MH <- matrix(0, MCiter, Q)
+  MatrixXd Yi_MH = MatrixXd(num_iters, notus).setZero();
+
+  for (int i = 0; i < num_iters; ++i) {
+    VectorXd Yi_star = Yi_star_all.col(i);
+
+    double full_ratio = mcrow_full_ratio(Wi,
+                                         Wi_no_base,
+                                         Yi,
+                                         Yi_star,
+                                         eYi,
+                                         sigma_inverse);
+
+    double acceptance = mcrow_acceptance(full_ratio);
+
+    // Note: The original code checked for is.nan for acceptance.....
+    if (unif_rand_vals(i) < acceptance) {
+      Yi_MH(i, 0) = 1; // accepted!
+
+      // TODO switch to Yi_MH.ncols
+      for (int j = 1; j < notus; ++j) {
+        Yi_MH(i, j) = Yi_star(j - 1); // Yi_star has one fewer item!
+      }
+    } else {
+      Yi_MH(i, 0) = 0; // not accepted
+
+      // If we're on the first iteration, use the original Yi vals,
+      // else use the last iterations.
+      if (i == 0) {
+        for (int j = 1; j < notus; ++j) {
+          Yi_MH(i, j) = Yi(j - 1); // Yi has one fewer item!
+        }
+      } else {
+        for (int j = 1; j < notus; ++j) {
+          Yi_MH(i, j) = Yi_MH(i - 1, j);
+        }
+      }
+    }
+  }
+
+  return Yi_MH;
+}
+
 // [[Rcpp::export]]
 Eigen::MatrixXd
 mcrow_mc_iteration(const int num_iters,
+                   const double stepsize,
                    const Eigen::VectorXd& unif_rand_vals,
                    const Eigen::VectorXd& Wi,
                    const Eigen::VectorXd& Wi_no_base,
                    const Eigen::VectorXd& Yi,
-                   const Eigen::MatrixXd& Yi_star_all,
                    const Eigen::VectorXd& eYi,
                    const Eigen::MatrixXd& sigma_inverse)
 {
@@ -100,7 +179,7 @@ mcrow_mc_iteration(const int num_iters,
   MatrixXd Yi_MH = MatrixXd(num_iters, notus).setZero();
 
   for (int i = 0; i < num_iters; ++i) {
-    VectorXd Yi_star = Yi_star_all.col(i);
+    VectorXd Yi_star = mcrow_make_yi_star(stepsize, Yi);
 
     double full_ratio = mcrow_full_ratio(Wi,
                                          Wi_no_base,

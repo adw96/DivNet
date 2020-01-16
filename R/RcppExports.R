@@ -5,7 +5,11 @@ mcrow_full_ratio <- function(Wi, Wi_no_base, Yi, Yi_star, eYi, sigma_inverse) {
     .Call('_DivNet_mcrow_full_ratio', PACKAGE = 'DivNet', Wi, Wi_no_base, Yi, Yi_star, eYi, sigma_inverse)
 }
 
-mcrow_mc_iteration <- function(num_iters, unif_rand_vals, Wi, Wi_no_base, Yi, Yi_star_all, eYi, sigma_inverse) {
-    .Call('_DivNet_mcrow_mc_iteration', PACKAGE = 'DivNet', num_iters, unif_rand_vals, Wi, Wi_no_base, Yi, Yi_star_all, eYi, sigma_inverse)
+mcrow_mc_iteration__old <- function(num_iters, unif_rand_vals, Wi, Wi_no_base, Yi, Yi_star_all, eYi, sigma_inverse) {
+    .Call('_DivNet_mcrow_mc_iteration__old', PACKAGE = 'DivNet', num_iters, unif_rand_vals, Wi, Wi_no_base, Yi, Yi_star_all, eYi, sigma_inverse)
+}
+
+mcrow_mc_iteration <- function(num_iters, stepsize, unif_rand_vals, Wi, Wi_no_base, Yi, eYi, sigma_inverse) {
+    .Call('_DivNet_mcrow_mc_iteration', PACKAGE = 'DivNet', num_iters, stepsize, unif_rand_vals, Wi, Wi_no_base, Yi, eYi, sigma_inverse)
 }
 
