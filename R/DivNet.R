@@ -13,7 +13,11 @@
 #' @useDynLib DivNet
 #' @importFrom Rcpp evalCpp
 #' @import RcppEigen
-
+#' 
+#' @import doParallel
+#' @import abind
+#' @import foreach
+#' 
 #' @name DivNet-package
 #' @aliases DivNet
 NULL

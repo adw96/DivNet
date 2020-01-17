@@ -116,7 +116,7 @@ fit_aitchison <- function(W,
   # sigma's by arraw, acomb3
   sigma_list <- array(0, dim = c(dim(sigma), EMiter + 1))
   sigma_list[, , 1] <- sigma
-  accept_list <- matrix(0, nrow = EMiter, ncol = N)
+  # accept_list <- matrix(0, nrow = EMiter, ncol = N)
   
   # start EM algorithm
   pb <- utils::txtProgressBar(min = 0, max = EMiter, style = 3)
@@ -124,28 +124,26 @@ fit_aitchison <- function(W,
     utils::setTxtProgressBar(pb, em-1)
     #start <- proc.time()
 
-    # MC step
-    MCarray <- MCmat(Y = Y_p, W = W, eY = eY, N = N, Q = Q, base = base, sigma = sigma, MCiter = MCiter, 
-                     stepsize = stepsize, network = network, ncores = ncores, ...)
+    if (network == "diagonal") {
+      sigInv <- diagonal_network(sigma)
+    } else if (network == "default") {
+      sigInv <- default_network(sigma)
+    } else if (network == "stars") {
+      sigInv <- stars(sigma, W, base = base, perturbation = perturbation, ncores = ncores, ...)
+    } else {
+      sigInv <- try(network(sigma, ...), silent = T)
+      if (class(sigInv) == "try-error") {
+        stop("Cannot use supplied network option?")
+      }
+    }
     
-    # MC burn-in
-    burnt <- MCarray[(MCburn + 1):MCiter, , ]
-    
-    Y_new <- t(apply(burnt, 3, colMeans))
-    accepts <- Y_new[, 1] #  first column is acceptance ratio
-    Y_new <- as.matrix(Y_new[, 2:Q])
+    ret_val <- get_Y_new_and_sigSum(N, Y_p, W, eY, base, sigInv, MCiter, MCburn, stepsize)
+    Y_new <- ret_val$Y_new
+    sigSum <- ret_val$sigSum
     
     # update b0, means across OTUs
-    b0 <- apply(Y_new, 2, mean)
+    b0 <- colMeans(Y_new)
     
-    # Add for global variables check
-    i <- NULL
-    
-    # update sigma
-    sigSumFun <- function(i) {
-      return(crossprod(t(MCarray[i, 2:Q, 1:N]) - eY))
-    }
-    sigSum <- Reduce(`+`, lapply((MCburn + 1):MCiter, sigSumFun))
     sigma <- sigSum/(N * (MCiter - MCburn))
     
     # update b
@@ -157,7 +155,7 @@ fit_aitchison <- function(W,
     
     ### STORE after updating
     ## @Bryan TODO: can this be cleaned up?
-    accept_list[em,] <- accepts
+    # accept_list[em,] <- accepts
     #b0_list <- rbind(b0_list, b0)
     b0_list[em + 1,] <- b0
     if (!no_covariates) {
@@ -205,3 +203,62 @@ fit_aitchison <- function(W,
   output_list$base <- base
   output_list
 }
+
+diagonal_network <- function(sigma) {
+  # take diagonal vec, make it a diagonal matrix, solve
+  diag(1/diag(sigma))
+}
+
+
+default_network <- function(sigma) {
+  test <- try(chol(sigma), silent = T)
+  if (class(test) == "try-error") {
+    test2 <- try(svd(sigma), silent = T)
+    if (class(test2) == "try-error") {
+      message("SVD failed; sigma is")
+      print(sigma)
+      stop()
+    } else {
+      sigInv <- MASS::ginv(sigma)
+    }
+  } else {
+    sigInv <- chol2inv(chol(sigma))
+  }
+  sigInv
+}
+
+#' stars
+#'
+#' Estimate the network using the package SpiecEasi
+#'
+#' @param sigma current estimate of sigma
+#' @param W corresponding count matrix
+#' @param base OTU index used for base
+#' @param perturbation size of purturbation used for to_log_ratios, defaults to 0.05
+#' @param ncores number of cores to use, defaults to 1
+#' @param ... other arguments to pass
+#'
+#'
+stars <- function(sigma, W, base, perturbation, ncores, ...) {
+  
+  if (!requireNamespace("glasso", quietly = TRUE) | !requireNamespace("SpiecEasi", quietly = TRUE) |
+      !requireNamespace("pulsar", quietly = TRUE) | !requireNamespace("huge", quietly = TRUE)) {
+    stop("Packages glasso, pulsar and SpiecEasi are needed for this function to work. \n
+         Please install them.",
+         call. = FALSE)
+  }
+  
+  Y_p <- to_log_ratios(W, base = base, perturbation = perturbation)
+  print("pulsar::getMaxCov(Y_p)")
+  print(pulsar::getMaxCov(Y_p))
+  hugeargs <- list(lambda=seq(from=ifelse(is.nan(pulsar::getMaxCov(Y_p)), 50, pulsar::getMaxCov(Y_p)),
+                              to = 0.01, length.out=5),
+                   verbose=FALSE)
+  
+  out.p <- pulsar(Y_p, fun=huge::huge, fargs=hugeargs,
+                  rep.num=10, criterion='stars', ncores=1)
+  gl <- glasso::glasso(sigma, rho = lams[out.p$stars$opt.index])
+  gl$wi
+  
+}
+

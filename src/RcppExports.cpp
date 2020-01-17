@@ -6,26 +6,28 @@
 
 using namespace Rcpp;
 
-// mcrow_MCrow
-Eigen::MatrixXd mcrow_MCrow(const Eigen::VectorXd& Yi, const Eigen::VectorXd& Wi, const Eigen::VectorXd& eYi, const int base, const Eigen::MatrixXd& sigInv, const int MCiter, const double stepsize);
-RcppExport SEXP _DivNet_mcrow_MCrow(SEXP YiSEXP, SEXP WiSEXP, SEXP eYiSEXP, SEXP baseSEXP, SEXP sigInvSEXP, SEXP MCiterSEXP, SEXP stepsizeSEXP) {
+// get_Y_new_and_sigSum
+Rcpp::List get_Y_new_and_sigSum(const int num_samples, const Eigen::MatrixXd& Y, const Eigen::MatrixXd& W, const Eigen::MatrixXd& eY, const int base, const Eigen::MatrixXd& sigInv, const int mciters, const int iters_to_burn, const double stepsize);
+RcppExport SEXP _DivNet_get_Y_new_and_sigSum(SEXP num_samplesSEXP, SEXP YSEXP, SEXP WSEXP, SEXP eYSEXP, SEXP baseSEXP, SEXP sigInvSEXP, SEXP mcitersSEXP, SEXP iters_to_burnSEXP, SEXP stepsizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Yi(YiSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Wi(WiSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type eYi(eYiSEXP);
+    Rcpp::traits::input_parameter< const int >::type num_samples(num_samplesSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type W(WSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type eY(eYSEXP);
     Rcpp::traits::input_parameter< const int >::type base(baseSEXP);
     Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type sigInv(sigInvSEXP);
-    Rcpp::traits::input_parameter< const int >::type MCiter(MCiterSEXP);
+    Rcpp::traits::input_parameter< const int >::type mciters(mcitersSEXP);
+    Rcpp::traits::input_parameter< const int >::type iters_to_burn(iters_to_burnSEXP);
     Rcpp::traits::input_parameter< const double >::type stepsize(stepsizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(mcrow_MCrow(Yi, Wi, eYi, base, sigInv, MCiter, stepsize));
+    rcpp_result_gen = Rcpp::wrap(get_Y_new_and_sigSum(num_samples, Y, W, eY, base, sigInv, mciters, iters_to_burn, stepsize));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_DivNet_mcrow_MCrow", (DL_FUNC) &_DivNet_mcrow_MCrow, 7},
+    {"_DivNet_get_Y_new_and_sigSum", (DL_FUNC) &_DivNet_get_Y_new_and_sigSum, 9},
     {NULL, NULL, 0}
 };
 

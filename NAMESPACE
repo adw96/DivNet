@@ -2,7 +2,6 @@
 
 S3method(plot,diversityEstimates)
 S3method(print,diversityEstimates)
-export(MCmat)
 export(bc_fast)
 export(bray_curtis_true)
 export(divnet)
