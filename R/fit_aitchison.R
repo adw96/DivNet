@@ -211,15 +211,15 @@ diagonal_network <- function(sigma) {
 
 
 default_network <- function(sigma) {
+  # If possible, use the Cholesky decomp as it is faster than svd
   test <- try(chol(sigma), silent = T)
-  if (class(test) == "try-error") {
-    test2 <- try(svd(sigma), silent = T)
+  if (class(test) == "try-error") { # cholesky decomp failed
+    # If svd will fail, then MASS::ginv will fail as it calls svd.
+    test2 <- try(sigInv <- MASS::ginv(sigma))
     if (class(test2) == "try-error") {
-      message("SVD failed; sigma is")
+      message("MASS::ginv failed (probably because svd failed); sigma is")
       print(sigma)
       stop()
-    } else {
-      sigInv <- MASS::ginv(sigma)
     }
   } else {
     sigInv <- chol2inv(chol(sigma))
