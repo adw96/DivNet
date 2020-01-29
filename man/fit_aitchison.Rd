@@ -4,8 +4,16 @@
 \alias{fit_aitchison}
 \title{fit_aitchison}
 \usage{
-fit_aitchison(W, X = NULL, tuning = NULL, perturbation = NULL,
-  network = NULL, base = NULL, ncores = NULL, ...)
+fit_aitchison(
+  W,
+  X = NULL,
+  tuning = NULL,
+  perturbation = NULL,
+  network = NULL,
+  base = NULL,
+  ncores = NULL,
+  ...
+)
 }
 \arguments{
 \item{W}{count matrix, with columns listing the OTUs and rows listing the samples}

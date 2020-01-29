@@ -99,7 +99,9 @@ default_network <- function(sigma) {
 
 #' stars
 #'
-#' Estimate the network using the package SpiecEasi
+#' Estimate the network using the package pulsar to select the tuning parameter.
+#' Type `DivNet::stars` to see the chosen defaults. To modify the defaults,
+#' create a new function and pass it as the `network` argument to MCmat.
 #'
 #' @param sigma current estimate of sigma
 #' @param W corresponding count matrix
@@ -114,20 +116,25 @@ stars <- function(sigma, W, base, perturbation, ncores, ...) {
   if (!requireNamespace("glasso", quietly = TRUE) | !requireNamespace("SpiecEasi", quietly = TRUE) |
       !requireNamespace("pulsar", quietly = TRUE) | !requireNamespace("huge", quietly = TRUE)) {
     stop("Packages glasso, pulsar and SpiecEasi are needed for this function to work. \n
-         Please install them.",
+         Please install and load them.",
          call. = FALSE)
   }
 
   Y_p <- to_log_ratios(W, base = base, perturbation = perturbation)
-  print("pulsar::getMaxCov(Y_p)")
-  print(pulsar::getMaxCov(Y_p))
-  hugeargs <- list(lambda=seq(from=ifelse(is.nan(pulsar::getMaxCov(Y_p)), 50, pulsar::getMaxCov(Y_p)),
-                              to = 0.01, length.out=5),
+  lmax <- pulsar::getMaxCov(Y_p, cov = FALSE)
+  lams <- pulsar::getLamPath(lmax, lmax*.05, len=10)
+  hugeargs <- list(lambda=lams,
                    verbose=FALSE)
+  out.p <- pulsar::pulsar(Y_p, fun=huge, fargs=hugeargs, rep.num=20,
+                          criterion='stars', lb.stars=TRUE, ub.stars=TRUE,
+                          ncores = 1)
+  fit.p    <- pulsar::refit(out.p)
 
-  out.p <- pulsar(Y_p, fun=huge::huge, fargs=hugeargs,
-                  rep.num=10, criterion='stars', ncores=1)
-  gl <- glasso::glasso(sigma, rho = lams[out.p$stars$opt.index])
+  sp <- sum(fit.p$refit[["stars"]]) / ncol(fit.p$refit[["stars"]])^2
+  # from documentation for printing
+
+  # gl <- glasso::glasso(sigma, rho = lams[out.p$stars$opt.index])
+  gl <- glasso::glasso(sigma, rho = sp)
   gl$wi
 
 }
