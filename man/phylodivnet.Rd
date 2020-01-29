@@ -4,9 +4,19 @@
 \alias{phylodivnet}
 \title{phylodivnet}
 \usage{
-phylodivnet(W, X = NULL, trees = NULL, tuning = NULL,
-  perturbation = NULL, network = NULL, base = NULL, ncores = NULL,
-  B = 5, alpha = 0.05, ...)
+phylodivnet(
+  W,
+  X = NULL,
+  trees = NULL,
+  tuning = NULL,
+  perturbation = NULL,
+  network = NULL,
+  base = NULL,
+  ncores = NULL,
+  B = 5,
+  alpha = 0.05,
+  ...
+)
 }
 \arguments{
 \item{W}{An abundance table with taxa as columns and samples as rows; or a phyloseq object}

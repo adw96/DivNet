@@ -4,9 +4,20 @@
 \alias{divnet}
 \title{divnet}
 \usage{
-divnet(W, X = NULL, fitted_model = NULL, tuning = NULL,
-  perturbation = NULL, network = NULL, base = NULL, ncores = NULL,
-  variance = "parametric", B = 5, nsub = NULL, ...)
+divnet(
+  W,
+  X = NULL,
+  fitted_model = NULL,
+  tuning = NULL,
+  perturbation = NULL,
+  network = NULL,
+  base = NULL,
+  ncores = NULL,
+  variance = "parametric",
+  B = 5,
+  nsub = NULL,
+  ...
+)
 }
 \arguments{
 \item{W}{An abundance table with taxa as columns and samples as rows; or a phyloseq object}

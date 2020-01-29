@@ -4,8 +4,21 @@
 \alias{MCmat}
 \title{MCmat}
 \usage{
-MCmat(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1,
-  perturbation = 0.05, network = "default", ncores = 1, ...)
+MCmat(
+  Y,
+  W,
+  eY,
+  N,
+  Q,
+  base,
+  sigma,
+  MCiter,
+  stepsize = 1,
+  perturbation = 0.05,
+  network = "default",
+  ncores = 1,
+  ...
+)
 }
 \arguments{
 \item{Y}{logratio matrix}
