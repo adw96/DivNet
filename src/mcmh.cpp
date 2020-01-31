@@ -71,7 +71,7 @@ get_full_ratio(const Eigen::VectorXd& Wi,
 {
   return Eq5pt1(Wi, Yi, Yi_star) +
     Eq5pt2(Wi_no_base, Yi, Yi_star) +
-    Eq5pt3(Yi_star, eYi, sigInv) +
+    Eq5pt3(Yi_star, eYi, sigInv) -
     Eq5pt4(Yi, eYi, sigInv);
 }
 
