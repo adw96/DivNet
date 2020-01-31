@@ -170,12 +170,12 @@ get_Y_new_and_sigSum(const int num_samples,
   // Track previous lr estimates for all samples.
   MatrixXd previous = MatrixXd(notus - 1, num_samples).setZero();
 
-  for (int mciter = 0; mciter < mciters; ++mciter) {
-    // log ratio estimates for this sample.  Normally will have more
-    // OTUs than samples.  So save it that way to have longer bits of
-    // data in memory.
-    MatrixXd sample_lr_estimates = MatrixXd(notus - 1, num_samples);
+  // log ratio estimates for this sample.  Normally will have more
+  // OTUs than samples.  So save it that way to have longer bits of
+  // data in memory.
+  MatrixXd sample_lr_estimates = MatrixXd(notus - 1, num_samples);
 
+  for (int mciter = 0; mciter < mciters; ++mciter) {
     for (int smpl = 0; smpl < num_samples; ++smpl) {
       VectorXd Yi = Y.row(smpl);
       VectorXd Wi = W.row(smpl);
@@ -205,8 +205,6 @@ get_Y_new_and_sigSum(const int num_samples,
         // accepted!
         if (mciter >= iters_to_burn) {
           for (int i = 0; i < notus - 1; ++i) {
-            // TODO is it off by 1?
-            Y_MH_sums(i, smpl) += Yi_star(i);
             sample_lr_estimates(i, smpl) = Yi_star(i);
           }
         }
@@ -215,7 +213,6 @@ get_Y_new_and_sigSum(const int num_samples,
       } else { // not accepted!
         if (mciter >= iters_to_burn) {
           for (int i = 0; i < notus - 1; ++i) {
-            Y_MH_sums(i, smpl) += previous(i, smpl);
             sample_lr_estimates(i, smpl) = previous(i, smpl);
           }
         }
@@ -223,6 +220,10 @@ get_Y_new_and_sigSum(const int num_samples,
     }
 
     if (mciter >= iters_to_burn) {
+      // Update the Y_MH_sums tracker with this iterations logratio
+      // estimates.
+      Y_MH_sums += sample_lr_estimates;
+
       // Now we have to update sigSum.  Sadly this will create tmp
       // matrix....
       sigSum += self_crossprod(sample_lr_estimates.transpose() - eY);
