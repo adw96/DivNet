@@ -3,6 +3,7 @@
 
 using namespace Eigen;
 
+// Like the R function crossprod(m).
 MatrixXd
 self_crossprod(const Eigen::MatrixXd& m)
 {
