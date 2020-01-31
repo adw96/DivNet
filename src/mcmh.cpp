@@ -7,7 +7,6 @@ using namespace Eigen;
 MatrixXd
 self_crossprod(const Eigen::MatrixXd& m)
 {
-  const int nrow = m.rows();
   const int ncol = m.cols();
 
   MatrixXd res = MatrixXd(ncol, ncol).
@@ -96,11 +95,7 @@ make_yi_star(const double stepsize,
 {
   VectorXd Yi_star(Yi.size());
 
-  // This class calls GetRNGState in it's constructor and PutRNGState
-  // in its destructure, which update .Random.seed properly.  Since we
-  // don't export this function, we must do this manually.
-  Rcpp::RNGScope rcpp_rngScope_gen;
-
+  // RNGScope is called in the exported wrapper function.
   for (int i = 0; i < Yi_star.size(); ++i) {
     Yi_star(i) = Yi(i) + R::rnorm(0, stepsize);
   }
