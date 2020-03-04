@@ -1,0 +1,101 @@
+---
+title: "Assessing model fit"
+author: "Amy Willis"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## The importance of verifying assumptions
+
+As with all statistical models, the assumptions of `DivNet` should be verified before interpreting the results. In this vignette, I will show you how to investigate a key assumption of the `DivNet` model: that the log-ratio relative abundances are linear (or at least not strongly curved).
+
+You do not need to do this if you are fitting `DivNet` with categorical covariates, only if you are fitting `DivNet` with continuous covariates.
+
+## Testing the changes in Shannon diversity with temperature
+
+We are going to use the Lee et al dataset and investigate the effect of temperature on phylum-level Shannon diversity. Recall that this dataset contains samples of microbial communities living on seafloor rocks near a hydrothermal vent.
+
+We first load the data and necessary packages, aggregate counts to the phylum level, and subset to samples with temperature data.
+
+```{r}
+library(phyloseq)
+library(breakaway)
+library(DivNet)
+library(magrittr)
+library(tidyverse)
+data(Lee)
+lee_phylum <- Lee %>%
+  tax_glom(taxrank = "Phylum") %>%
+  subset_samples(temp != "<NA>")
+```
+
+Annoyingly, temperature is a categorical variable in this dataset, so we convert it to a continuous variable and run `DivNet`, modelling the log-ratios as a linear function of temperature:
+
+```{r, message=FALSE}
+lee_phylum %>% sample_data %$% temp
+temp_continuous <- lee_phylum %>% sample_data %$% temp %>% as.character %>% as.numeric
+divnet_temperature <- lee_phylum %>%
+  divnet(X = temp_continuous, base=1)
+```
+
+I'm a big fan of plotting the estimated diversity against the covariate before doing any hypothesis testing to make sure that everything looks reasonable.
+
+```{r}
+shannon_table <- divnet_temperature %$%
+  shannon %>%
+  summary %>%
+  add_column(temp_continuous)
+shannon_table %>%
+  ggplot(aes(x = temp_continuous, y = estimate)) + geom_point() +
+  geom_linerange(aes(x = temp_continuous, ymin = lower, ymax = upper))
+```
+
+Looks good to me! Let's go ahead and see if that upward trend is statistically significant given those wide error bars:
+
+```{r}
+betta(shannon_table$estimate, shannon_table$error,
+      cbind(1, divnet_temperature$X))$table
+```
+
+We reject the null hypothesis of no significant linear increase in Shannon diversity with temperature with $p < 10^{-3}$.
+
+# Assessing model fit
+
+Before taking that result too seriously, let's check for model misspecification. The `DivNet` model performs well when there is not significant curvature in the log-ratios. To investigate this, let's pull out the observed log-ratios (`observed_yy`) as well as the fitted log-ratios (`fitted_yy`).
+
+```{r}
+fitted_yy <- DivNet::to_log_ratios(divnet_temperature$fitted_z,
+                                   base = 1)
+observed_yy <- lee_phylum %>% otu_table %>%
+  as.matrix %>% t %>%
+  DivNet::to_log_ratios(base = 1)
+```
+
+Now let's put both the observed log-ratios and the fitted log-ratios against temperature. `DivNet` assumes a linear model for all log-ratios, and since there are 20 taxa in this dataset, there are 19 log-ratios. Therefore I'm going to write a function that plots the log-ratios.
+
+```{r}
+draw_log_ratios <- function(taxon) {
+  data.frame(temperature = temp_continuous,
+             log_ratio = fitted_yy[,taxon],
+             log_ratio_observed = observed_yy[,taxon]) %>%
+    ggplot(aes(x = temperature, y = log_ratio_observed)) +
+    geom_point() +
+    xlab("Temperature") +
+    ylab("log-ratios") +
+    geom_point(aes(y = log_ratio), col = "blue") +
+    ggtitle("Observed (black) and fitted (blue) log-ratios against temperature")
+}
+draw_log_ratios(taxon=1)
+draw_log_ratios(taxon=2)
+draw_log_ratios(taxon=3)
+```
+
+I don't see any significant curvature in any of these plots. Note that it's not important that these scatterplots display a strong linear trend -- just that they are not strongly nonlinear. Note that we found that model is robust to mild nonlinearity, but its performance decreases as the nonlinear trend gets stronger. 
+
+In theory I should run the function and inspect those plots, but given that there may be hundreds or thousands of taxa model, I would recommend checking the most abundant taxa, since these are the ones that are most likely to throw off diversity estimation if misspecified.
+
+Happy modelling!
