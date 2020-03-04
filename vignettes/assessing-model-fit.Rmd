@@ -26,7 +26,7 @@ library(phyloseq)
 library(breakaway)
 library(DivNet)
 library(magrittr)
-library(tidyverse)
+library(ggplot2)
 data(Lee)
 lee_phylum <- Lee %>%
   tax_glom(taxrank = "Phylum") %>%
@@ -48,7 +48,7 @@ I'm a big fan of plotting the estimated diversity against the covariate before d
 shannon_table <- divnet_temperature %$%
   shannon %>%
   summary %>%
-  add_column(temp_continuous)
+  cbind(temp_continuous)
 shannon_table %>%
   ggplot(aes(x = temp_continuous, y = estimate)) + geom_point() +
   geom_linerange(aes(x = temp_continuous, ymin = lower, ymax = upper))
