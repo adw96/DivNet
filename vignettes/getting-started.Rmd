@@ -15,13 +15,19 @@ Mike Lee, a bioinformatics wizard, recently put together some fantastic tutorial
 
 ## Preliminaries
 
-Let's take a quick look at the Lee et al dataset.
+Let's load some required packages and check our session info:
 
 ```{r}
 library(magrittr)
 library(phyloseq)
 library(breakaway)
-library(DivNet)
+library(DivNet) # last checked with version 0.3.5
+sessionInfo()
+```
+
+Let's take a quick look at the Lee et al dataset.
+
+```
 data(Lee)
 Lee
 ```
@@ -55,9 +61,13 @@ lee_phylum
 
 20 taxa is incredibly manageable! Let's go ahead and run divnet. My computer has 4 cores, so I am just going to run in parallel with the `ncores` argument.
 
+**Sidenote for the reproducibility nerds**: `DivNet`'s model fitting procedure has a Metropolis Hastings step to estimate a complex integral using Monte Carlo estimation, which introduces some randomness into the results. Under the default settings the results should change very little between runs (especially if you set `tuning = "careful"` or increase `EMiter` or `MCiter` from the defaults, which are `tuning = list(EMiter = 10, EMburn = 5, MCiter = 1000, MCburn = 500, stepsize = 0.01)`). To make sure that they don't change between runs, we *could* set the random number seed... but this would only work if we were running everything on one core. Since we want to distribute the process over 4 cores, and setting seeds over multiple cores is [kind of a pain](https://www.r-bloggers.com/%F0%9F%8C%B1-setting-a-seed-in-r-when-using-parallel-simulation/), I'm just going to up the ante with `tuning = "careful"` and hope you'll forgive me this time. If you're a less powerful machine feel free to remove this argument (default is `tuning = "fast"`). 
+
+
 ```{r, results = "hide"}
+set.seed(20200318)
 divnet_phylum <- lee_phylum %>%
-  divnet(ncores = 4)
+  divnet(ncores = 4, tuning = "careful")
 ```
 
 Hopefully that didn't take too long! If you don't want to run in parallel, you can ignore the `ncores`  argument.
@@ -138,7 +148,7 @@ plugin <- tax_glom(Lee, taxrank="Phylum") %>%
             estimate_richness(measures = "Shannon") %$% Shannon
 char <- Lee %>% sample_data %$% char
 t.test(plugin[char == "altered"],
-       plugin[char == "glassy"])$p.value
+       plugin[char == "glassy"])
 ```
 
 Underpinning this approach is a major problem: the plug-in estimates of diversity are not very good because they don't account for missing taxa or undersampling or oversampling of taxa. For the Shannon index, estimated diversity is too low, with a known negative bias. They are also based on the multinomial model, which ignores taxon-taxon interactions and the additional variance attributable to them.
@@ -156,9 +166,9 @@ X <- breakaway::make_design_matrix(lee_phylum, "char")
 betta(estimates, ses, X)$table
 ```
 
-The intercept term is our altered basalts (they are the only ones that aren't listed), and so all comparisons are made to this baseline. We see that there are no significant differences between altered and glassy, as we saw before with the t-test, but now the p value is 0.53 not 0.12.  I think that this is the great thing about DivNet -- hypothesis testing now reflects instability in microbiomes  better than plug-in estimates.
+The intercept term is our altered basalts (they are the only ones that aren't listed), and so all comparisons are made to this baseline. We see that using DivNet we conclude that there is a significant differences between altered and glassy basalts, unlike what we saw with the t-test (DivNet p value is `r betta(estimates, ses, X)$table["predictorsglassy",3]` not `r round(t.test(plugin[char == "altered"], plugin[char == "glassy"])$p.value, 2)`). Note that the estimated differences between altered and glassy are similar (DivNet estimates a change in Shannon diversity of `r round(betta(estimates, ses, X)$table["predictorsglassy", 1], 3)` while the t-test estimated `r round(mean(plugin[char == "glassy"])-mean(plugin[char == "altered"]), 3)`), but the difference is the lower standard error (greater precision in estimating the difference) from DivNet. 
 
-On the other hand, we do see  some differences in alpha diversity across the different groups: biofilm and water basalts have significantly different diversity (at the phylum level) than altered basalts. If we want to do the global test of whether or not there are differences across categories, we can get the p value as follows:
+We also see some differences in alpha diversity across the other different groups: biofilm basalts have significantly different diversity (at the phylum level) than altered basalts. If we want to do the global test of whether or not there are differences across categories, we can get the p value as follows:
 
 ```{r}
 betta(estimates, ses, X)$global[2]
