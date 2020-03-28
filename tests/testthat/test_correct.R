@@ -85,3 +85,6 @@ test_that("DivNet estimates are basically correct", {
   expect_lt(max(shannon) - min(shannon), 0.01)
   
 })
+
+
+

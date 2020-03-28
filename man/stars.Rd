@@ -20,7 +20,7 @@ stars(sigma, W, base, perturbation, ncores, ...)
 \item{...}{other arguments to pass}
 }
 \description{
-Estimate the network using the package pulsar to select the tuning parameter. 
-Type `DivNet::stars` to see the chosen defaults. To modify the defaults, 
+Estimate the network using the package pulsar to select the tuning parameter.
+Type `DivNet::stars` to see the chosen defaults. To modify the defaults,
 create a new function and pass it as the `network` argument to MCmat.
 }
