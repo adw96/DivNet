@@ -2,6 +2,7 @@
 output:
   md_document:
     variant: gfm
+    pandoc_args: ["--wrap=none"]
 ---
 
 ---
