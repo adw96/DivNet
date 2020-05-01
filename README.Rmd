@@ -1,7 +1,7 @@
 ---
 output:
   md_document:
-    variant: markdown_github
+    variant: gfm
 ---
 
 ---
@@ -39,10 +39,9 @@ Want a confidence interval for a different diversity index? Let us know by posti
 `DivNet` is currently available via GitHub, and can be installed as follows. Please note that you will need to install the latest version of `breakaway` to install `DivNet`; this is included in the following commands:
 
 ```r
-# install.packages("devtools")   ## run this line if you do not already have devtools installed
-library(devtools)
-install_github("adw96/breakaway")
-install_github("adw96/DivNet")
+# install.packages("remotes")   ## run this line if you do not already have remotes installed
+remotes::install_github("adw96/breakaway")
+remotes::install_github("adw96/DivNet")
 library(DivNet)
 ```
 
