@@ -38,8 +38,8 @@ whether taxon B is likely to be there too. DivNet takes care of all of
 these issues, and gives you a confidence interval that incorporates all
 of these challenges.
 
-See
-[here](https://github.com/adw96/DivNet/blob/master/vignettes/getting-started.Rmd)
+See [the
+vignette](https://github.com/adw96/DivNet/blob/master/vignettes/getting-started.Rmd)
 for a full tutorial, and [the
 paper](https://www.biorxiv.org/content/early/2018/04/21/305045) for more
 details.
