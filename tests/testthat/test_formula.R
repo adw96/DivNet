@@ -3,6 +3,8 @@ library(magrittr)
 context("Test formula")
 
 test_that("Test formula implementation", {
+  n_taxa <- 10
+  n <- 20
   my_counts <- matrix(c(rep(c(rep(100, n_taxa/2), rep(1, n_taxa/2)), n/2),
                         rep(c(rep(1, n_taxa/2), rep(100, n_taxa/2)), n/2)),
                       nrow = n, ncol = n_taxa, byrow=T)
