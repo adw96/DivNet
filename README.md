@@ -2,7 +2,7 @@
 
 # DivNet <img src="docs/divnet-logo.png" align="right" width="165px"/>
 
-[![Build Status](https://travis-ci.org/adw96/DivNet.svg?branch=master)](https://travis-ci.org/adw96/DivNet) <!-- [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/adw96/DivNet?branch=master&svg=true)](https://ci.appveyor.com/project/adw96/DivNet) --> [![codecov.io](https://codecov.io/gh/adw96/DivNet/coverage.svg?branch=master)](https://codecov.io/gh/adw96/DivNet?branch=master)
+[![Build Status](https://travis-ci.org/adw96/DivNet.svg?branch=master)](https://travis-ci.org/adw96/DivNet) [![codecov.io](https://codecov.io/gh/adw96/DivNet/coverage.svg?branch=master)](https://codecov.io/gh/adw96/DivNet?branch=master)
 
 DivNet: an R package to estimate diversity when taxa in the community cooccur via a ecological network.
 
@@ -10,7 +10,7 @@ Willis, A.D. and Martin, B.D. (2018+) [*DivNet: Estimating diversity in networke
 
 ## About
 
-If you new the exact composition of a community (such as all of the microbes living on your skin), you could calculate the Shannon diversity of the community, or the Bray-Curtis distance between your skin’s microbes and your cat’s fur microbes. However, you will only ever observe a small fraction of the microbes on your skin from your experiment, so you have to estimate these diversity indices based on the data, and ideally you will get a confidence interval for those diversity indices.
+If you knew the exact composition of a community (such as all of the microbes living on your skin), you could calculate the Shannon diversity of the community, or the Bray-Curtis distance between your skin’s microbes and your cat’s fur microbes. However, you will only ever observe a small fraction of the microbes on your skin from your experiment, so you have to estimate these diversity indices based on the data, and ideally you will get a confidence interval for those diversity indices.
 
 Almost all ecologists use “plug-in” diversity estimates, obtained by taking the observed relative abundances of each taxon and plugging them into the formula for the true diversity. This is problematic for a number of reasons, including that there may be unobserved taxa, and the observed relative abundances probably don’t exactly equal the true relative abundances due to random sampling. Furthermore, typical approaches to obtaining a confidence interval assume that all taxa behave independently: if taxon A is there, this tells you nothing about whether taxon B is likely to be there too. DivNet takes care of all of these issues, and gives you a confidence interval that incorporates all of these challenges.
 
