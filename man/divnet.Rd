@@ -43,7 +43,7 @@ divnet(
 
 \item{nsub}{Number of subsamples for nonparametric bootstrap. Defaults to half the number of observed samples.}
 
-\item{formula}{an object of class \code{formula}: a symbolic description of the model to be fitted. Optional, defaults to \code{NULL}. Formula objects must match column names found in \code{X}.}
+\item{formula}{an object of class \code{formula}: a symbolic description of the model to be fitted. Optional, defaults to \code{NULL}. Formula objects must match column names found in the sample data from \code{W} or \code{X}.}
 
 \item{...}{Additional parameters to be passed to the network function}
 }

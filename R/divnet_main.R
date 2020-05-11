@@ -12,7 +12,7 @@
 #' @param variance method to get variance of estimates. Current options are "parametric" for parametric bootstrap, "nonparametric" for nonparametric bootstrap, and "none" for no variance estimates
 #' @param B Number of bootstrap iterations for estimating the variance.
 #' @param nsub Number of subsamples for nonparametric bootstrap. Defaults to half the number of observed samples.
-#' @param formula an object of class \code{formula}: a symbolic description of the model to be fitted. Optional, defaults to \code{NULL}. Formula objects must match column names found in \code{X}.
+#' @param formula an object of class \code{formula}: a symbolic description of the model to be fitted. Optional, defaults to \code{NULL}. Formula objects must match column names found in the sample data from \code{W} or \code{X}.
 #' @param ... Additional parameters to be passed to the network function
 #' 
 #' @importFrom breakaway make_design_matrix
@@ -45,9 +45,14 @@ divnet <-  function(W,
                     ...) {
   
   if (!is.null(formula)) {
-    # get model.matrix
-    X <- data.frame(X)
-    X <- stats::model.matrix(object = formula, data = X)
+    if ("phyloseq" %in% class(W)) {
+      X <- data.frame(phyloseq::sample_data(W))
+      X <- stats::model.matrix(object = formula, data = X)
+    } else {
+      # get model.matrix
+      X <- data.frame(X)
+      X <- stats::model.matrix(object = formula, data = X)
+    }
   }
   
   if ("phyloseq" %in% class(W)) {

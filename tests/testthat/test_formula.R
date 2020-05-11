@@ -31,3 +31,11 @@ test_that("Test formula implementation", {
   
 }
 )
+
+test_that("Test formula implementation using phyloseq", {
+  data(Lee)
+  lee_phylum <- phyloseq::tax_glom(Lee, taxrank="Phylum")
+  dv4 <- lee_phylum %>% 
+    divnet(formula = ~type)
+}
+)
