@@ -37,5 +37,6 @@ test_that("Test formula implementation using phyloseq", {
   lee_phylum <- phyloseq::tax_glom(Lee, taxrank="Phylum")
   dv4 <- lee_phylum %>% 
     divnet(formula = ~type)
+  expect_is(dv4, "diversityEstimates")
 }
 )
