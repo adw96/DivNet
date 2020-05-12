@@ -8,13 +8,13 @@
 OLS <- function(X, Y) {
   
   p <- ncol(X)
-  centY <- scale(Y, center=TRUE, scale = FALSE)
+  centY <- scale(Y, center = TRUE, scale = FALSE)
   
   # quick function to aid apply
   aFun <- function(ycol) {
     
     outcome <- try(tcrossprod(ginv(crossprod(X)), X) %*% ycol, silent = T)
-    if (class(outcome) == "try-error") {
+    if ("try-error" %in% class(outcome)) {
       cat("Tried to regress X on Y where X is\n")
       print(X)
       cat("and Y is \n")

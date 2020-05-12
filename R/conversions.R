@@ -8,7 +8,7 @@
 #' @export
 to_composition_matrix <- function(Y, base = NULL) {
   
-  if (class(Y) == "list")  {
+  if ("list" %in% class(Y))  {
     stop("to_composition_matrix was passed a list and doesn't know what to do")
   }
   
