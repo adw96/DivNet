@@ -13,7 +13,7 @@ MCrow(Yi, Wi, eYi, Q, base, sigInv, MCiter, stepsize = 1)
 
 \item{eYi}{current expected value of logratio matrix}
 
-\item{Q}{number of OTUs minus the base, or length of Yi}
+\item{Q}{number of OTUs, or length of Wi}
 
 \item{base}{OTU index used for base}
 

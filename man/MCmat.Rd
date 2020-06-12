@@ -29,7 +29,7 @@ MCmat(
 
 \item{N}{number of samples, or nrow of Y}
 
-\item{Q}{number of OTUs minus the base, or ncol of Y}
+\item{Q}{number of OTUs, or ncol of W}
 
 \item{base}{OTU index used for base}
 
