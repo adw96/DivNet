@@ -35,7 +35,7 @@ MCmat <- function(Y, W, eY, N, Q, base, sigma, MCiter, stepsize = 1,
     sigInv <- stars(sigma, W, base = base, perturbation = perturbation, ncores = ncores, ...)
   } else {
     sigInv <- try(network(sigma, ...), silent = T)
-    if (class(sigInv) == "try-error") {
+    if ("try-error" %in% class(sigInv)) {
       stop("Cannot use supplied network option?")
     }
   }
@@ -82,9 +82,9 @@ diagonal_network <- function(sigma) {
 
 default_network <- function(sigma) {
   test <- try(chol(sigma), silent = T)
-  if (class(test) == "try-error") {
+  if ("try-error" %in% class(test)) {
     test2 <- try(svd(sigma), silent = T)
-    if (class(test2) == "try-error") {
+    if ("try-error" %in% class(test2)) {
       message("SVD failed; sigma is")
       print(sigma)
       stop()

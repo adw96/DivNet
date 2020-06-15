@@ -68,7 +68,7 @@ fit_aitchison <- function(W,
   
   ## set up tuning parameters for EM-MH algorithm
   if (is.null(tuning)) tuning <- "fast"
-  if (class(tuning) == "list") {
+  if ("list" %in% class(tuning)) {
     EMiter <- ifelse(is.null(tuning$EMiter), 6, tuning$EMiter)
     EMburn <- ifelse(is.null(tuning$EMburn), 3, tuning$EMburn)
     MCiter <- ifelse(is.null(tuning$MCiter), 500, tuning$MCiter)

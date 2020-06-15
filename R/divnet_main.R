@@ -93,7 +93,7 @@ divnet <-  function(W,
     stop("Cannot fit a network model with 2 taxa")
   }
   
-  if (class(base) == "character") {
+  if ("character" %in% class(base)) {
     if (base %in% colnames(W)) {
       base <- which(base == colnames(W))
     } else {
