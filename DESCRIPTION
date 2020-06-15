@@ -17,6 +17,7 @@ Imports:
     MASS,
     mvnfast,
     R.utils,
+    remotes,
     stats,
     tibble,
     tidyr,
