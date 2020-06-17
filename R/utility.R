@@ -8,7 +8,7 @@
 OLS <- function(X, Y) {
   
   p <- ncol(X)
-  centY <- scale(Y, center=TRUE, scale = FALSE)
+  centY <- scale(Y, center = TRUE, scale = FALSE)
   
   # quick function to aid apply
   aFun <- function(ycol) {

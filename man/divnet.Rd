@@ -16,11 +16,12 @@ divnet(
   variance = "parametric",
   B = 5,
   nsub = NULL,
+  formula = NULL,
   ...
 )
 }
 \arguments{
-\item{W}{An abundance table with taxa as columns and samples as rows; or a phyloseq object}
+\item{W}{An abundance table with taxa as columns and samples as rows; or a phyloseq object.}
 
 \item{X}{The covariate matrix, with samples as rows and variables as columns. Defaults to NULL (sample_names are the covariates).}
 
@@ -41,6 +42,8 @@ divnet(
 \item{B}{Number of bootstrap iterations for estimating the variance.}
 
 \item{nsub}{Number of subsamples for nonparametric bootstrap. Defaults to half the number of observed samples.}
+
+\item{formula}{an object of class \code{formula}: a symbolic description of the model to be fitted. Optional, defaults to \code{NULL}. Formula objects must match column names found in the sample data from \code{W} or \code{X}.}
 
 \item{...}{Additional parameters to be passed to the network function}
 }
