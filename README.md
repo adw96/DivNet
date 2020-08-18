@@ -6,7 +6,7 @@
 
 DivNet: an R package to estimate diversity when taxa in the community cooccur via a ecological network.
 
-Willis, A.D. and Martin, B.D. (2018+) [*DivNet: Estimating diversity in networked communities*](https://www.biorxiv.org/content/early/2018/04/21/305045). Under review.
+Willis, A.D. and Martin, B.D. (2020) [*DivNet: Estimating diversity in networked communities*](https://academic.oup.com/biostatistics/advance-article-abstract/doi/10.1093/biostatistics/kxaa015/5841114). Biostatistics. doi.org/10.1093/biostatistics/kxaa015
 
 ## About
 
@@ -14,7 +14,7 @@ If you knew the exact composition of a community (such as all of the microbes li
 
 Almost all ecologists use “plug-in” diversity estimates, obtained by taking the observed relative abundances of each taxon and plugging them into the formula for the true diversity. This is problematic for a number of reasons, including that there may be unobserved taxa, and the observed relative abundances probably don’t exactly equal the true relative abundances due to random sampling. Furthermore, typical approaches to obtaining a confidence interval assume that all taxa behave independently: if taxon A is there, this tells you nothing about whether taxon B is likely to be there too. DivNet takes care of all of these issues, and gives you a confidence interval that incorporates all of these challenges.
 
-See [the vignette](https://github.com/adw96/DivNet/blob/master/vignettes/getting-started.Rmd) for a full tutorial, and [the paper](https://www.biorxiv.org/content/early/2018/04/21/305045) for more details.
+See [the vignette](https://github.com/adw96/DivNet/blob/master/vignettes/getting-started.Rmd) for a full tutorial, and [the paper](https://academic.oup.com/biostatistics/advance-article-abstract/doi/10.1093/biostatistics/kxaa015/5841114) for more details.
 
 Want a confidence interval for a different diversity index? Let us know by posting an [issue](https://github.com/adw96/DivNet/issues)\!
 
