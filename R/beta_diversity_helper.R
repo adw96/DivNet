@@ -24,11 +24,11 @@ simplifyBeta <- function(dv,
   names(vars) <- physeq %>% sample_names
   
   dv[[measure]] %>%
-    data.frame %>%
+    data.frame(check.names=FALSE) %>%
     rownames_to_column("Sample1") %>%
     gather("Sample2", "beta_est", names(vars)) %>%
     add_column("beta_var" = beta_var_matrix %>%
-                 data.frame %>%
+                 data.frame(check.names=FALSE) %>%
                  rownames_to_column("Sample1") %>%
                  gather("Sample2", "var", names(vars)) %>%
                  select("var") %>% c %>% unlist) %>%
