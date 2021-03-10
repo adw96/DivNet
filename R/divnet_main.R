@@ -70,9 +70,9 @@ divnet <-  function(W,
     if (is.character(X)) {
       X <- breakaway::make_design_matrix(input_data, X)
     } else if (is.null(X)) {
-      #xx <- input_data %>% sample_data %>% rownames 
-      #X <- model.matrix(~xx)
-      X <- matrix(1, ncol = 1, nrow = nrow(W))
+      xx <- input_data %>% sample_data %>% rownames 
+      X <- model.matrix(~xx)
+      #X <- matrix(1, ncol = 1, nrow = nrow(W))
     }
   } else if ("otu_table" %in% class(W)) {
     
@@ -94,8 +94,8 @@ divnet <-  function(W,
   }
 
   if (is.null(X)) {
-    X <- matrix(1, ncol=1, nrow=nrow(W))
-    # X <- model.matrix(~samples_names)
+    #X <- matrix(1, ncol=1, nrow=nrow(W))
+    X <- model.matrix(~samples_names)
   }
   
   # remove taxa that weren't observed 
