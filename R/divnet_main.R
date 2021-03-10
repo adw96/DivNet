@@ -89,7 +89,8 @@ divnet <-  function(W,
   
 
   if (is.null(X)) {
-    X <- matrix(1, ncol=1, nrow=nrow(W))
+    #X <- matrix(1, ncol=1, nrow=nrow(W))
+    X <- model.matrix(~samples_names)
   }
   
   # remove taxa that weren't observed 
