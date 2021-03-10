@@ -22,6 +22,8 @@ test_that("Identical observations give identical estimates", {
   
   dv2 <- divnet(my_counts_2, X=my_discrete_covariate, base = 1)
   estimates2 <- dv2$shannon %>% summary %$% estimate 
+  estimates2 <- unname(estimates2)
+  estimates <- unname(estimates)
   expect_equal(estimates2[6], estimates[1], tolerance = 1e-2)
   expect_equal(estimates2[1], 
                shannon_true(rep(1/6, 6)), tolerance = 1e-2)

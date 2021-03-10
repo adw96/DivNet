@@ -24,7 +24,9 @@ test_that("DivNet estimates are basically correct", {
   my_counts_2[1:3, ] <- 100
   my_counts_2
   dv2 <- divnet(my_counts_2, X=my_discrete_covariate, base = 1)
-  estimates2 <- dv2$shannon %>% summary %$% estimate 
+  estimates2 <- dv2$shannon %>% summary %$% estimate
+  estimates <- unname(estimates)
+  estimates2 <- unname(estimates2)
   expect_equal(estimates2[6], estimates[1], tolerance = 1e-2)
   expect_equal(estimates2[1], 
                shannon_true(rep(1/6, 6)), tolerance = 1e-2)
