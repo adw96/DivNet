@@ -72,9 +72,17 @@ library(ggplot2)
 plot(divnet_phylum)
 ```
 
+
+## Advanced Usage (for large datasets) ##
+
+One limitation of DivNet is that it is slow when you have many taxa (thousands and upwards). Fortunately for us, the amazing [Ryan Moore](https://www.tenderisthebyte.com/) implemented a faster version of DivNet in Rust called [divnet-rs](https://github.com/mooreryan/divnet-rs). Check out the documentation [here](https://github.com/mooreryan/divnet-rs). 
+
+Unfortunately the StatDivLab do not have expertise with `divnet-rs`, so please direct your questions about `divnet-rs` to Ryan and the `divnet-rs` team (`divnet-rs` Issues page [here](https://github.com/mooreryan/divnet-rs/issues)). 
+
 ## Integration
 
 DivNet integrates with
+
 - [phyloseq](https://joey711.github.io/phyloseq/) (for reproducible microbiome analysis)
 - [breakaway](https://github.com/adw96/breakaway) (for hypothesis testing)
 
