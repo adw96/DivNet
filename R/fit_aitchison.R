@@ -44,6 +44,8 @@ fit_aitchison <- function(W,
   X_c <- scale(X, scale = FALSE)
   output_list$X <- X_c
   
+  X_c <- scale(X, scale = FALSE)
+  
   # base taxon
   if (is.null(base)) { 
     base <- pick_base(W)
@@ -66,7 +68,7 @@ fit_aitchison <- function(W,
   
   ## set up tuning parameters for EM-MH algorithm
   if (is.null(tuning)) tuning <- "fast"
-  if (class(tuning) == "list") {
+  if ("list" %in% class(tuning)) {
     EMiter <- ifelse(is.null(tuning$EMiter), 6, tuning$EMiter)
     EMburn <- ifelse(is.null(tuning$EMburn), 3, tuning$EMburn)
     MCiter <- ifelse(is.null(tuning$MCiter), 500, tuning$MCiter)
@@ -143,7 +145,7 @@ fit_aitchison <- function(W,
     sigSumFun <- function(i) {
       return(crossprod(t(MCarray[i, 2:Q, 1:N]) - eY))
     }
-    sigSum <- foreach(i = (MCburn + 1):MCiter, .combine = "+") %do% sigSumFun(i)
+    sigSum <- Reduce(`+`, lapply((MCburn + 1):MCiter, sigSumFun))
     sigma <- sigSum/(N * (MCiter - MCburn))
     
     # update b

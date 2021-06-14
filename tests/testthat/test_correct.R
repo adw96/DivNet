@@ -2,20 +2,17 @@ library(DivNet)
 library(magrittr)
 context("Test zeroes")
 
-set.seed(1)
-n <- 6
-n_taxa <- 6
-my_counts <- matrix(c(rep(c(rep(100, n_taxa/2), rep(0, n_taxa/2)), n/2),
-                      rep(c(rep(0, n_taxa/2), rep(100, n_taxa/2)), n/2)),
-                    nrow = n, ncol = n_taxa, byrow=T)
-my_discrete_covariate <- cbind(1, rep(c(0,1), each = n/2))
-
-my_counts_2 <- my_counts
-my_counts_2[1:3, ] <- 100
-
-
 test_that("Identical observations give identical estimates", {
   
+  n <- 6
+  n_taxa <- 6
+  my_counts <- matrix(c(rep(c(rep(100, n_taxa/2), rep(0, n_taxa/2)), n/2),
+                        rep(c(rep(0, n_taxa/2), rep(100, n_taxa/2)), n/2)),
+                      nrow = n, ncol = n_taxa, byrow=T)
+  my_discrete_covariate <- cbind(1, rep(c(0,1), each = n/2))
+  
+  my_counts_2 <- my_counts
+  my_counts_2[1:3, ] <- 100
   dv <- divnet(my_counts[1:3, ], X=my_discrete_covariate[1:3, ], base = 1)
   estimates <- dv$shannon %>% summary %$% estimate 
   
@@ -25,6 +22,8 @@ test_that("Identical observations give identical estimates", {
   
   dv2 <- divnet(my_counts_2, X=my_discrete_covariate, base = 1)
   estimates2 <- dv2$shannon %>% summary %$% estimate 
+  estimates2 <- unname(estimates2)
+  estimates <- unname(estimates)
   expect_equal(estimates2[6], estimates[1], tolerance = 1e-2)
   expect_equal(estimates2[1], 
                shannon_true(rep(1/6, 6)), tolerance = 1e-2)
@@ -36,6 +35,12 @@ test_that("Identical observations give identical estimates", {
 
 
 test_that("DivNet estimates are basically correct", {
+  n_taxa <- 6
+  n <- 6
+  my_counts <- matrix(c(rep(c(rep(100, n_taxa/2), rep(0, n_taxa/2)), n/2),
+                        rep(c(rep(0, n_taxa/2), rep(100, n_taxa/2)), n/2)),
+                      nrow = n, ncol = n_taxa, byrow=T)
+  my_discrete_covariate <- cbind(1, rep(c(0,1), each = n/2))
   
   dv <- divnet(my_counts, X=my_discrete_covariate, base = 1)
   dv$shannon
@@ -70,5 +75,18 @@ test_that("DivNet estimates are basically correct", {
   expect_equal(fa$fitted_z[n, ] %>% shannon_true, 
                shannon_true(rep(1/3, 3)), tolerance = 5e-2)
   
+  n <- 9
+  my_counts <- matrix(c(rep(c(rep(100, n_taxa/3), rep(0, n_taxa/3*2)), n/3),
+                        rep(c(rep(0, n_taxa/3), rep(100, n_taxa/3), rep(0, n_taxa/3)), n/3),
+                        rep(c(rep(0, n_taxa/3*2), rep(100, n_taxa/3)), n/3)),
+                      nrow = n, ncol = n_taxa, byrow=T)
+  my_counts
+  my_discrete_covariate <- cbind(1, rep(c(0,1,0), each = n/3), rep(c(0,0,1), each = n/3))
+  dv <- fit_aitchison(my_counts, X=my_discrete_covariate, base = 6)
+  shannon = dv$fitted_z %>% apply(1, true_shannon)
+  expect_lt(max(shannon) - min(shannon), 0.01)
+  
 })
+
+
 

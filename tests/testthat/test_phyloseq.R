@@ -17,7 +17,8 @@ test_that("phyloseq integration", {
   
   expect_equal(ncol(dv$fitted_z), 5)
   expect_equal(ncol(dv2$fitted_z), 5) # should be correct dimension with 5 columns
-  expect_equal(dv2$fitted_z[1,1], dv2$fitted_z[2,1])
-  expect_equal(dv2$fitted_z[1,5], dv2$fitted_z[2,5]) # all rows should be equal
+  # changed with new X default, sample specific covariates
+  expect_false(isTRUE(dv2$fitted_z[1,1] == dv2$fitted_z[2,1]))
+  expect_false(isTRUE(dv2$fitted_z[1,5] == dv2$fitted_z[2,5]))
   
 })

@@ -1,8 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^README.Rmd
-^\.travis\.yml$
 vignettes/divnet-phyloseq.Rmd
 vignettes/getting-started.Rmd
 vignettes/README.md
-^appveyor\.yml$
+^\.github$
