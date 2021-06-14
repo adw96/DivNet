@@ -4,7 +4,9 @@
 \name{Lee}
 \alias{Lee}
 \title{phyloseq object from Lee et al (2015)}
-\format{A phyloseq object containing the data from Lee et al (2015)}
+\format{
+A phyloseq object containing the data from Lee et al (2015)
+}
 \source{
 \url{https://astrobiomike.github.io/amplicon/workflow_ex}
 }

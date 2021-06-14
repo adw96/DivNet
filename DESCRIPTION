@@ -1,11 +1,11 @@
 Package: DivNet
 Type: Package
 Title: Diversity Estimation in Networked Ecological Communities
-Version: 0.3.6
+Version: 0.3.7
 Authors@R: c(person("Amy", "Willis", email = "adwillis@uw.ed", role = c("aut", "cre")), person("Bryan D", "Martin", email = "bmartin6@uw.ed", role = c("aut")))
 Description: Estimate alpha- and beta- diversity of a community where taxa interact.
 License: GPL (>= 2)
-Depends: R (>= 3.2),
+Depends: R (>= 3.5.0),
           phyloseq (>= 1.18.0),
           breakaway (>= 4.6)
 Imports:
@@ -36,5 +36,5 @@ Suggests:
     R.rsp
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
 VignetteBuilder: knitr
