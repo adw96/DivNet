@@ -18,6 +18,8 @@ simplifyBeta <- function(dv,
                          measure,
                          x) {
   
+  Covar2 <- Covar1 <- beta_est <- beta_var <- Sample2 <- Sample1 <- NULL
+  
   beta_var_matrix <- dv[[paste(measure, "-variance", sep = "")]]
   
   vars <- physeq %>% sample_data %>% get_variable(x) 
