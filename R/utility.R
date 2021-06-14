@@ -14,7 +14,7 @@ OLS <- function(X, Y) {
   aFun <- function(ycol) {
     
     outcome <- try(tcrossprod(ginv(crossprod(X)), X) %*% ycol, silent = T)
-    if (class(outcome) == "try-error") {
+    if ("try-error" %in% class(outcome)) {
       cat("Tried to regress X on Y where X is\n")
       print(X)
       cat("and Y is \n")

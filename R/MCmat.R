@@ -82,10 +82,10 @@ diagonal_network <- function(sigma) {
 
 default_network <- function(sigma) {
   test <- try(chol(sigma), silent = T)
-  if (class(test) == "try-error") {
+  if ("try-error" %in% class(test)) {
     test2 <- try(svd(sigma), silent = T)
-    if (class(test2) == "try-error") {
-      message("SVD failed; sigma is")
+    if ("try-error" %in% class(test2)) {
+      message("SVD failed; sigma is: \n")
       print(sigma)
       stop()
     } else {
