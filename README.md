@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 
 # DivNet <img src="docs/divnet-logo.png" align="right" width="165px"/>
-
+  
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/adw96/DivNet/workflows/R-CMD-check/badge.svg)](https://github.com/adw96/DivNet/actions) [![codecov.io](https://codecov.io/gh/adw96/DivNet/coverage.svg?branch=master)](https://codecov.io/gh/adw96/DivNet?branch=master) <!-- badges: end -->
