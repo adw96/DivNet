@@ -12,7 +12,6 @@ test_that("Test formula implementation", {
   my_discrete_covariate <- cbind(1, rep(c(0,1), each = n/2))
   colnames(my_discrete_covariate) <- c("X0", "X1")
   dv <- divnet(my_counts, X = my_discrete_covariate,formula = ~ X1, base = 1)
-  dv$shannon
   estimates <- dv$shannon %>% summary %$% estimate 
   expect_lt(max(estimates) - min(estimates), 0.01)
   
