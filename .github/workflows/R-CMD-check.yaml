@@ -68,7 +68,7 @@ jobs:
         run: |
           remotes::install_deps(dependencies = TRUE)
           remotes::install_cran("rcmdcheck")
-          if (!requireNamespace("BiocManager", quietly = TRUE)){install.packages("BiocManager")}; BiocManager::install(c("phyloseq"), ask = FALSE)
+          if (!requireNamespace("BiocManager", quietly = TRUE)){install.packages("BiocManager")}; BiocManager::install(version = "3.13"); BiocManager::install(c("phyloseq"), ask = FALSE)
           remotes::install_github("adw96/breakaway")
           remotes::install_github("zdk123/SpiecEasi")
         shell: Rscript {0}
