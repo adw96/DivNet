@@ -85,7 +85,7 @@ default_network <- function(sigma) {
   if ("try-error" %in% class(test)) {
     test2 <- try(svd(sigma), silent = T)
     if ("try-error" %in% class(test2)) {
-      message("SVD failed; sigma is")
+      message("SVD failed; sigma is: \n")
       print(sigma)
       stop()
     } else {
@@ -125,8 +125,8 @@ stars <- function(sigma, W, base, perturbation, ncores, ...) {
   lams <- pulsar::getLamPath(lmax, lmax*.05, len=10)
   hugeargs <- list(lambda=lams,
                    verbose=FALSE)
-  out.p <- pulsar::pulsar(Y_p, fun=huge, fargs=hugeargs, rep.num=20,
-                          criterion='stars', lb.stars=TRUE, ub.stars=TRUE,
+  out.p <- pulsar::pulsar(Y_p, fun=huge::huge, fargs=hugeargs, rep.num=20,
+                          criterion='stars', lb.stars=TRUE, ub.stars=TRUE, 
                           ncores = 1)
   fit.p    <- pulsar::refit(out.p)
 

@@ -1,12 +1,10 @@
------
+------------------------------------------------------------------------
 
 # DivNet <img src="docs/divnet-logo.png" align="right" width="165px"/>
-
+  
 <!-- badges: start -->
-  [![R-CMD-check](https://github.com/adw96/DivNet/workflows/R-CMD-check/badge.svg)](https://github.com/adw96/DivNet/actions)
-  [![codecov.io](https://codecov.io/gh/adw96/DivNet/coverage.svg?branch=master)](https://codecov.io/gh/adw96/DivNet?branch=master)
-  <!-- badges: end -->
 
+[![R-CMD-check](https://gitacademic.oup.com/biostatistics/advance-article-abstract/doi/10.1093/biostatistics/kxaa015/5841114hub.com/adw96/DivNet/workflows/R-CMD-check/badge.svg)](https://github.com/adw96/DivNet/actions) [![codecov.io](https://codecov.io/gh/adw96/DivNet/coverage.svg?branch=master)](https://codecov.io/gh/adw96/DivNet?branch=master) <!-- badges: end -->
 
 DivNet: an R package to estimate diversity when taxa in the community cooccur via a ecological network.
 
@@ -20,7 +18,7 @@ Almost all ecologists use “plug-in” diversity estimates, obtained by taking 
 
 See [the vignette](https://github.com/adw96/DivNet/blob/master/vignettes/getting-started.Rmd) for a full tutorial, and [the paper](https://academic.oup.com/biostatistics/advance-article-abstract/doi/10.1093/biostatistics/kxaa015/5841114) for more details.
 
-Want a confidence interval for a different diversity index? Let us know by posting an [issue](https://github.com/adw96/DivNet/issues)\!
+Want a confidence interval for a different diversity index? Let us know by posting an [issue](https://github.com/adw96/DivNet/issues)!
 
 ## Installation
 
@@ -59,11 +57,16 @@ library(ggplot2)
 plot(divnet_phylum)
 ```
 
+## Advanced Usage (for large datasets)
+
+One limitation of DivNet is that it is slow when you have many taxa (thousands and upwards). Fortunately for us, the amazing [Ryan Moore](https://www.tenderisthebyte.com/) implemented a faster version of DivNet in Rust called [divnet-rs](https://github.com/mooreryan/divnet-rs). Check out the documentation [here](https://github.com/mooreryan/divnet-rs).
+
+Unfortunately the StatDivLab do not have expertise with `divnet-rs`, so please direct your questions about `divnet-rs` to Ryan and the `divnet-rs` team (`divnet-rs` Issues page [here](https://github.com/mooreryan/divnet-rs/issues)).
+
 ## Integration
 
-DivNet integrates with - [phyloseq](https://joey711.github.io/phyloseq/) (for reproducible microbiome analysis) - [breakaway](https://github.com/adw96/breakaway) (for hypothesis testing)
+DivNet integrates with
 
-## Coming soon
+-   [phyloseq](https://joey711.github.io/phyloseq/) (for reproducible microbiome analysis)
+-   [breakaway](https://github.com/adw96/breakaway) (for hypothesis testing)
 
-  - DivNet will hopefully soon be available as a QIIME2 plug-in
-  - The same philosophy of DivNet can be applied to estimating UniFrac and other diversity indices that are a function of phylogeny. Watch this space\!
