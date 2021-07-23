@@ -8,6 +8,13 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+```{css, echo=FALSE}
+.note-box {
+  background-color: lightgreen;
+  border: 3px solid green;
+  font-weight: bold;
+}
+```
 
 ## Vignette Info
 
@@ -92,14 +99,33 @@ Why are the estimates all different? We didn't tell DivNet about any covariate i
 lee_phylum %>% sample_data
 ```
 
-Let's use this to estimate the Shannon diversity of basalts of different characteristics (`char`) using DivNet.
+Let's use this to estimate the Shannon diversity of basalts of different characteristics (`char`) using DivNet. There are several ways we can accomplish this using the `divnet` function. If we take a look at a description of the function using 
+
+```{r}
+?DivNet::divnet
+```
+we see that `divnet()` requires an abundance table `W` where taxa are columns and samples are rows; or a phyloseq object. If your input is a phyloseq object, as is the case with our example using `lee_phylum`, then there are two ways you could provide covariate information such as (`char`) to DivNet: 
 
 ```{r, results = "hide"}
 divnet_phylum_char <- lee_phylum %>%
   divnet(X = "char", ncores = 4)
 ```
+or 
+```{r, results = "hide"}
+divnet_phylum_char2 <- lee_phylum %>%
+  divnet(formula = ~ char, ncores = 4)
+```
 
-Let's now compare the plug-in Shannon index with the divnet estimates
+The first way uses `X = "char"` to indicate using the `char` variable as a covariate. Using this approach you can only specify a single covariate. If you use `formula` to specify your model of interest you can indicate one or more covariates. For example, if you were interested in using more than one covariate such as `char` and `temp` you would use `formula` to specify your model: 
+
+```{r, results = "hide"}
+divnet_phylum_char_temp <- lee_phylum %>%
+  divnet(formula = ~ char + temp, ncores = 4)
+```
+
+If your abundance table `W` is not a phyloseq object and you want to utilize covariate information with DivNet you will need to include an `X` covariate matrix (aka your metadata) where samples are rows and variables are columns and indicate your model of interest using `formula` in the same manner illustrated above. 
+
+Now that we have `divnet_phylum_char`, let's now compare the plug-in Shannon index with the divnet estimates
 
 ```{r}
 library(ggplot2)
