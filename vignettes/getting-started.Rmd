@@ -123,7 +123,7 @@ divnet_phylum_char_temp <- lee_phylum %>%
   divnet(formula = ~ char + temp, ncores = 4)
 ```
 
-If your abundance table `W` is not a phyloseq object and you want to utilize covariate information with DivNet you will need to include an `X` covariate matrix (aka your metadata) where samples are rows and variables are columns and indicate your model of interest using `formula` in the same manner illustrated above. 
+If your abundance table `W` is not a phyloseq object and you want to utilize covariate information with DivNet you will need to provide a matrix of covariates to the `X` argument where samples are rows and variables are columns.  You can additionally indicate your model of interest using `formula` in the same manner illustrated above if you wanted to model a subset of variables in your covariate matrix. 
 
 Now that we have `divnet_phylum_char`, let's now compare the plug-in Shannon index with the divnet estimates
 
