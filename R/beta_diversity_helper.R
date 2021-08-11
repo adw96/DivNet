@@ -20,6 +20,13 @@ simplifyBeta <- function(dv,
   
   Covar2 <- Covar1 <- beta_est <- beta_var <- Sample2 <- Sample1 <- NULL
   
+  in_sample_names <- physeq %>% sample_names
+  changed_sample_names <- dv[[measure]] %>% data.frame %>% names
+  
+  if ( ! all(in_sample_names == changed_sample_names) ) {
+    stop("Your sample names contain non-standard characters, please change that :)")
+  }
+  
   beta_var_matrix <- dv[[paste(measure, "-variance", sep = "")]]
   
   vars <- physeq %>% sample_data %>% get_variable(x) 
