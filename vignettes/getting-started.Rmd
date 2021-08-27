@@ -138,28 +138,6 @@ divnet_phylum_char$shannon %>%
 
 You will notice that the plug-in  estimates of Shannon diversity are different for each sample, but there is only a single DivNet estimate for each  characteristic (along with error bars). For characteristics for which many samples were observed, there are smaller error bars than for samples for which there was only one sample (seems reasonable -- we had less data).
 
-For glassy and water samples, the estimated diversity is in the middle of the individual diversity estimates, while for altered samples the estimated diversity is lower. That's because the water and glassy samples are much more similar to each other in terms of relative abundances than the altered samples, as we can see from the distribution of Bray-Curtis distances between the samples:
-
-```{r}
-simplifyBeta(divnet_phylum_char, lee_phylum, "bray-curtis", "char")
-
-# You can plot this easily
-simplifyBeta(divnet_phylum_char, lee_phylum, "bray-curtis", "char") %>%
-  ggplot(aes(x = interaction(Covar1, Covar2), 
-             y = beta_est,
-             col = interaction(Covar1, Covar2))) +
-  geom_point() +
-  geom_linerange(aes(ymin = lower, ymax = upper)) + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  xlab("") + ylab("Estimates of Bray-Curtis distance")
-```
-
-As a result, when information from the glassy samples is amalgamated using DivNet, there is similar information from the samples, and so the diversity is sort of averaged. In contrast, there is conflicting information from altered samples, giving the different picture overall. It's somewhat similar to the result that we get when we amalgamate across characteristics and then estimate the diversity:
-
-```{r}
-merge_samples(lee_phylum, "char") %>%
-  sample_shannon
-```
 ## Where do the variance estimates come from?
 
 When taxa cluster together (spatially), you can imagine that your samples are more likely to be different from each other. For example, you may happen upon a patch of Microbe A in your first sample, but get a patch of Microbe B in your second sample. The statistics word for this is variance, and it is well studied that dependence structures (like spatial organisation) lead to greater variance. Plug-in estimates of diversity (the ones you're familiar with: where you just take the sample data and calculate the diversity index on it) ignore any dependence structure. This leads to understatements of variance (samples are more varying than the model that underpins the estimate allows), and exaggerated risk of concluding significant differences when none exist (p values are smaller than they should be, leading to an increased Type 1 error rate).
