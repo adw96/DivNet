@@ -1,0 +1,142 @@
+---
+title: "Beta Diversity and Centroids with DivNet"
+author: "David Clausen"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  'pdf_document: keep_tex: yes': default
+vignette: |
+  %\VignetteIndexEntry{Getting Started} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+---
+
+## The point of this vignette
+
+It's fairly common to summarize beta diversity analyses with some appeal to 
+"centroids" of various communities -- but what exactly do we mean by "centroid",
+and what role does our choice of beta diversity play here? This vignette provides
+some background on centroids and their links to beta diversities, as well as a 
+brief discussion of how DivNet handles some of the intricacies of centroid and
+beta diversity estimation.
+
+## What is a centroid?
+
+In the context we'll discuss here, a centroid is a way to summarize the "typical" 
+microbial community in some group of microbial communities. For example,
+we might be interested in describing the typical microbial community present in the 
+cheek mucosa of a healthy human adult. If we were able to (accurately) measure 
+the cheek microbiome of every human adult (in terms of  relative abundances, 
+let's assume), we could calculate a centroid
+by taking an average in each taxon (e.g., strain, species, genus, etc.). 
+That is, one kind of centroid we could calculate is just a vector giving
+the mean relative abundance of microbes in the healthy cheek microbiome by taxon.
+
+By no means is this the only choice of centroid available to us -- we could, 
+for instance, calculate median instead of mean relative abundances by taxon, and 
+this would also give us a (different kind of) centroid.
+
+Another complication we run into here is that it is 
+basically impossible to measure the cheek microbiome of every healthy human adult.
+The centroids we've discussed so far are what statisticians refer to as 
+"population" parameters -- idealized values we would calculate if we were able
+to observe the entire population (here, all healthy human cheek microbiomes) we
+are interested in. A standard statistical task, which DivNet provides tools for, 
+is to reason about population parameters on the basis of a sample from that 
+population (in our example, the people whose cheeks we were able to measure).
+Before we get into DivNet-specific details, however, let's first discuss 
+beta diversities and their relation to centroids.
+
+## What is a beta diversity?
+
+A beta diversity is a way of quantifying the degree of similarity or dissimilarity between two 
+microbial communities. This is, so far, extremely general -- there are countless
+ways to quantify how (dis)similar two communities are. For the moment, however, 
+let's consider just two: Euclidean distance and Bray-Curtis dissimilarity. 
+
+Suppose we have (relative abundance) measurements $\vec{x}_A$ and $\vec{x}_B$ 
+on communities $A$ and $B$ covering taxa $j = 1, \dots, J$ (so 
+$\vec{x}_A = [x_{A1}, \dots x_{AJ}]$, the vector of relative abundances of
+taxa $j = 1, \dots, J$ in community A, and similarly for community $\vec{x}_B$ with
+community $B$). Then the Euclidean distance between $\vec{x}_A$ and $\vec{x}_B$
+is 
+
+$$d_{Euc}(\vec{x}_A,\vec{x}_B) = \sqrt{\sum_{j = 1}^J (x_{Aj} - x_{Bj})^2}$$
+In words, the Euclidean distance is the square root of the sum of squared between-community
+differences of relative abundances in each taxon.
+
+As the term "dissimilarity" suggests, the Bray-Curtis dissimilarity is not 
+always a distance, but on relative abundances it is, with
+
+$$d_{BC}(\vec{x}_A,\vec{x}_B) = \frac{1}{2}\sum_{j = 1}^J |x_{Aj} - x_{Bj}|$$
+That is, the Bray-Curtis dissimilarity is one half the sum of the 
+absolute value of the between-community differences of relative abundances in each taxon.
+
+These two choices of beta diversity are not equivalent -- we will get different
+summaries of how different or similar communities are depending on which one we
+use. Additionally, as we'll see below, given a choice of beta diversity, 
+we can summarize our analysis in terms of a centroid or a set of centroids.
+
+## What do centroids have to do with beta diversities?
+
+It turns out that there is a correspondence between commonly used
+beta diversities and centroids. To see this, let's continue our cheek microbiome 
+example. As we've already discussed, we can calculate one type of centroid for our 
+(hypothetical) set of observations of all healthy human cheek microbiomes by 
+taking a mean of the relative abundance in each taxon across all our 
+observations. We can also characterize this centroid in a seemingly completely
+different (but in reality equivalent) way -- as the point that minimizes the sum of 
+(squared) Euclidean distances to all of our observations.
+
+If we let $(\vec{x}_1, \dots, \vec{x}_N)$ be our set of (relative abundance) observations on all 
+healthy cheek microbiomes (here we are imagining this set to consist of a large 
+but finite number $N$ of cheek microbiomes) and we let $\vec{x}_{mean}$ 
+indicate the centroid defined by taxon-wise means over
+our population of cheek microbiomes, we can write out a characterization
+of the population centroid in terms of Euclidean distances to our observations:
+
+$$\vec{x}_{mean} = \text{arg min}_{\vec{x}} \sum_{i = 1}^N d_{Euc}(\vec{x},\vec{x}_i)^2$$
+In other words, the (population) mean minimizes the sum of squared Euclidean distances
+to observations in our population of healthy human cheek microbiomes. (We can write out
+this correspondence more generally to include the case of infinite populations by writing righthand 
+side of the above equation in terms of an expectation, but for simplicity we'll stick to the finite case
+here and leave the general case as an exercise for the curious reader.)
+
+What about Bray-Curtis dissimilarity? It turns out we have a similar equivalence
+in this case as well! The centroid $\vec{x}_{med}$ defined by taking taxon-wise *medians* over
+our population of cheek microbiomes is 
+
+$$\vec{x}_{med} = \text{arg min}_{\vec{x}} \sum_{i = 1}^N d_{BC}(\vec{x},\vec{x}_i)$$
+Hence the (population) minimizer of Bray-Curtis dissimilarities is just the taxon-wise median
+relative abundance! (Note that -- again for simplicity -- we're stating, and not proving, these results.)
+
+## Why haven't you discussed Aitchison distance?
+
+For clarity, we've stuck to two dissimilarities commonly used in microbial ecology -- Euclidean distance and
+Bray-Curtis dissimilarity. Another possible choice of beta diversity is Aitchison distance, which is equivalent
+to Euclidean distance calculated on centered-log-ratio-transformed relative abundances. As you might expect from
+this characterization of Aitchison distance, the group centroids this choice of beta diversity induces are the 
+mean centered-log-ratio-transformed relative abundances in each group. (We can either keep these centroids on 
+the centered-log-ratio scale or back-transform them to relative abundances.) DivNet accommodates Aitchison-distance-based
+beta diversity analyses -- see our beta diversity vignette for more details.
+
+
+## What about measurement?
+
+In the discussion above, we've implicitly assumed (for simplicity) that our sample relative abundances are 
+measured without error (or at least with negligible error). In reality, this doesn't appear
+to be the case! Whatever amplicon protocol we choose, we are likely to overdetect some
+taxa and underdetect others (McLaren et al., 2019). As a result, measured sample compositions
+are *biased* for the true compositions, and so our beta diversity analyses are in general 
+estimating not true group centroids, but 
+instead average *measured* group centroids, which are not typically equal to true group centroids.
+
+
+Addressing measurement error in 
+microbiome analyses is an area of ongoing methods development. While methods are still being 
+developed,
+we suggest being explicit the limitations of existing technologies and analyses. In 
+the beta diversity vignette for DivNet, we provide some examples of formal write ups of DivNet beta diversity analyses
+that acknowledge this issue.
+
+## References
+
+McLaren, Michael R., Amy D. Willis, and Benjamin J. Callahan. "Consistent and correctable bias in metagenomic sequencing experiments." Elife 8 (2019): e46923.

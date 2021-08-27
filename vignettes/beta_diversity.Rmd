@@ -1,0 +1,545 @@
+---
+title: "Using DivNet for Beta Diversity Analysis"
+author: "David Clausen"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  'pdf_document: keep_tex: yes': default
+vignette: |
+  %\VignetteIndexEntry{Getting Started} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+---
+
+## Vignette Info
+
+This vignette presents two data examples to illustrate our suggested workflow for using DivNet 
+to conduct beta diversity analyses with amplicon data. The first 
+example covers beta diversity analyses in settings without technical replicate measurements, and the 
+second demonstrates how we suggest incorporating technical replicate data into beta diversity analyses.
+
+
+We would be remiss not to acknowledge Mike Lee, a bioinformatics wizard who recently put together some fantastic tutorials on bioinformatics for analysing microbiome data at [link](astrobiomike.github.io). Mike has very kindly allowed us to distribute the phyloseq data object from this tutorial via DivNet.
+Thanks so much, Mike!
+
+## Preliminaries
+
+Let's load some required packages and check our session info:
+
+```{r}
+library(magrittr)
+library(phyloseq)
+library(breakaway)
+library(tidyr)
+library(ggplot2)
+library(devtools)
+load_all()
+sessionInfo()
+```
+
+
+## What hypotheses can I test with DivNet?
+
+DivNet allows testing of hypotheses concerning the location of 
+community centroids across conditions. Intuitively, we define
+``centroid'' as the archetypal community from a given environment 
+or under a given condition. (We give concrete definitions of various
+kinds of centroids below.)
+
+
+## Example: Lee et al. data
+
+Let's take a quick look at the Lee et al. dataset.
+
+```{r}
+data(Lee)
+Lee
+```
+
+16 samples, 1490 ASVs, and taxonomy information. Fantastic!
+
+Suppose we are interested in determining how much evidence we have that
+community centroids vary by the type of site from which samples were taken, 
+as encoded in the
+the ``char'' column in the data.frame below:
+
+
+```{r, echo = F}
+Lee@sam_data
+           
+
+```
+
+
+Before we start our analysis proper, we need to ensure a DivNet model can be 
+meaningfully fit on this data. Under each condition (unique entry of the ``char''
+column above), we need to be able to do two things:
+    
+    (1) Estimate an archetypal composition (i.e., a centroid) 
+    
+    (2) Estimate the (within-condition) variability in community composition 
+    
+If you have encountered discussions of degrees of freedom in ANOVA, this may 
+feel somewhat familiar (but don't worry if not). In brief, the story here is that
+more observations per condition is generally better, and at a minimum we need at
+least two observations per condition to fit a beta diversity model in any 
+reasonable way. (If we have only one observation, we can estimate a centroid
+but not variability around that centroid.)
+
+Since we only have a single observation under the biofilm and carbonate conditions,
+we will proceed by excluding these from our analysis and considering only the 
+water, glassy, and altered conditions.
+
+Somewhat arbitrarily (since this is an example analysis), we will compute 
+beta diversities, and hence community centroids, on data aggregated to the 
+phylum level.
+
+```{r}
+Lee_phylum <- tax_glom(Lee, taxrank="Phylum")
+Lee_phylum <- subset_samples(Lee_phylum, 
+                             Lee_phylum@sam_data$char %in% 
+                               c("glassy","altered","water"))
+```
+
+Now we are ready to run divnet. Note in the code below that we have chosen a diagonal design matrix. 
+This is the recommended
+setting for testing beta diversity (i.e. location of centroids) with DivNet -- other
+choices of design matrix may result in estimated beta diversity within conditions being zero, 
+which is generally unrealistic.
+(However, if you have technical replicate samples from the same
+specimen, we do recommend you specify a design matrix that reflects this -- see below for an 
+analysis in this situation.) Variance estimation (and bootstrapping) is done in a subsequent step, so
+we set variance equal to "none" here.
+
+```{r, message = F}
+  X <- diag(nrow(Lee_phylum@sam_data))
+  colnames(X) <- rownames(X) <-  as.character(1:ncol(X))
+
+  trash <- capture.output( #we've included this line to avoid 
+                          #printing DivNet messages in this vignette
+    
+    #in practice, you will only need to run the following three lines:
+  divnet_phylum <-  divnet(W = Lee_phylum,
+                         X = X,
+                         variance = "none")
+  )
+
+
+```
+
+After divnet() runs, we can test a null hypothesis of equality of 
+centroid location across conditions (glassy, water, and altered).
+We'll start with a test using Bray-Curtis dissimilarity,
+which amounts to a test of whether the median composition
+of samples differs across conditions.
+
+```{r}
+set.seed(454)
+bc_test <- testBetaDiversity(divnet_phylum, 
+                             h0 = "bray-curtis",
+                             n_boot = 10000,
+                             sample_specimen_matrix = divnet_phylum$X,
+                             groups = Lee_phylum@sam_data$char)
+
+
+
+bc_test$p_value
+```
+
+On the basis of this test, we can conclude that estimated differences in group centroid are not particularly unusual
+under our null of no difference between (true) group centroids --  if we repeat our experiment with new observations, 
+we expect to observe
+a test statistic as large as we do in one of about every 9 repeated experiments if the null of identical median 
+community composition across conditions holds. 
+
+In a publication, we might summarize this result as follows:
+
+> We estimated specimen composition from read counts via a DivNet model (Willis and Martin, 2020) 
+> with a diagonal design matrix.
+> To test a null hypothesis of equal median measured relative abundance across groups 
+> "glassy", "water", and "altered", we used a bootstrapped pseudo-F test with 10,000 bootstrap iterations as
+> implemented in the $testBetaDiversity$ function
+> within DivNet. On the basis of this test, we fail to reject the null of equal median measured relative abundance across groups at
+> the 0.05 level (bootstrap $p = 0.11$).
+
+Hence the outcome of our test is that we lack sufficient evidence to conclude that measured
+median relative abundance varies by group. We include the word "measured" here because we cannot
+on the basis of 16S data alone reliably estimate true relative abundance profiles in our
+samples (McLaren et al., 2019).
+
+We can also use Euclidean distance to test whether mean composition
+differs across condition.
+
+```{r}
+set.seed(3532)
+euc_test <- testBetaDiversity(dv = divnet_phylum , 
+                              h0 = "euclidean",
+                              n_boot = 10000,
+                              sample_specimen_matrix = divnet_phylum$X,
+                              groups = Lee_phylum@sam_data$char)
+
+euc_test$p_value
+```
+
+We again (at the $p = 0.05$ significance level) fail to find evidence for a difference in (measured) group centroids -- in 
+particular, we do not find strong evidence that mean measured relative abundance differs across groups. We could
+write this up in a scientific publication as follows:
+
+> We estimated specimen composition from read counts via a DivNet model (Willis and Martin, 2020) 
+> with a diagonal design matrix.
+> To test a null hypothesis of equal mean measured relative abundance across groups 
+> "glassy", "water", and "altered", we used a bootstrapped pseudo-F test with 10,000 bootstrap iterations as
+implemented in the $testBetaDiversity$ function
+> within DivNet. On the basis of this test, we do not reject the null of equal mean measured relative abundance across groups at
+> the 0.05 level ($p = 0.23$).
+
+The third beta diversity test DivNet enables is based on 
+Aitchison distance, or equivalently Euclidean distance on the centered-log-ratio
+scale. In this test, we test whether mean centered-log-ratio-transformed
+community composition varies across conditions.
+
+```{r}
+set.seed(3423)
+ait_test <- testBetaDiversity(dv = divnet_phylum, 
+                              sample_specimen_matrix = divnet_phylum$X,
+                              h0 = "aitchison",
+                              n_boot = 10000,
+                    groups = Lee_phylum@sam_data$char)
+
+ait_test$p_value
+
+```
+
+In this case, we observe a small p-value, which reflects (in part) the fact that Aitchison distance up
+gives more weight to differences in relative abundance among rarer taxa than does Euclidean distance or 
+Bray-Curtis dissimilarity. We might write this result up as follows:
+
+
+> We estimated specimen composition from read counts via a DivNet model (Willis and Martin, 2020) 
+> with a diagonal design matrix.
+> To test a null hypothesis of equal mean centered-log-ratio relative abundance across groups 
+> "glassy", "water", and "altered", we used a bootstrapped pseudo-F test with 10,000 bootstrap iterations as
+implemented in the $testBetaDiversity$ function
+> within DivNet. On the basis of this test, we reject the null of equal mean centered-log-ratio 
+measured relative abundance across groups at
+> the 0.05 level ($p = 0.0016$).
+
+As this wording indicates, a small p-value here leads us to reject the null 
+hypothesis that there is no difference in (measured) centroids across groups defined by the 
+"char" variable. 
+**Note, however, that the p-value tells us nothing about across which groups centroids may differ or how they differ:
+a small p-value does not guarantee that all group centroids differ or that any groups differ in scientifically important ways.**
+
+While DivNet was developed to test overall hypotheses concerning alpha and beta diversity (and so does not provide taxon-wise
+tests), $testBetaDiversity$ does provide estimated group centroids. Graphing these can be informative if you are interested
+in getting a feel for how composition may vary across groups. Below, we provide an example plot created from the Aitchison distance
+analysis:
+
+```{r}
+
+aitchison_centroids <- ait_test$centroids
+colnames(aitchison_centroids) <- Lee_phylum@tax_table@.Data[,2]
+
+aitchison_centroids <- as.data.frame(aitchison_centroids)
+aitchison_centroids$group <- rownames(aitchison_centroids)
+
+aitchison_centroids %>%
+  tidyr::pivot_longer(-group) %>%
+  ggplot() +
+  geom_line(aes(x = name, y = value, group = group, color = group)) + 
+  geom_point(aes(x = name, y = value, group = group, color = group)) + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  scale_color_brewer(type = "qual") +
+  xlab("Phylum") + 
+  ylab("Estimated Centroid (Mean Measured \nCentered Log-Ratio Relative Abundance)")+
+  ggtitle("Estimated Group Centroids by Condition") + 
+  guides(color=guide_legend(title="Condition"))
+
+```
+
+We can add some accounting for uncertainty as well by using bootstrapped group centroids:
+
+
+```{r}
+#calculate taxon-wise 95% percentile bootstrap CIs for centroids
+centroid_quantiles <- lapply(c("altered","water","glassy"),
+                             function(gr) apply(sapply(1:10000, function(k) ait_test$boot_centroids[[k]][[gr]]),1, function(x) quantile(x, c(.025,.975),
+                                                                                                                                        na.rm = T)))
+names(centroid_quantiles) <- c("altered","water","glassy")
+
+centroid_quantiles <- as.data.frame(do.call(rbind,centroid_quantiles))
+colnames(centroid_quantiles) <- Lee_phylum@tax_table@.Data[,2]
+centroid_quantiles$side <- rep(c("Lower","Upper"),3)
+centroid_quantiles$Condition <- rep(c("altered","water","glassy"), each = 2)
+
+
+centroid_quantiles %>%
+  tidyr::pivot_longer(colnames(centroid_quantiles)[!(colnames(centroid_quantiles) %in% c("Condition","side"))]) %>%
+  tidyr::pivot_wider(values_from = value, names_from = side) %>%
+  ggplot() + 
+  geom_errorbar(aes(x = name, group = Condition,color = Condition,
+                    ymin = Lower, ymax = Upper),
+                width = .5,
+                position = "dodge") +
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  scale_color_brewer(type = "qual") +
+  xlab("Phylum") + 
+  ylab("Estimated Centroid (Mean Measured \nCentered Log-Ratio Relative Abundance)")+
+  ggtitle("Bootstrap Intervals: Estimated Group Centroids by Condition") + 
+  guides(color=guide_legend(title="Condition"))
+```
+
+However, it's worth keeping in mind here that the percentile bootstrap above may not give particularly reliable
+confidence intervals, particularly in groups with smaller sample sizes (such as "water", where $n = 2$).
+
+As a side note, we're presenting the three analyses above to demonstrate the capabilities of DivNet. In 
+a research setting, we recommend choosing a dissimilarity on scientific grounds (i.e., on the basis of what kind of differences
+between groups you care about). If you choose to run multiple analyses with varying choices of dissimilarity,
+it is important to report all of them. Selective reporting -- running many analyses but only reporting a subset of them --
+can be very misleading for readers (and is in fact a form of p-hacking if analyses returning significant p-values are preferentially reported).
+
+## Handling Technical Replicates
+
+Using DivNet, we can also conduct beta-diversity analyses of amplicon data containing technical replicates. For clarity, by ``technical replicates,'' we
+mean replicate samples from a single unique specimen -- e.g., aliquots from a single (homogenized) fecal sample. By contrast, for example, 
+samples taken from the same study participant at different times are not technical replicates in the sense of the term we use here.
+
+To demonstrate beta-diversity analysis with technical replicates, we'll look at a subset of 16S data published by Sinha et al. (2017) as part of the 
+Microbiome Quality Control Project (MBQC). In particular, we'll examine measurements on 7 freeze-dried specimens taken from patients awaiting
+elective surgery for colorectal cancer ($n = 4$) or non-oncologic, elective surgery ($n = 3$). We'll limit ourselves to read counts reported 
+by a single bioinformatics laboratory, ``BL-2``, on sequencing data produced by a single sequencing laboratory, ``HL-B`` (the MBQC data includes
+read counts produced by many bioinformatics laboratories on sequencing data from many sequencing laboratories). 
+
+
+```{r}
+data(mbqc_B2_crc)
+
+### how many technical replicates per specimen?
+table(B2$specimen,B2$Bioinformatics.ID) %>% apply(1, sum)
+```
+
+Depending on specimen, we have between 3 and 6 technical replicates. How can we use technical replicates in our 
+analysis? In short, the recommended approach here is essentially the same as in the case without technical replicates, 
+but instead of fitting DivNet with a diagonal design matrix, we construct a design matrix $X$ with rows that are samples (or 
+aliquots if you prefer that terminology) and columns that are specimens. That is, we let the $ij$-th entry of $X$ be $1$ if
+sample $i$ was taken from specimen $j$ and 0 otherwise. This tells DivNet to estimate a single common composition for each
+specimen using all technical replicates of that specimen.
+
+Before we can fit a DivNet model, we need to do a little housekeeping to get our data into an appropriate format 
+so we can create a phyloseq object. We'll relegate the majority of this code to an appendix since it is not directly relevant to 
+readers who already have data in phyloseq format.
+
+```{r mbqc_preliminaries, echo = F}
+
+otu_matrix <- B2 %>% select(starts_with("k_"))  %>% t() %>%as.data.frame()
+for(col in 1:ncol(otu_matrix)){
+  # print(col)
+  otu_matrix[,col] <-   as.numeric(otu_matrix[,col])
+}
+
+otu_matrix <- t(otu_matrix) %>% as.matrix()
+
+taxa <- colnames(otu_matrix)
+taxa <- lapply(taxa,
+               function(x) strsplit(x, "|", fixed = TRUE))
+
+kingdom <- sapply(taxa,
+                function(x) 
+                  unlist(x)[sapply(unlist(x), 
+                                   function(y) 
+                                     grepl("k__",y, fixed = TRUE))])
+phylum <- sapply(taxa,
+                function(x) unlist(x)[sapply(unlist(x), 
+                                             function(y) 
+                                               grepl("p__",y, fixed = TRUE))])
+class <- sapply(taxa,
+                function(x) 
+                  unlist(x)[sapply(unlist(x), 
+                                   function(y) 
+                                     grepl("c__",y, fixed = TRUE))] %>%
+                  (function(w) ifelse(length(w)==1, w, "c__unclassified")))
+order <- sapply(taxa,
+                function(x) 
+                  unlist(x)[sapply(unlist(x), 
+                                   function(y) 
+                                     grepl("o__",y, fixed = TRUE))] %>%
+                  (function(w) ifelse(length(w)==1, w, "o__unclassified")))
+family <- sapply(taxa,
+                function(x) 
+                  unlist(x)[sapply(unlist(x), 
+                                   function(y) 
+                                     grepl("f__",y, fixed = TRUE))] %>%
+                  (function(w) ifelse(length(w)==1, w, "f__unclassified")))
+genus <- sapply(taxa,
+                function(x) 
+                  unlist(x)[sapply(unlist(x), 
+                                   function(y) 
+                                     grepl("g__",y, fixed = TRUE))] %>%
+                  (function(w) ifelse(length(w)==1, w, "g__unclassified")))
+species <- sapply(taxa,
+                function(x) 
+                  unlist(x)[sapply(unlist(x), 
+                                   function(y) 
+                                     grepl("s__",y, fixed = TRUE))] %>%
+                  (function(w) ifelse(length(w)==1, w, "s__unclassified")))
+otu <- sapply(taxa,
+                function(x) 
+                  paste("otu__",unlist(x)[length(unlist(x))],
+                                  sep = "", collapse = ""))
+
+taxon_matrix <- cbind(otu,
+                      species,
+                      genus,
+                      family,
+                      order,
+                      class,
+                      phylum,
+                      kingdom)
+
+taxon_matrix <- as.data.frame(taxon_matrix) %>%
+    tibble::column_to_rownames("otu") %>%
+  as.matrix()
+
+colnames(otu_matrix) <- colnames(otu_matrix) %>%
+  sapply(function(x) strsplit(x,"|",fixed = TRUE)) %>%
+  sapply(function(x) paste("otu__",as.numeric(x[length(x)]),
+                           sep = "",
+                           collapse = ""))
+colnames(otu_matrix) <- as.character(colnames(otu_matrix))
+
+
+```
+
+
+Before we use DivNet, we need to construct a design matrix that encodes
+which samples are taken from which specimens and create a phyloseq object
+to give to DivNet.
+
+
+```{r}
+
+unique_specimens <- unique(B2$specimen)
+
+# create "specimen matrix" to be used as design matrix X in DivNet
+specimen_matrix <- do.call(cbind,lapply(unique_specimens,function(x) 
+  as.numeric(B2$specimen ==x)))
+
+specimen_df <- as.data.frame(specimen_matrix) %>%
+  (function(x){ rownames(x) <- B2$Bioinformatics.ID; return(x)})
+
+otu_matrix <- otu_matrix %>%
+  (function(x){ rownames(x) <- B2$Bioinformatics.ID; return(x)})
+
+
+OTU = otu_table(otu_matrix, taxa_are_rows = FALSE)
+
+TAX = tax_table(taxon_matrix)
+
+specimens = sample_data(specimen_df)
+
+mbqc <- phyloseq(OTU, TAX, specimens)
+```
+
+With the design matrix and phyloseq object created, let's take a look-see at what we have now.
+
+
+```{r}
+mbqc
+```
+
+Excellent.
+
+For this analysis, we will aggregate to the species level using the taxonomic information MBQC
+has provided along with OTU counts.
+
+```{r}
+
+mbqc_species <- tax_glom(mbqc, taxrank="species")
+```
+
+We have already constructed the design matrix above -- it is stored as ``@sam_data`` inside our phyloseq object. Before 
+we fit a DivNet model, we pull this matrix out of the phyloseq object and ensure it has appropriate column names.
+
+```{r}
+sample_specimen_mat <- as.matrix(mbqc_species@sam_data)
+
+
+colnames(sample_specimen_mat) <- sapply(1:ncol(sample_specimen_mat),
+                                        function(x) 
+                                          unique(
+                                            B2$specimen[
+                                              B2$Bioinformatics.ID 
+                                                       %in%
+                                                 rownames(sample_specimen_mat)[
+                                                   sample_specimen_mat[,x]==1]
+                                              ]
+                                                     ))
+```
+
+Now we are ready to fit a DivNet model. Note again that we are not estimating any variances in the initial fit.
+
+
+```{r, message = FALSE}
+set.seed(43)
+  trash <- capture.output( #we've again included this line to avoid 
+                           #printing DivNet messages in this vignette
+mbqc_div <- divnet(W = mbqc_species,
+                         X = sample_specimen_mat,
+                         variance = "none")
+)
+
+```
+
+Now using testBetaDiversity(), we can conduct a hypothesis test via a nonparametric cluster bootstrap. Here,
+we have decided to use Aitchison distance, so we are testing a hypothesis of equality of mean
+centered-log-ratio-transformed relative abundance across groups (colorectal cancer vs. control).
+
+```{r}
+set.seed(14321)
+ait_test_np <- testBetaDiversity(dv = mbqc_div,
+                                 h0 = "aitchison",
+                                 groups = B2$health_status,
+                                 sample_specimen_matrix = sample_specimen_mat,
+                                 n_boot = 10000)
+
+ait_test_np$p_value
+
+```
+
+So, we don't find sufficient evidence to reject a null of no difference in measured centroids (mean centered-log-ratio measured relative abundance, since we used Aitchison
+distance) between groups. We could write this up as follows:
+
+> We estimated specimen composition from read counts on all technical replicates via a DivNet model (Willis and Martin, 2020).
+> To test a null hypothesis of equal mean centered-log-ratio measured relative abundance among colorectal cancer patients
+> and among control patients, we used a cluster-bootstrapped pseudo-F test with 10,000 bootstrap iterations as
+> implemented in the $testBetaDiversity$ function
+> within DivNet. On the basis of this test, we do not reject the null of equal mean centered-log-ratio measured relative abundance across groups at
+> the 0.05 level ($p = 0.15$).
+
+Some words of caution here -- we've conducted this example analysis on measurements taken on only 7(!) study participants across
+two groups, and the bootstrap test we have used has an asymptotic justification. 
+In an ideal world, we would include more participants if we were going to do this analysis in 
+earnest (as opposed to as a use-case).
+(Note that the inclusion of technical replicates **does not** solve the problems associated with small sample size --
+more measurements on a given study participant may give us more information about that participant, 
+but they do not help us characterize how typical that participant is of the larger population(s) we are 
+interested in.)
+
+## References
+
+Lee, Michael D., Nathan G. Walworth, Jason B. Sylvan, Katrina J. Edwards, and Beth N. Orcutt. "Microbial communities on seafloor basalts at Dorado Outcrop reflect level of alteration and highlight global lithic clades." Frontiers in microbiology 6 (2015): 1470.
+
+McLaren, Michael R., Amy D. Willis, and Benjamin J. Callahan. "Consistent and correctable bias in metagenomic sequencing experiments." Elife 8 (2019): e46923.
+
+Sinha, Rashmi, Galeb Abu-Ali, Emily Vogtmann, Anthony A. Fodor, Boyu Ren, Amnon Amir, Emma Schwager et al. "Assessment of variation in microbial community amplicon sequencing by the Microbiome Quality Control (MBQC) project consortium." Nature biotechnology 35, no. 11 (2017): 1077-1086.
+
+Willis, Amy D., and Bryan D. Martin. "Estimating diversity in networked ecological communities." Biostatistics (2020).
+
+## Appendix: MBQC Data Formatting Code
+
+```{r ref.label= "mbqc_preliminaries", echo=TRUE, eval=FALSE}
+```
+
+
+
+
