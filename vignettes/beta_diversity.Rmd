@@ -262,8 +262,10 @@ We can add some accounting for uncertainty as well by using bootstrapped group c
 ```{r}
 #calculate taxon-wise 95% percentile bootstrap CIs for centroids
 centroid_quantiles <- lapply(c("altered","water","glassy"),
-                             function(gr) apply(sapply(1:10000, function(k) ait_test$boot_centroids[[k]][[gr]]),1, function(x) quantile(x, c(.025,.975),
-                                                                                                                                        na.rm = T)))
+                             function(gr) 
+                               apply(sapply(1:10000, function(k) 
+                                 ait_test$boot_centroids[[k]][[gr]]),1, function(x) 
+                                   quantile(x, c(.025,.975), na.rm = T)))
 names(centroid_quantiles) <- c("altered","water","glassy")
 
 centroid_quantiles <- as.data.frame(do.call(rbind,centroid_quantiles))
