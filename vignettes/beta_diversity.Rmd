@@ -31,7 +31,7 @@ library(breakaway)
 library(tidyr)
 library(ggplot2)
 library(devtools)
-load_all()
+library(DivNet)
 sessionInfo()
 ```
 
