@@ -36,8 +36,7 @@ simpson_true <- function(proportions) {
 #' @param p2s Second set of proportions
 #'
 #' @export
-bc_fast <- function(p1s, p2s,
-                    sum_to_one = TRUE) {
+bc_fast <- function(p1s, p2s) {
 
   if ( (!sum_to_one ) | all(is.na(p1s)) | all(is.na(p2s)) | ((sum(p1s) - 1)^2 < 1e-8 & (sum(p2s) - 1)^2 < 1e-8)) {
     output <- 1 - (pmin(p1s, p2s) %>% sum)
@@ -71,8 +70,7 @@ euc_fast <- function(p1s, p2s) {
 #' @param p2s Second set of proportions, defaults to NULL
 #'
 #' @export
-bray_curtis_true <- function(p1s, p2s = NULL,
-                             sum_to_one = TRUE) {
+bray_curtis_true <- function(p1s, p2s = NULL) {
   if (p2s %>% is.null & !(dim(p1s)[1] %>% is.null)) {
     bc <- outer(1:dim(p1s)[1], 1:dim(p1s)[1], FUN = Vectorize( function(i,j) bc_fast(p1s[i,], p1s[j,],
                                                                                      sum_to_one) ))
