@@ -6,7 +6,7 @@ output:
   pdf_document: default
   'pdf_document: keep_tex: yes': default
 vignette: |
-  %\VignetteIndexEntry{Getting Started} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Using DivNet for Beta Diversity Analysis} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
 
 ## Vignette Info
