@@ -13,7 +13,6 @@
 #' @param B Number of bootstrap iterations for estimating the variance.
 #' @param nsub Number of subsamples for nonparametric bootstrap. Defaults to half the number of observed samples.
 #' @param formula an object of class \code{formula}: a symbolic description of the model to be fitted; a means of constructing \code{X} via \code{stats::model.matrix}. If \code{W} is a phyloseq object, the formula should refer to variables stored in sample_data. If \code{W} is not a phyloseq object, \code{X} should be a data frame containing columns referred to in your formula. Formula references must match column names found in the sample data from \code{W} or \code{X}. Optional, defaults to \code{NULL}.
-#' @param return_boot Logical - return fitted bootstrapped models?
 #' @param ... Additional parameters to be passed to the network function
 #'
 #' @importFrom breakaway make_design_matrix
@@ -43,8 +42,6 @@ divnet <-  function(W,
                     B = 5,
                     nsub = NULL,
                     formula = NULL,
-                    return_boot = TRUE,
-                    cluster_on_X = FALSE,
                     ...) {
 
   if (!is.null(formula)) {
@@ -151,25 +148,13 @@ divnet <-  function(W,
                                                      network = network,
                                                      base = base,
                                                      ncores = ncores,
-                                                     return_compositions = return_boot,
                                                      ...),
                                  simplify=F)
-
-    if(return_boot){
-      boot_compositions <- lapply(1:length(parametric_list),
-                                  function(k) parametric_list[[k]]$compositions)
-      boot_divs <- lapply(1:length(parametric_list),
-                                                    function(k) parametric_list[[k]]$diversities)
-      parametric_list <- boot_divs
-    }
 
     variance_estimates <- get_diversity_variance(parametric_list, samples_names)
 
     for(i in 1:length(variance_estimates)) {
       output_list[[names(variance_estimates)[i]]] <-  variance_estimates[[i]]
-    }
-    if(return_boot){
-      output_list$boot_compositions <- boot_compositions
     }
 
     # Add variance to alpha_diversity class
@@ -198,29 +183,9 @@ divnet <-  function(W,
                                                            base = base,
                                                            ncores = ncores,
                                                            nsub = nsub,
-                                                           return_compositions = return_boot,
-                                                           cluster_on_X = cluster_on_X,
                                                            ...),
                                     simplify=F)
-    if(return_boot){
-      boot_compositions <- lapply(1:length(nonparametric_list),
-                                  function(k) nonparametric_list[[k]]$compositions)
-      boot_samples <- lapply(1:length(nonparametric_list),
-                             function(k) nonparametric_list[[k]]$samples)
-      boot_divs <- lapply(1:length(nonparametric_list),
-                                                    function(k) nonparametric_list[[k]]$diversities)
-      nonparametric_list <- boot_divs
-    }
-    if(return_boot){
-      output_list$boot_compositions <- boot_compositions
-      output_list$boot_samples <- boot_samples
-    }
-    if(!cluster_on_X){
     variance_estimates <- get_diversity_variance(nonparametric_list, samples_names)
-
-
-
-
 
     for(i in 1:length(variance_estimates)) {
       output_list[[names(variance_estimates)[i]]] <-  variance_estimates[[i]]
@@ -229,7 +194,6 @@ divnet <-  function(W,
     # do nothing, no warning
   } else {
     warning("No variance estimate is computed")
-  }
   }
 
   output_list[["X"]] <- X

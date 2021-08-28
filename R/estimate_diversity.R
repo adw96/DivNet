@@ -107,26 +107,8 @@ nonparametric_variance <- function(W,
                                    base,
                                    ncores,
                                    nsub,
-                                   return_compositions = FALSE,
-                                   cluster_on_X = FALSE,
                                    ...) {
-  if(cluster_on_X){
-    if(!all(unique(as.numeric(X)) %in% c(0,1))){
-      stop("All values in X must be either 1 or 0 if cluster_on_X is TRUE.")
-    }
-    curly_b_pre <- sample(1:ncol(X),
-                          size = ncol(X),
-                          replace = TRUE)
-
-    curly_b <- lapply(curly_b_pre,
-                      function(x) which(X[,x]==1))
-
-    curly_b <- do.call(c,curly_b)
-
-
-  } else{
-    curly_b <- sample(1:(nrow(W)), size = nsub, replace=T)
-  }
+  curly_b <- sample(1:(nrow(W)), size = nsub, replace=T)
 
   fitted_model <- fit_aitchison(W[curly_b, ],
                                 X[curly_b, ],
@@ -136,27 +118,10 @@ nonparametric_variance <- function(W,
                                 base = base,
                                 ncores = ncores,
                                 ...)
-
-
-  eY <- matrix(NA, ncol = ncol(W)-1, nrow =length(curly_b))
-
-  if(!cluster_on_X){
+  eY <- matrix(NA, ncol = ncol(W)-1, nrow = nrow(W))
   eY[curly_b, ] <- fitted_model$fitted_y
-  } else{
-    eY[1:length(curly_b),] <- fitted_model$fitted_y
-  }
-
   compositions <- to_composition_matrix(Y=eY, base=base)
-  if(cluster_on_X){
-    rownames(compositions) <- rownames(W)[curly_b] }
-  if(!return_compositions){
-    get_diversities(compositions)
-  } else{
-    return(list("diversities" = get_diversities(compositions),
-                "compositions" = compositions,
-                "samples" = curly_b))
-  }
-
+  get_diversities(compositions)
 }
 
 
@@ -167,9 +132,7 @@ parametric_variance <- function(fitted_aitchison,
                                 perturbation,
                                 network,
                                 base,
-                                ncores,
-                                return_compositions = FALSE,
-                                ...) {
+                                ncores, ...) {
 
   # unfortunately in this model we condition on M_i, so no randomising here
   #ms <- apply(W, 1, sum)
@@ -186,11 +149,5 @@ parametric_variance <- function(fitted_aitchison,
                                 network = network,
                                 base = base,
                                 ncores = ncores, ...)
-
-  if(!return_compositions){
-    get_diversities(fitted_model$fitted_z)
-  } else{
-    return(list("diversities" =   get_diversities(fitted_model$fitted_z),
-                "compositions" = fitted_model$fitted_z))
-  }
+  get_diversities(fitted_model$fitted_z)
 }
