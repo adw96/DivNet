@@ -38,7 +38,7 @@ simpson_true <- function(proportions) {
 #' @export
 bc_fast <- function(p1s, p2s) {
 
-  if ( (!sum_to_one ) | all(is.na(p1s)) | all(is.na(p2s)) | ((sum(p1s) - 1)^2 < 1e-8 & (sum(p2s) - 1)^2 < 1e-8)) {
+  if (all(is.na(p1s)) | all(is.na(p2s)) | ((sum(p1s) - 1)^2 < 1e-8 & (sum(p2s) - 1)^2 < 1e-8)) {
     output <- 1 - (pmin(p1s, p2s) %>% sum)
   } else {
     stop("bc_fast needs a vector of proportions that sum to 1")
@@ -72,8 +72,7 @@ euc_fast <- function(p1s, p2s) {
 #' @export
 bray_curtis_true <- function(p1s, p2s = NULL) {
   if (p2s %>% is.null & !(dim(p1s)[1] %>% is.null)) {
-    bc <- outer(1:dim(p1s)[1], 1:dim(p1s)[1], FUN = Vectorize( function(i,j) bc_fast(p1s[i,], p1s[j,],
-                                                                                     sum_to_one) ))
+    bc <- outer(1:dim(p1s)[1], 1:dim(p1s)[1], FUN = Vectorize( function(i,j) bc_fast(p1s[i,], p1s[j,]) ))
   } else {
     if (!((p1s %>% length) == (p2s %>% length))) {
       stop("Attempted to compute the Bray-Curtis distance between communities of different sizes.")
