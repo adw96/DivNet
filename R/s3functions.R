@@ -87,12 +87,16 @@ testDiversity <- function(dv, h0 = "shannon") {
   bt$table
 }
 
+#' Test beta diversity
+#'
+#' Hypothesis testing for beta-diversity.
+#'
 #' @param dv An object of class diversityEstimates. The variable `X` used for the construction
 #' @param h0 The beta-diversity index to be tested for equality
 #' @param groups A numeric vector giving group membership of each specimen
 #' @param sample_specimen_matrix A matrix with ik-th entry 1 if the i-th sequenced sample is taken from specimen k, 0 otherwise.
 #' The columns of this matrix should correspond to unique specimens and must be named.
-#' @n_boot Number of (cluster) bootstrap resamples to use
+#' @param n_boot Number of (cluster) bootstrap resamples to use
 #' @return A list containing the observed pseudo-F statistic, the beta diversity used, the
 #' p-value returned by the bootstrapped pseudo-F test of equality of (measured) centroids,
 #' a vector of computed bootstrapped test statistics, a matrix of estimated group centroids,
