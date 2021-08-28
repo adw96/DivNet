@@ -314,7 +314,7 @@ read counts produced by many bioinformatics laboratories on sequencing data from
 
 
 ```{r}
-data(mbqc_B2_crc)
+data(B2)
 
 ### how many technical replicates per specimen?
 table(B2$specimen,B2$Bioinformatics.ID) %>% apply(1, sum)

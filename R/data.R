@@ -21,4 +21,4 @@
 #'
 #' @source \url{https://www.nature.com/articles/nbt.3981}
 #' @references "Sinha, Rashmi, et al. "Assessment of variation in microbial community amplicon sequencing by the Microbiome Quality Control (MBQC) project consortium." Nature biotechnology 35.11 (2017): 1077-1086.
-"mbqc_B2_crc"
+"B2"
