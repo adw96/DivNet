@@ -527,6 +527,29 @@ more measurements on a given study participant may give us more information abou
 but they do not help us characterize how typical that participant is of the larger population(s) we are 
 interested in.)
 
+
+## Appendix: Testing details
+
+The function \textit{testBetaDiversity}() tests a null of equality of centroids across groups using a pseudo-F test.
+
+For observations on $p$ groups, with number of unique specimens observed in group $g$ given by $n_g$ for $g = 1, \dots, p$
+the pseudo-F-statistic is given by
+
+
+$$F = \dfrac{\sum_{g = 1}^p \sum_{f>g} \sum_{i = 1}^{n_g}\sum_{k = 1}^{n_f} h(\hat{Y}_{gi},\hat{Y}_{fk})}{\sum_{g = 1}^p \sum_{i = 1}^{n_g} \sum_{k>i} h(\hat{Y}_{gi},\hat{Y}_{gk})} \cdot \dfrac{\sum_{g = 1}^p n_g - p - 1}{p - 1}$$
+where $h()$ is either squared distance (Euclidean or Aitchison) or non-squared Bray-Curtis dissimilarity and
+the $\hat{Y}$ are estimated specimen compositions. In other words, the pseudo-F-statistic is a scaled ratio of 
+1) the cross-group sum of dissimilarities between specimens 2) the within-group sum of dissimilarities between specimens.
+
+The null distribution is estimated by bootstrap resampling specimens and subtracting from each (selected) specimen's composition
+the estimated centroid for the group it is a member of, recalculating dissimilarities (Euclidean, Aitchison, or Bray-Curtis) on
+resulting centered specimen compositions, and calculating a pseudo-F-statistic from these. Subtraction of centroids from specimen 
+composition is performed on the natural scale (no transformation prior to subtraction) for Euclidean distance and Bray-Curtis dissimilarity.
+For Aitchison distance, we subtract group centroids from estimated specimen composition on the centered log-ratio scale.
+
+
+
+
 ## References
 
 Lee, Michael D., Nathan G. Walworth, Jason B. Sylvan, Katrina J. Edwards, and Beth N. Orcutt. "Microbial communities on seafloor basalts at Dorado Outcrop reflect level of alteration and highlight global lithic clades." Frontiers in microbiology 6 (2015): 1470.

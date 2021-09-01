@@ -91,6 +91,15 @@ testDiversity <- function(dv, h0 = "shannon") {
 #'
 #' Hypothesis testing for beta-diversity.
 #'
+#' This function uses output from DivNet() to estimate community centroids
+#' within groups defined by the groups argument and test a null hypothesis
+#' of equality of all group centroids against a general alternative. This test
+#' is conducted using a pseudo-F statistic with null distribution approximated
+#' via a nonparametric bootstrap.
+#'
+#' For more details and suggested workflow see the beta diversity vignette:
+#' \code{vignette("beta_diversity", package = "DivNet")}
+#'
 #' @param dv An object of class diversityEstimates. The variable `X` used for the construction
 #' @param h0 The beta-diversity index to be tested for equality
 #' @param groups A numeric vector giving group membership of each specimen
