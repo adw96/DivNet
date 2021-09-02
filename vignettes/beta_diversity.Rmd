@@ -2,7 +2,6 @@
 title: "Using DivNet for Beta Diversity Analysis"
 author: "David Clausen"
 date: "`r Sys.Date()`"
-output:
 output: rmarkdown::html_vignette
 vignette: |
   %\VignetteIndexEntry{Using DivNet for Beta Diversity Analysis} 
