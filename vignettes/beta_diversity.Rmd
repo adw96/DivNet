@@ -6,7 +6,9 @@ output:
   pdf_document: default
   'pdf_document: keep_tex: yes': default
 vignette: |
-  %\VignetteIndexEntry{Using DivNet for Beta Diversity Analysis} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Using DivNet for Beta Diversity Analysis} 
+  %\VignetteEngine{knitr::rmarkdown} 
+  %\VignetteEncoding{UTF-8}
 ---
 
 ## Vignette Info
@@ -30,7 +32,6 @@ library(phyloseq)
 library(breakaway)
 library(tidyr)
 library(ggplot2)
-library(devtools)
 library(DivNet)
 sessionInfo()
 ```
@@ -63,7 +64,7 @@ the ``char'' column in the data.frame below:
 
 
 ```{r, echo = F}
-Lee@sam_data
+sample_data(Lee)
            
 
 ```
@@ -113,15 +114,10 @@ we set variance equal to "none" here.
   X <- diag(nrow(Lee_phylum@sam_data))
   colnames(X) <- rownames(X) <-  as.character(1:ncol(X))
 
-  trash <- capture.output( #we've included this line to avoid 
-                          #printing DivNet messages in this vignette
-    
-    #in practice, you will only need to run the following three lines:
+  #in practice, you will only need to run the following three lines:
   divnet_phylum <-  divnet(W = Lee_phylum,
                          X = X,
                          variance = "none")
-  )
-
 
 ```
 
@@ -292,7 +288,7 @@ centroid_quantiles %>%
 ```
 
 However, it's worth keeping in mind here that the percentile bootstrap above may not give particularly reliable
-confidence intervals, particularly in groups with smaller sample sizes (such as "water", where $n = 2$).
+confidence intervals, particularly in groups with smaller sample sizes (such as "water", where -- eek -- $n = 2$).
 
 As a side note, we're presenting the three analyses above to demonstrate the capabilities of DivNet. In 
 a research setting, we recommend choosing a dissimilarity on scientific grounds (i.e., on the basis of what kind of differences
@@ -333,7 +329,7 @@ readers who already have data in phyloseq format.
 
 ```{r mbqc_preliminaries, echo = F}
 
-otu_matrix <- B2 %>% select(starts_with("k_"))  %>% t() %>%as.data.frame()
+otu_matrix <- B2 %>% dplyr::select(starts_with("k_"))  %>% t() %>%as.data.frame()
 for(col in 1:ncol(otu_matrix)){
   # print(col)
   otu_matrix[,col] <-   as.numeric(otu_matrix[,col])
@@ -429,37 +425,25 @@ specimen_matrix <- do.call(cbind,lapply(unique_specimens,function(x)
 specimen_df <- as.data.frame(specimen_matrix) %>%
   (function(x){ rownames(x) <- B2$Bioinformatics.ID; return(x)})
 
-otu_matrix <- otu_matrix %>%
-  (function(x){ rownames(x) <- B2$Bioinformatics.ID; return(x)})
 
-
-OTU = otu_table(otu_matrix, taxa_are_rows = FALSE)
-
-TAX = tax_table(taxon_matrix)
-
-specimens = sample_data(specimen_df)
-
-mbqc <- phyloseq(OTU, TAX, specimens)
 ```
 
-With the design matrix and phyloseq object created, let's take a look-see at what we have now.
-
+For convenience, DivNet also stores the subsetted SInha et al. data as a phyloseq object. We'll load that now.
 
 ```{r}
-mbqc
-```
+data("B2_phyloseq")
 
-Excellent.
+```
 
 For this analysis, we will aggregate to the species level using the taxonomic information MBQC
 has provided along with OTU counts.
 
 ```{r}
 
-mbqc_species <- tax_glom(mbqc, taxrank="species")
+mbqc_species <- tax_glom(B2_phyloseq, taxrank="species")
 ```
 
-We have already constructed the design matrix above -- it is stored as ``@sam_data`` inside our phyloseq object. Before 
+We have already constructed the design matrix above -- it is stored as sample data inside our phyloseq object. Before 
 we fit a DivNet model, we pull this matrix out of the phyloseq object and ensure it has appropriate column names.
 
 ```{r}
@@ -483,12 +467,10 @@ Now we are ready to fit a DivNet model. Note again that we are not estimating an
 
 ```{r, message = FALSE}
 set.seed(43)
-  trash <- capture.output( #we've again included this line to avoid 
-                           #printing DivNet messages in this vignette
+
 mbqc_div <- divnet(W = mbqc_species,
                          X = sample_specimen_mat,
                          variance = "none")
-)
 
 ```
 

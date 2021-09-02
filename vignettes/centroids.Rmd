@@ -6,7 +6,9 @@ output:
   pdf_document: default
   'pdf_document: keep_tex: yes': default
 vignette: |
-  %\VignetteIndexEntry{Centroids and Beta Diversity} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Centroids and Beta Diversity} 
+  %\VignetteEngine{knitr::rmarkdown} 
+  %\VignetteEncoding{UTF-8}
 ---
 
 ## The point of this vignette

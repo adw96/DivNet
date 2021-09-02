@@ -23,7 +23,7 @@ divnet(
 \arguments{
 \item{W}{An abundance table with taxa as columns and samples as rows; or a phyloseq object.}
 
-\item{X}{The covariate matrix, with samples as rows and variables as columns. Defaults to NULL (sample_names are the covariates).}
+\item{X}{The covariate matrix, with samples as rows and variables as columns. Defaults to NULL (sample_names are the covariates). Instead of specifying \code{X}, you can specify this information using the argument \code{formula}. If you specify a \code{formula} and \code{W} is a phyloseq object, this argument will be ignored.}
 
 \item{fitted_model}{object produced by fit_aitchison. Defaults to NULL.}
 
@@ -43,7 +43,7 @@ divnet(
 
 \item{nsub}{Number of subsamples for nonparametric bootstrap. Defaults to half the number of observed samples.}
 
-\item{formula}{an object of class \code{formula}: a symbolic description of the model to be fitted. Optional, defaults to \code{NULL}. Formula objects must match column names found in the sample data from \code{W} or \code{X}.}
+\item{formula}{an object of class \code{formula}: a symbolic description of the model to be fitted; a means of constructing \code{X} via \code{stats::model.matrix}. If \code{W} is a phyloseq object, the formula should refer to variables stored in sample_data. If \code{W} is not a phyloseq object, \code{X} should be a data frame containing columns referred to in your formula. Formula references must match column names found in the sample data from \code{W} or \code{X}. Optional, defaults to \code{NULL}.}
 
 \item{...}{Additional parameters to be passed to the network function}
 }
