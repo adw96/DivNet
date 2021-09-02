@@ -3,8 +3,7 @@ title: "Using DivNet for Beta Diversity Analysis"
 author: "David Clausen"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
-  'pdf_document: keep_tex: yes': default
+output: rmarkdown::html_vignette
 vignette: |
   %\VignetteIndexEntry{Using DivNet for Beta Diversity Analysis} 
   %\VignetteEngine{knitr::rmarkdown} 

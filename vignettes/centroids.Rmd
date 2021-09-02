@@ -2,9 +2,7 @@
 title: "Beta Diversity and Centroids with DivNet"
 author: "David Clausen"
 date: "`r Sys.Date()`"
-output:
-  pdf_document: default
-  'pdf_document: keep_tex: yes': default
+output:output: rmarkdown::html_vignette
 vignette: |
   %\VignetteIndexEntry{Centroids and Beta Diversity} 
   %\VignetteEngine{knitr::rmarkdown} 
