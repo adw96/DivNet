@@ -66,7 +66,13 @@ lee_phylum <- tax_glom(Lee, taxrank="Phylum")
 lee_phylum
 ```
 
-20 taxa is incredibly manageable! Let's go ahead and run divnet. My computer has 4 cores, so I am just going to run in parallel with the `ncores` argument.
+20 taxa is incredibly manageable! Let's go ahead and run divnet. My computer has 4 cores, so I am just going to run in parallel with the `ncores` argument. If you would like to run in parallel, check that you have the packages `doParallel`, `doSNOW`, and `foreach` installed below. If not, your code will run serially and R will give you pages of warnings. 
+
+```{r}
+"doParallel" %in% rownames(installed.packages())
+"doSNOW" %in% rownames(installed.packages())
+"foreach" %in% rownames(installed.packages())
+```
 
 **Sidenote for the reproducibility nerds**: `DivNet`'s model fitting procedure has a Metropolis Hastings step to estimate a complex integral using Monte Carlo estimation, which introduces some randomness into the results. Under the default settings the results should change very little between runs (especially if you set `tuning = "careful"` or increase `EMiter` or `MCiter` from the defaults, which are `tuning = list(EMiter = 10, EMburn = 5, MCiter = 1000, MCburn = 500, stepsize = 0.01)`). To make sure that they don't change between runs, we *could* set the random number seed... but this would only work if we were running everything on one core. Since we want to distribute the process over 4 cores, and setting seeds over multiple cores is [kind of a pain](https://www.r-bloggers.com/%F0%9F%8C%B1-setting-a-seed-in-r-when-using-parallel-simulation/), I'm just going to up the ante with `tuning = "careful"` and hope you'll forgive me this time. If you're a less powerful machine feel free to remove this argument (default is `tuning = "fast"`). 
 
