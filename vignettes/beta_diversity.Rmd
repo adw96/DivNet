@@ -112,7 +112,6 @@ we set variance equal to "none" here.
   X <- diag(nrow(Lee_phylum@sam_data))
   colnames(X) <- rownames(X) <-  as.character(1:ncol(X))
 
-  #in practice, you will only need to run the following three lines:
   divnet_phylum <-  divnet(W = Lee_phylum,
                          X = X,
                          variance = "none")
@@ -222,72 +221,6 @@ hypothesis that there is no difference in (measured) centroids across groups def
 **Note, however, that the p-value tells us nothing about across which groups centroids may differ or how they differ:
 a small p-value does not guarantee that all group centroids differ or that any groups differ in scientifically important ways.**
 
-While DivNet was developed to test overall hypotheses concerning alpha and beta diversity (and so does not provide taxon-wise
-tests), $testBetaDiversity$ does provide estimated group centroids. Graphing these can be informative if you are interested
-in getting a feel for how composition may vary across groups. Below, we provide an example plot created from the Aitchison distance
-analysis:
-
-```{r}
-
-aitchison_centroids <- ait_test$centroids
-colnames(aitchison_centroids) <- Lee_phylum@tax_table@.Data[,2]
-
-aitchison_centroids <- as.data.frame(aitchison_centroids)
-aitchison_centroids$group <- rownames(aitchison_centroids)
-
-aitchison_centroids %>%
-  tidyr::pivot_longer(-group) %>%
-  ggplot() +
-  geom_line(aes(x = name, y = value, group = group, color = group)) + 
-  geom_point(aes(x = name, y = value, group = group, color = group)) + 
-  theme_bw() + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  scale_color_brewer(type = "qual") +
-  xlab("Phylum") + 
-  ylab("Estimated Centroid (Mean Measured \nCentered Log-Ratio Relative Abundance)")+
-  ggtitle("Estimated Group Centroids by Condition") + 
-  guides(color=guide_legend(title="Condition"))
-
-```
-
-We can add some accounting for uncertainty as well by using bootstrapped group centroids:
-
-
-```{r}
-#calculate taxon-wise 95% percentile bootstrap CIs for centroids
-centroid_quantiles <- lapply(c("altered","water","glassy"),
-                             function(gr) 
-                               apply(sapply(1:10000, function(k) 
-                                 ait_test$boot_centroids[[k]][[gr]]),1, function(x) 
-                                   quantile(x, c(.025,.975), na.rm = T)))
-names(centroid_quantiles) <- c("altered","water","glassy")
-
-centroid_quantiles <- as.data.frame(do.call(rbind,centroid_quantiles))
-colnames(centroid_quantiles) <- Lee_phylum@tax_table@.Data[,2]
-centroid_quantiles$side <- rep(c("Lower","Upper"),3)
-centroid_quantiles$Condition <- rep(c("altered","water","glassy"), each = 2)
-
-
-centroid_quantiles %>%
-  tidyr::pivot_longer(colnames(centroid_quantiles)[!(colnames(centroid_quantiles) %in% c("Condition","side"))]) %>%
-  tidyr::pivot_wider(values_from = value, names_from = side) %>%
-  ggplot() + 
-  geom_errorbar(aes(x = name, group = Condition,color = Condition,
-                    ymin = Lower, ymax = Upper),
-                width = .5,
-                position = "dodge") +
-  theme_bw() + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  scale_color_brewer(type = "qual") +
-  xlab("Phylum") + 
-  ylab("Estimated Centroid (Mean Measured \nCentered Log-Ratio Relative Abundance)")+
-  ggtitle("Bootstrap Intervals: Estimated Group Centroids by Condition") + 
-  guides(color=guide_legend(title="Condition"))
-```
-
-However, it's worth keeping in mind here that the percentile bootstrap above may not give particularly reliable
-confidence intervals, particularly in groups with smaller sample sizes (such as "water", where -- eek -- $n = 2$).
-
 As a side note, we're presenting the three analyses above to demonstrate the capabilities of DivNet. In 
 a research setting, we recommend choosing a dissimilarity on scientific grounds (i.e., on the basis of what kind of differences
 between groups you care about). If you choose to run multiple analyses with varying choices of dissimilarity,
@@ -320,91 +253,6 @@ but instead of fitting DivNet with a diagonal design matrix, we construct a desi
 aliquots if you prefer that terminology) and columns that are specimens. That is, we let the $ij$-th entry of $X$ be $1$ if
 sample $i$ was taken from specimen $j$ and 0 otherwise. This tells DivNet to estimate a single common composition for each
 specimen using all technical replicates of that specimen.
-
-Before we can fit a DivNet model, we need to do a little housekeeping to get our data into an appropriate format 
-so we can create a phyloseq object. We'll relegate the majority of this code to an appendix since it is not directly relevant to 
-readers who already have data in phyloseq format.
-
-```{r mbqc_preliminaries, echo = F}
-
-otu_matrix <- B2 %>% dplyr::select(starts_with("k_"))  %>% t() %>%as.data.frame()
-for(col in 1:ncol(otu_matrix)){
-  # print(col)
-  otu_matrix[,col] <-   as.numeric(otu_matrix[,col])
-}
-
-otu_matrix <- t(otu_matrix) %>% as.matrix()
-
-taxa <- colnames(otu_matrix)
-taxa <- lapply(taxa,
-               function(x) strsplit(x, "|", fixed = TRUE))
-
-kingdom <- sapply(taxa,
-                function(x) 
-                  unlist(x)[sapply(unlist(x), 
-                                   function(y) 
-                                     grepl("k__",y, fixed = TRUE))])
-phylum <- sapply(taxa,
-                function(x) unlist(x)[sapply(unlist(x), 
-                                             function(y) 
-                                               grepl("p__",y, fixed = TRUE))])
-class <- sapply(taxa,
-                function(x) 
-                  unlist(x)[sapply(unlist(x), 
-                                   function(y) 
-                                     grepl("c__",y, fixed = TRUE))] %>%
-                  (function(w) ifelse(length(w)==1, w, "c__unclassified")))
-order <- sapply(taxa,
-                function(x) 
-                  unlist(x)[sapply(unlist(x), 
-                                   function(y) 
-                                     grepl("o__",y, fixed = TRUE))] %>%
-                  (function(w) ifelse(length(w)==1, w, "o__unclassified")))
-family <- sapply(taxa,
-                function(x) 
-                  unlist(x)[sapply(unlist(x), 
-                                   function(y) 
-                                     grepl("f__",y, fixed = TRUE))] %>%
-                  (function(w) ifelse(length(w)==1, w, "f__unclassified")))
-genus <- sapply(taxa,
-                function(x) 
-                  unlist(x)[sapply(unlist(x), 
-                                   function(y) 
-                                     grepl("g__",y, fixed = TRUE))] %>%
-                  (function(w) ifelse(length(w)==1, w, "g__unclassified")))
-species <- sapply(taxa,
-                function(x) 
-                  unlist(x)[sapply(unlist(x), 
-                                   function(y) 
-                                     grepl("s__",y, fixed = TRUE))] %>%
-                  (function(w) ifelse(length(w)==1, w, "s__unclassified")))
-otu <- sapply(taxa,
-                function(x) 
-                  paste("otu__",unlist(x)[length(unlist(x))],
-                                  sep = "", collapse = ""))
-
-taxon_matrix <- cbind(otu,
-                      species,
-                      genus,
-                      family,
-                      order,
-                      class,
-                      phylum,
-                      kingdom)
-
-taxon_matrix <- as.data.frame(taxon_matrix) %>%
-    tibble::column_to_rownames("otu") %>%
-  as.matrix()
-
-colnames(otu_matrix) <- colnames(otu_matrix) %>%
-  sapply(function(x) strsplit(x,"|",fixed = TRUE)) %>%
-  sapply(function(x) paste("otu__",as.numeric(x[length(x)]),
-                           sep = "",
-                           collapse = ""))
-colnames(otu_matrix) <- as.character(colnames(otu_matrix))
-
-
-```
 
 
 Before we use DivNet, we need to construct a design matrix that encodes
