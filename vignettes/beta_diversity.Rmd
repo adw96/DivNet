@@ -388,11 +388,5 @@ Sinha, Rashmi, Galeb Abu-Ali, Emily Vogtmann, Anthony A. Fodor, Boyu Ren, Amnon 
 
 Willis, Amy D., and Bryan D. Martin. "Estimating diversity in networked ecological communities." Biostatistics (2020).
 
-## Appendix: MBQC Data Formatting Code
-
-```{r ref.label= "mbqc_preliminaries", echo=TRUE, eval=FALSE}
-```
-
-
 
 
