@@ -3,7 +3,7 @@ title: "Using DivNet for Beta Diversity Analysis"
 author: "David Clausen"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
-vignette: |
+vignette: >
   %\VignetteIndexEntry{Using DivNet for Beta Diversity Analysis} 
   %\VignetteEngine{knitr::rmarkdown} 
   %\VignetteEncoding{UTF-8}
