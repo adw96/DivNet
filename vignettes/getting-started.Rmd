@@ -34,7 +34,7 @@ sessionInfo()
 
 Let's take a quick look at the Lee et al dataset.
 
-```
+```{r}
 data(Lee)
 Lee
 ```
