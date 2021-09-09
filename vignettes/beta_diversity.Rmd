@@ -182,7 +182,7 @@ write this up in a scientific publication as follows:
 > "glassy", "water", and "altered", we used a bootstrapped pseudo-F test with 10,000 bootstrap iterations as
 implemented in the $testBetaDiversity$ function
 > within DivNet. On the basis of this test, we do not reject the null of equal mean measured relative abundance across groups at
-> the 0.05 level ($p = 0.23$).
+> the 0.05 level ($p = 0.21$).
 
 The third beta diversity test DivNet enables is based on 
 Aitchison distance, or equivalently Euclidean distance on the centered-log-ratio
@@ -213,7 +213,7 @@ Bray-Curtis dissimilarity. We might write this result up as follows:
 implemented in the $testBetaDiversity$ function
 > within DivNet. On the basis of this test, we reject the null of equal mean centered-log-ratio 
 measured relative abundance across groups at
-> the 0.05 level ($p = 0.0016$).
+> the 0.05 level ($p = 0.001$).
 
 As this wording indicates, a small p-value here leads us to reject the null 
 hypothesis that there is no difference in (measured) centroids across groups defined by the 
@@ -344,7 +344,7 @@ distance) between groups. We could write this up as follows:
 > and among control patients, we used a cluster-bootstrapped pseudo-F test with 10,000 bootstrap iterations as
 > implemented in the $testBetaDiversity$ function
 > within DivNet. On the basis of this test, we do not reject the null of equal mean centered-log-ratio measured relative abundance across groups at
-> the 0.05 level ($p = 0.15$).
+> the 0.05 level ($p = 0.16$).
 
 Some words of caution here -- we've conducted this example analysis on measurements taken on only 7(!) study participants across
 two groups, and the bootstrap test we have used has an asymptotic justification. 
@@ -358,7 +358,7 @@ interested in.)
 
 ## Appendix: Testing details
 
-The function \textit{testBetaDiversity}() tests a null of equality of centroids across groups using a pseudo-F test.
+The function testBetaDiversity() tests a null of equality of centroids across groups using a pseudo-F test.
 
 For observations on $p$ groups, with number of unique specimens observed in group $g$ given by $n_g$ for $g = 1, \dots, p$
 the pseudo-F-statistic is given by
