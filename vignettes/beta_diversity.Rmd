@@ -94,7 +94,7 @@ phylum level.
 ```{r}
 Lee_phylum <- tax_glom(Lee, taxrank="Phylum")
 Lee_phylum <- subset_samples(Lee_phylum, 
-                             Lee_phylum@sam_data$char %in% 
+                             sample_data(Lee_phylum)$char %in% 
                                c("glassy","altered","water"))
 ```
 
@@ -109,7 +109,7 @@ analysis in this situation.) Variance estimation (and bootstrapping) is done in 
 we set variance equal to "none" here.
 
 ```{r, message = F}
-  X <- diag(nrow(Lee_phylum@sam_data))
+  X <- diag(nrow(sample_data(Lee_phylum)))
   colnames(X) <- rownames(X) <-  as.character(1:ncol(X))
 
   divnet_phylum <-  divnet(W = Lee_phylum,
@@ -128,9 +128,9 @@ of samples differs across conditions.
 set.seed(454)
 bc_test <- testBetaDiversity(divnet_phylum, 
                              h0 = "bray-curtis",
-                             n_boot = 10000,
+                             n_boot = 1000,
                              sample_specimen_matrix = divnet_phylum$X,
-                             groups = Lee_phylum@sam_data$char)
+                             groups = sample_data(Lee_phylum)$char)
 
 
 
@@ -165,9 +165,9 @@ differs across condition.
 set.seed(3532)
 euc_test <- testBetaDiversity(dv = divnet_phylum , 
                               h0 = "euclidean",
-                              n_boot = 10000,
+                              n_boot = 1000,
                               sample_specimen_matrix = divnet_phylum$X,
-                              groups = Lee_phylum@sam_data$char)
+                              groups = sample_data(Lee_phylum)$char)
 
 euc_test$p_value
 ```
@@ -194,8 +194,8 @@ set.seed(3423)
 ait_test <- testBetaDiversity(dv = divnet_phylum, 
                               sample_specimen_matrix = divnet_phylum$X,
                               h0 = "aitchison",
-                              n_boot = 10000,
-                    groups = Lee_phylum@sam_data$char)
+                              n_boot = 1000,
+                    groups = sample_data(Lee_phylum)$char)
 
 ait_test$p_value
 
@@ -293,7 +293,7 @@ We have already constructed the design matrix above -- it is stored as sample da
 we fit a DivNet model, we pull this matrix out of the phyloseq object and ensure it has appropriate column names.
 
 ```{r}
-sample_specimen_mat <- as.matrix(mbqc_species@sam_data)
+sample_specimen_mat <- as.matrix(sample_data(mbqc_species))
 
 
 colnames(sample_specimen_mat) <- sapply(1:ncol(sample_specimen_mat),
@@ -330,7 +330,7 @@ ait_test_np <- testBetaDiversity(dv = mbqc_div,
                                  h0 = "aitchison",
                                  groups = B2$health_status,
                                  sample_specimen_matrix = sample_specimen_mat,
-                                 n_boot = 10000)
+                                 n_boot = 1000)
 
 ait_test_np$p_value
 
