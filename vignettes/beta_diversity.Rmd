@@ -358,7 +358,7 @@ interested in.)
 
 ## Appendix: Testing details
 
-The function \textit{testBetaDiversity}() tests a null of equality of centroids across groups using a pseudo-F test.
+The function $\textit{testBetaDiversity}()$ tests a null of equality of centroids across groups using a pseudo-F test.
 
 For observations on $p$ groups, with number of unique specimens observed in group $g$ given by $n_g$ for $g = 1, \dots, p$
 the pseudo-F-statistic is given by
