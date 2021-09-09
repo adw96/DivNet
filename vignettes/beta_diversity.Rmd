@@ -108,7 +108,7 @@ specimen, we do recommend you specify a design matrix that reflects this -- see 
 analysis in this situation.) Variance estimation (and bootstrapping) is done in a subsequent step, so
 we set variance equal to "none" here.
 
-```{r, message = F}
+```{r, message = F, results = "hide"}
   X <- diag(nrow(Lee_phylum@sam_data))
   colnames(X) <- rownames(X) <-  as.character(1:ncol(X))
 
@@ -311,7 +311,7 @@ colnames(sample_specimen_mat) <- sapply(1:ncol(sample_specimen_mat),
 Now we are ready to fit a DivNet model. Note again that we are not estimating any variances in the initial fit.
 
 
-```{r, message = FALSE}
+```{r, message = FALSE, results = "hide"}
 set.seed(43)
 
 mbqc_div <- divnet(W = mbqc_species,
