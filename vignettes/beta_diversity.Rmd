@@ -212,7 +212,7 @@ Bray-Curtis dissimilarity. We might write this result as follows:
 > We estimated specimen composition from read counts via a DivNet model (Willis and Martin, 2020) 
 > with a diagonal design matrix.
 > To test a null hypothesis of equal mean centered-log-ratio relative abundance across groups 
-> "glassy", "water", and "altered", we used a bootstrapped pseudo-F test with 10,000 bootstrap iterations as
+> "glassy", "water", and "altered", we used a bootstrapped pseudo-F test with 1,000 bootstrap iterations as
 implemented in the $testBetaDiversity$ function
 > within DivNet. On the basis of this test, we reject the null of equal mean centered-log-ratio 
 measured relative abundance across groups at
