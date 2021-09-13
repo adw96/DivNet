@@ -108,8 +108,10 @@ specimen, we do recommend you specify a design matrix that reflects this -- see 
 analysis in this situation.) Variance estimation (and bootstrapping) is done in a subsequent step, so
 we set variance equal to "none" here.
 
-```{r, message = F}
-  X <- diag(nrow(sample_data(Lee_phylum)))
+
+```{r, message = F, results = "hide"}
+ X <- diag(nrow(sample_data(Lee_phylum)))
+
   colnames(X) <- rownames(X) <-  as.character(1:ncol(X))
 
   divnet_phylum <-  divnet(W = Lee_phylum,
@@ -311,7 +313,7 @@ colnames(sample_specimen_mat) <- sapply(1:ncol(sample_specimen_mat),
 Now we are ready to fit a DivNet model. Note again that we are not estimating any variances in the initial fit.
 
 
-```{r, message = FALSE}
+```{r, message = FALSE, results = "hide"}
 set.seed(43)
 
 mbqc_div <- divnet(W = mbqc_species,
@@ -358,7 +360,8 @@ interested in.)
 
 ## Appendix: Testing details
 
-The function testBetaDiversity() tests a null of equality of centroids across groups using a pseudo-F test.
+
+The function $\textit{testBetaDiversity}()$ tests a null of equality of centroids across groups using a pseudo-F test.
 
 For observations on $p$ groups, with number of unique specimens observed in group $g$ given by $n_g$ for $g = 1, \dots, p$
 the pseudo-F-statistic is given by
