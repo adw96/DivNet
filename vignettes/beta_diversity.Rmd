@@ -17,7 +17,7 @@ example covers beta diversity analyses in settings without technical replicate m
 second demonstrates how we suggest incorporating technical replicate data into beta diversity analyses.
 
 
-We would be remiss not to acknowledge Mike Lee, a bioinformatics wizard who recently put together some fantastic tutorials on bioinformatics for analysing microbiome data at [link](https://astrobiomike.github.io). Mike has very kindly allowed us to distribute the phyloseq data object from this tutorial via DivNet.
+We would be remiss not to acknowledge Mike Lee, a bioinformatics wizard who recently put together some fantastic tutorials on bioinformatics for analysing microbiome data at [link](astrobiomike.github.io). Mike has very kindly allowed us to distribute the phyloseq data object from this tutorial via DivNet.
 Thanks so much, Mike!
 
 ## Preliminaries
@@ -39,7 +39,7 @@ sessionInfo()
 
 DivNet allows testing of hypotheses concerning the location of 
 community centroids across conditions. Intuitively, we define
-"centroid" as the archetypal community from a given environment 
+``centroid'' as the archetypal community from a given environment 
 or under a given condition. (We give concrete definitions of various
 kinds of centroids below.)
 
@@ -56,19 +56,20 @@ Lee
 16 samples, 1490 ASVs, and taxonomy information. Fantastic!
 
 Suppose we are interested in determining how much evidence we have that
-community centroids vary by the type of site (water, glassy, altered, biofilm, etc...) from which samples were taken, 
+community centroids vary by the type of site from which samples were taken, 
 as encoded in the
-the `char` column in the `data.frame` below:
+the ``char'' column in the data.frame below:
 
 
 ```{r, echo = F}
 sample_data(Lee)
            
+
 ```
 
 
 Before we start our analysis proper, we need to ensure a DivNet model can be 
-meaningfully fit on this data. Under each condition (unique entry of the `char`
+meaningfully fit on this data. Under each condition (unique entry of the ``char''
 column above), we need to be able to do two things:
     
     (1) Estimate an archetypal composition (i.e., a centroid) 
@@ -77,8 +78,8 @@ column above), we need to be able to do two things:
     
 If you have encountered discussions of degrees of freedom in ANOVA, this may 
 feel somewhat familiar (but don't worry if not). In brief, the story here is that
-more observations per condition is generally better, and at a minimum we need *at
-least two observations per condition* to fit a beta diversity model in any 
+more observations per condition is generally better, and at a minimum we need at
+least two observations per condition to fit a beta diversity model in any 
 reasonable way. (If we have only one observation, we can estimate a centroid
 but not variability around that centroid.)
 
@@ -97,20 +98,18 @@ Lee_phylum <- subset_samples(Lee_phylum,
                                c("glassy","altered","water"))
 ```
 
-Now we are ready to run DivNet! Note in the code below, that we have chosen a diagonal design matrix. 
+Now we are ready to run divnet. Note in the code below that we have chosen a diagonal design matrix. 
 This is the recommended
 setting for testing beta diversity (i.e. location of centroids) with DivNet -- other
 choices of design matrix may result in estimated beta diversity within conditions being zero, 
 which is generally unrealistic.
 (However, if you have technical replicate samples from the same
-specimen, we do recommend you specify a design matrix that reflects this -- [see below](#replicate-link) for an 
+specimen, we do recommend you specify a design matrix that reflects this -- see below for an 
 analysis in this situation.) Variance estimation (and bootstrapping) is done in a subsequent step, so
 we set variance equal to "none" here.
 
-
-```{r, message = F, results = "hide"}
- X <- diag(nrow(sample_data(Lee_phylum)))
-
+```{r, message = F}
+  X <- diag(nrow(sample_data(Lee_phylum)))
   colnames(X) <- rownames(X) <-  as.character(1:ncol(X))
 
   divnet_phylum <-  divnet(W = Lee_phylum,
@@ -119,15 +118,11 @@ we set variance equal to "none" here.
 
 ```
 
-After `divnet()` runs, we can test a null hypothesis of equality of 
+After divnet() runs, we can test a null hypothesis of equality of 
 centroid location across conditions (glassy, water, and altered).
 We'll start with a test using Bray-Curtis dissimilarity,
 which amounts to a test of whether the median composition
-of samples differs across conditions (glassy, water, and altered).
-
-
-**Note:** For the purposes of this tutorial we set the number of bootstrap iterations to 1000, 
-but for your own analyses you should consider increasing this number to at least 10000. 
+of samples differs across conditions.
 
 ```{r}
 set.seed(454)
@@ -142,23 +137,25 @@ bc_test <- testBetaDiversity(divnet_phylum,
 bc_test$p_value
 ```
 
-On the basis of this test, we can conclude that estimated differences in group centroids are not particularly unusual
-under our null hypothesis of no difference between (true) group centroids --  if we repeat our experiment with new observations,
-we expect to observe a test statistic as large as we do in one of about every 9 repeated experiments (~10.5%) if the null of identical median community composition across conditions holds. 
+On the basis of this test, we can conclude that estimated differences in group centroid are not particularly unusual
+under our null of no difference between (true) group centroids --  if we repeat our experiment with new observations, 
+we expect to observe
+a test statistic as large as we do in one of about every 9 repeated experiments if the null of identical median 
+community composition across conditions holds. 
 
 In a publication, we might summarize this result as follows:
 
 > We estimated specimen composition from read counts via a DivNet model (Willis and Martin, 2020) 
 > with a diagonal design matrix.
 > To test a null hypothesis of equal median measured relative abundance across groups 
-> "glassy", "water", and "altered", we used a bootstrapped pseudo-F test with 1,000 bootstrap iterations as
+> "glassy", "water", and "altered", we used a bootstrapped pseudo-F test with 10,000 bootstrap iterations as
 > implemented in the $testBetaDiversity$ function
 > within DivNet. On the basis of this test, we fail to reject the null of equal median measured relative abundance across groups at
 > the 0.05 level (bootstrap $p = 0.11$).
 
 Hence the outcome of our test is that we lack sufficient evidence to conclude that measured
-median relative abundance varies by group. We include the word "measured" here because we cannot,
-on the basis of 16S data alone, reliably estimate true relative abundance profiles in our
+median relative abundance varies by group. We include the word "measured" here because we cannot
+on the basis of 16S data alone reliably estimate true relative abundance profiles in our
 samples (McLaren et al., 2019).
 
 We can also use Euclidean distance to test whether mean composition
@@ -182,7 +179,7 @@ write this up in a scientific publication as follows:
 > We estimated specimen composition from read counts via a DivNet model (Willis and Martin, 2020) 
 > with a diagonal design matrix.
 > To test a null hypothesis of equal mean measured relative abundance across groups 
-> "glassy", "water", and "altered", we used a bootstrapped pseudo-F test with 1,000 bootstrap iterations as
+> "glassy", "water", and "altered", we used a bootstrapped pseudo-F test with 10,000 bootstrap iterations as
 implemented in the $testBetaDiversity$ function
 > within DivNet. On the basis of this test, we do not reject the null of equal mean measured relative abundance across groups at
 > the 0.05 level ($p = 0.21$).
@@ -204,15 +201,15 @@ ait_test$p_value
 
 ```
 
-In this case, we observe a small p-value, which reflects (in part) the fact that Aitchison distance
+In this case, we observe a small p-value, which reflects (in part) the fact that Aitchison distance up
 gives more weight to differences in relative abundance among rarer taxa than does Euclidean distance or 
-Bray-Curtis dissimilarity. We might write this result as follows:
+Bray-Curtis dissimilarity. We might write this result up as follows:
 
 
 > We estimated specimen composition from read counts via a DivNet model (Willis and Martin, 2020) 
 > with a diagonal design matrix.
 > To test a null hypothesis of equal mean centered-log-ratio relative abundance across groups 
-> "glassy", "water", and "altered", we used a bootstrapped pseudo-F test with 1,000 bootstrap iterations as
+> "glassy", "water", and "altered", we used a bootstrapped pseudo-F test with 10,000 bootstrap iterations as
 implemented in the $testBetaDiversity$ function
 > within DivNet. On the basis of this test, we reject the null of equal mean centered-log-ratio 
 measured relative abundance across groups at
@@ -220,9 +217,9 @@ measured relative abundance across groups at
 
 As this wording indicates, a small p-value here leads us to reject the null 
 hypothesis that there is no difference in (measured) centroids across groups defined by the 
-`char` variable. \
+"char" variable. 
 **Note, however, that the p-value tells us nothing about across which groups centroids may differ or how they differ:
-a small p-value does not guarantee that all group centroids differ or that any groups differ in scientifically meaningful ways.**
+a small p-value does not guarantee that all group centroids differ or that any groups differ in scientifically important ways.**
 
 As a side note, we're presenting the three analyses above to demonstrate the capabilities of DivNet. In 
 a research setting, we recommend choosing a dissimilarity on scientific grounds (i.e., on the basis of what kind of differences
@@ -230,11 +227,11 @@ between groups you care about). If you choose to run multiple analyses with vary
 it is important to report all of them. Selective reporting -- running many analyses but only reporting a subset of them --
 can be very misleading for readers (and is in fact a form of p-hacking if analyses returning significant p-values are preferentially reported).
 
-## Handling Technical Replicates {#replicate-link}
+## Handling Technical Replicates
 
-Using DivNet, we can also conduct beta-diversity analyses of amplicon data containing technical replicates. For clarity, by "technical replicates" we
+Using DivNet, we can also conduct beta-diversity analyses of amplicon data containing technical replicates. For clarity, by ``technical replicates,'' we
 mean replicate samples from a single unique specimen -- e.g., aliquots from a single (homogenized) fecal sample. By contrast, for example, 
-samples taken from the same study participant at different times are not technical replicates based on our definition here.
+samples taken from the same study participant at different times are not technical replicates in the sense of the term we use here.
 
 To demonstrate beta-diversity analysis with technical replicates, we'll look at a subset of 16S data published by Sinha et al. (2017) as part of the 
 Microbiome Quality Control Project (MBQC). In particular, we'll examine measurements on 7 freeze-dried specimens taken from patients awaiting
@@ -250,19 +247,17 @@ data(B2)
 table(B2$specimen,B2$Bioinformatics.ID) %>% apply(1, sum)
 ```
 
-Here we see our 7 specimens (sample55, sample56, etc...) and depending on the specimen, we have between 3 and 6 technical replicates each. How can we use technical replicates in our 
+Depending on specimen, we have between 3 and 6 technical replicates. How can we use technical replicates in our 
 analysis? In short, the recommended approach here is essentially the same as in the case without technical replicates, 
-but instead of fitting DivNet with a diagonal design matrix, we construct a design matrix $X$ where rows are samples (these are our replicates or aliquots if you prefer that terminology) and columns are specimens.
-
-
-That is, we let the $i,j$-th entry of $X$ be $1$ if
+but instead of fitting DivNet with a diagonal design matrix, we construct a design matrix $X$ with rows that are samples (or 
+aliquots if you prefer that terminology) and columns that are specimens. That is, we let the $ij$-th entry of $X$ be $1$ if
 sample $i$ was taken from specimen $j$ and 0 otherwise. This tells DivNet to estimate a single common composition for each
 specimen using all technical replicates of that specimen.
 
 
-Before we use DivNet, let's construct our design matrix that encodes
-which samples are taken from which specimens and create a `phyloseq` object
-to give to DivNet. Recall that our design matrix $X$ has samples as rows and specimens as columns. 
+Before we use DivNet, we need to construct a design matrix that encodes
+which samples are taken from which specimens and create a phyloseq object
+to give to DivNet.
 
 
 ```{r}
@@ -279,7 +274,7 @@ specimen_df <- as.data.frame(specimen_matrix) %>%
 
 ```
 
-For convenience, DivNet also stores the subsetted Sinha et al. data as a `phyloseq` object. We'll load that now.
+For convenience, DivNet also stores the subsetted SInha et al. data as a phyloseq object. We'll load that now.
 
 ```{r}
 data("B2_phyloseq")
@@ -294,8 +289,8 @@ has provided along with OTU counts.
 mbqc_species <- tax_glom(B2_phyloseq, taxrank="species")
 ```
 
-We have already constructed the design matrix above -- it is stored as sample data inside our `phyloseq` object. Before 
-we fit a DivNet model, we pull this matrix out of the `phyloseq` object and ensure it has appropriate column names.
+We have already constructed the design matrix above -- it is stored as sample data inside our phyloseq object. Before 
+we fit a DivNet model, we pull this matrix out of the phyloseq object and ensure it has appropriate column names.
 
 ```{r}
 sample_specimen_mat <- as.matrix(sample_data(mbqc_species))
@@ -311,15 +306,12 @@ colnames(sample_specimen_mat) <- sapply(1:ncol(sample_specimen_mat),
                                                    sample_specimen_mat[,x]==1]
                                               ]
                                                      ))
-
-colnames(sample_specimen_mat) 
-# Excellent! We have our specimen names as our column names. 
 ```
 
-Now we are ready to fit a DivNet model! Note again that we are not estimating any variances in the initial fit.
+Now we are ready to fit a DivNet model. Note again that we are not estimating any variances in the initial fit.
 
 
-```{r, message = FALSE, results = "hide"}
+```{r, message = FALSE}
 set.seed(43)
 
 mbqc_div <- divnet(W = mbqc_species,
@@ -328,7 +320,7 @@ mbqc_div <- divnet(W = mbqc_species,
 
 ```
 
-Now using `testBetaDiversity()`, we can conduct a hypothesis test via a nonparametric cluster bootstrap. Here,
+Now using testBetaDiversity(), we can conduct a hypothesis test via a nonparametric cluster bootstrap. Here,
 we have decided to use Aitchison distance, so we are testing a hypothesis of equality of mean
 centered-log-ratio-transformed relative abundance across groups (colorectal cancer vs. control).
 
@@ -349,7 +341,7 @@ distance) between groups. We could write this up as follows:
 
 > We estimated specimen composition from read counts on all technical replicates via a DivNet model (Willis and Martin, 2020).
 > To test a null hypothesis of equal mean centered-log-ratio measured relative abundance among colorectal cancer patients
-> and among control patients, we used a cluster-bootstrapped pseudo-F test with 1,000 bootstrap iterations as
+> and among control patients, we used a cluster-bootstrapped pseudo-F test with 10,000 bootstrap iterations as
 > implemented in the $testBetaDiversity$ function
 > within DivNet. On the basis of this test, we do not reject the null of equal mean centered-log-ratio measured relative abundance across groups at
 > the 0.05 level ($p = 0.16$).
@@ -358,18 +350,15 @@ Some words of caution here -- we've conducted this example analysis on measureme
 two groups, and the bootstrap test we have used has an asymptotic justification. 
 In an ideal world, we would include more participants if we were going to do this analysis in 
 earnest (as opposed to as a use-case).
-
-
-**Note:** the inclusion of technical replicates **does not** solve the problems associated with small sample size --
+(Note that the inclusion of technical replicates **does not** solve the problems associated with small sample size --
 more measurements on a given study participant may give us more information about that participant, 
 but they do not help us characterize how typical that participant is of the larger population(s) we are 
-interested in.
+interested in.)
 
 
 ## Appendix: Testing details
 
-
-The function $\textit{testBetaDiversity}()$ tests a null of equality of centroids across groups using a pseudo-F test.
+The function testBetaDiversity() tests a null of equality of centroids across groups using a pseudo-F test.
 
 For observations on $p$ groups, with number of unique specimens observed in group $g$ given by $n_g$ for $g = 1, \dots, p$
 the pseudo-F-statistic is given by
