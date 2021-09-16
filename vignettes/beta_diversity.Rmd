@@ -300,7 +300,7 @@ set.seed(14321)
 ait_test_np <- testBetaDiversity(dv = mbqc_div,
                                  h0 = "aitchison",
                                  groups = B2$health_status,
-                                 sample_specimen_matrix = sample_specimen_mat,
+                                 sample_specimen_matrix = as.matrix(specimen_df),
                                  n_boot = 1000)
 
 ait_test_np$p_value
