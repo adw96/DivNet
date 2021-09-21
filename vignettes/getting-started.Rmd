@@ -26,6 +26,7 @@ Let's load some required packages and check our session info:
 
 ```{r}
 library(magrittr)
+# remotes::install_github("mikemc/speedyseq") # run this line in the console to install speedyseq, which runs much faster than phyloseq 
 if ("speedyseq" %in% row.names(installed.packages())) { 
   library(speedyseq) # if speedyseq is installed, use it for tax_glom 
 } else {
