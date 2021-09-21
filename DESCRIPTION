@@ -34,7 +34,6 @@ Suggests:
     SpiecEasi,
     testthat,
     ggplot2,
-    speedyseq,
     R.rsp
 Encoding: UTF-8
 LazyData: true
