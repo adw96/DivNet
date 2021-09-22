@@ -34,7 +34,9 @@ Suggests:
     SpiecEasi,
     testthat,
     ggplot2,
-    R.rsp
+    R.rsp,
+    speedyseq
+Additional_repositories: https://github.com/mikemc/speedyseq
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
