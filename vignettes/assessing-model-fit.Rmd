@@ -22,7 +22,6 @@ We are going to use the Lee et al dataset and investigate the effect of temperat
 We first load the data and necessary packages, aggregate counts to the phylum level, and subset to samples with temperature data.
 
 ```{r}
-# remotes::install_github("mikemc/speedyseq") # run this line in the console to install speedyseq, which runs much faster than phyloseq 
 if ("speedyseq" %in% row.names(installed.packages())) { 
   library(speedyseq) # if speedyseq is installed, use it for tax_glom 
 } else {
