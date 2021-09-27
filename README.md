@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 
 # DivNet <img src="docs/divnet-logo.png" align="right" width="165px"/>
-  
+
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/adw96/DivNet/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/adw96/DivNet/actions/workflows/R-CMD-check.yaml) [![codecov.io](https://codecov.io/gh/adw96/DivNet/coverage.svg?branch=master)](https://codecov.io/gh/adw96/DivNet?branch=master) <!-- badges: end -->
@@ -57,11 +57,22 @@ library(ggplot2)
 plot(divnet_phylum)
 ```
 
+## Vignettes
+
+The vignettes demonstrate example uses for all the main DivNet functions that might be of interest to users. If you have any questions or requests for tutorials that are not listed please [file an issue](https://github.com/adw96/DivNet/issues). To access the available vignettes:
+
+``` r
+library(DivNet)
+utils::browseVignettes(package = "DivNet")
+```
+
 ## Advanced Usage (for large datasets)
 
-One limitation of DivNet is that it is slow when you have many taxa (thousands and upwards). Fortunately for us, the amazing [Ryan Moore](https://www.tenderisthebyte.com/) implemented a faster version of DivNet in Rust called [divnet-rs](https://github.com/mooreryan/divnet-rs). Check out the documentation [here](https://github.com/mooreryan/divnet-rs).
+One limitation of DivNet is that it is slow when you have many taxa (thousands and upwards). Fortunately for us, the amazing [Ryan Moore](https://www.tenderisthebyte.com/) implemented a faster version of DivNet in Rust called [divnet-rs](https://github.com/mooreryan/divnet-rs). Check out the GitHub repository for `divnet-rs` [here](https://github.com/mooreryan/divnet-rs) and for information on installation and usage you can look [here](https://github.com/mooreryan/divnet-rs).
 
-Unfortunately the StatDivLab do not have expertise with `divnet-rs`, so please direct your questions about `divnet-rs` to Ryan and the `divnet-rs` team (`divnet-rs` Issues page [here](https://github.com/mooreryan/divnet-rs/issues)).
+One thing to note is that `divnet-rs` can perform a limited set of functions and analyses that are available in `DivNet`. The key differences between what is available in `divnet-rs` versus `DivNet` are outlined [here](https://mooreryan.github.io/divnet-rs-book/differences_from_original.html) and [here](https://www.tenderisthebyte.com/blog/2021/01/18/divnet-rust-implementation/).
+
+Additionally, the StatDivLab does not manage `divnet-rs`, so please direct any questions about `divnet-rs` to Ryan and the `divnet-rs` team (`divnet-rs` Issues page [here](https://github.com/mooreryan/divnet-rs/issues)).
 
 ## Integration
 
@@ -69,4 +80,3 @@ DivNet integrates with
 
 -   [phyloseq](https://joey711.github.io/phyloseq/) (for reproducible microbiome analysis)
 -   [breakaway](https://github.com/adw96/breakaway) (for hypothesis testing)
-
