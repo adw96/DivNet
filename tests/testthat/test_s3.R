@@ -29,6 +29,19 @@ test_that("beta diversity hypothesis testing works", {
             n_boot = 10), "list")
 })
 
+test_that("beta diversity hypothesis testing works for bray-curtis", {
+    expect_is(testBetaDiversity(dv = divnet_phylum_sample, h0 = "bray-curtis",
+                              groups = sample_data(Lee_subset)$char,
+                              sample_specimen_matrix = ss_mat,
+                              n_boot = 10), "list")
+})
+
+test_that("beta diversity hypothesis testing works for euclidean", {
+  expect_is(testBetaDiversity(dv = divnet_phylum_sample, h0 = "euclidean",
+                               groups = sample_data(Lee_subset)$char,
+                              sample_specimen_matrix = ss_mat,
+                              n_boot = 10), "list")
+})
 
 test_that("Bray-Curtis pseudo-F function works",
           {
