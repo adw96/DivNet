@@ -20,6 +20,7 @@
 #' @importFrom phyloseq read_tree
 #' @importFrom phyloseq phyloseq
 #' @importFrom phyloseq taxa_names
+#' @importFrom phyloseq phy_tree
 #' 
 #' @author Amy Willis
 #' 
@@ -59,9 +60,8 @@ phylodivnet <-  function(W,
   }
   
   if (is.null(trees)) {
-    trees <- phy_tree(W)
+    trees <- input_data %>% phy_tree
   }
-  
   
   
   # remove taxa that weren't observed 
@@ -105,7 +105,7 @@ phylodivnet <-  function(W,
     colnames(fitted_otu) <- colnames(input_data)
   }
   
-  otu_table_fitted <- otu_table(fitted_otu, taxa_are_rows = F)
+  otu_table_fitted <- phyloseq::otu_table(fitted_otu, taxa_are_rows = F)
   
   ##################################################
   ##### Step 1: Calculate theta-hat(T_i) for all i
@@ -113,10 +113,10 @@ phylodivnet <-  function(W,
   message("Calculating UniFrac over different trees...\n")
   
   get_unifrac_i <- function(i) {
-    new_tree <- read_tree(trees[i]) 
-    ps <- phyloseq(otu_table_fitted, 
+    new_tree <- phyloseq::read_tree(trees[i]) 
+    ps <- phyloseq::phyloseq(otu_table_fitted, 
                    new_tree)
-    UniFrac(ps, weighted = T) %>% as.matrix
+    phyloseq::UniFrac(ps, weighted = T) %>% as.matrix
   }
   
   if (ncores > 1 & requireNamespace("doParallel", quietly = TRUE) &
@@ -126,7 +126,7 @@ phylodivnet <-  function(W,
     ####################
     # Parallel option ##
     ####################
-    registerDoParallel(cores = min(ncores, parallel::detectCores()))
+    doParallel::registerDoParallel(cores = min(ncores, parallel::detectCores()))
     unifracs <-  foreach(i = 1:length(trees), .combine = "acomb3", .multicombine = TRUE) %dopar% {
       get_unifrac_i(i)
     }
