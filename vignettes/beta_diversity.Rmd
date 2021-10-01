@@ -26,7 +26,11 @@ Let's load some required packages and check our session info:
 
 ```{r,message=FALSE}
 library(magrittr)
-library(phyloseq)
+if ("speedyseq" %in% row.names(installed.packages())) { 
+  library(speedyseq) # if speedyseq is installed, use it for tax_glom 
+} else {
+  library(phyloseq) # if not, use phyloseq for tax_glom
+}
 library(breakaway)
 library(tidyr)
 library(ggplot2)

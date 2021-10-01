@@ -22,7 +22,11 @@ We are going to use the Lee et al dataset and investigate the effect of temperat
 We first load the data and necessary packages, aggregate counts to the phylum level, and subset to samples with temperature data.
 
 ```{r}
-library(phyloseq)
+if ("speedyseq" %in% row.names(installed.packages())) { 
+  library(speedyseq) # if speedyseq is installed, use it for tax_glom 
+} else {
+  library(phyloseq) # if not, use phyloseq for tax_glom
+}
 library(breakaway)
 library(DivNet)
 library(magrittr)
