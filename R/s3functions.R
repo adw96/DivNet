@@ -118,18 +118,12 @@ testBetaDiversity <- function(dv,
                               sample_specimen_matrix,
                               n_boot = 1000){
 
-  if(length(colnames(sample_specimen_matrix)) != ncol(sample_specimen_matrix)){
-            stop("Columns of argument sample_specimen_matrix must be named.
-            Recommended column names are names of unique specimens in your data.")
-}
-
-
   n_groups <- length(unique(groups))
   unique_groups <- unique(groups)
   unique_specimens <- colnames(sample_specimen_matrix)
   n_specimens <- ncol(sample_specimen_matrix)
   group_specimens <- sapply(unique_groups,
-                            function(x) apply(sample_specimen_matrix[groups == x,,drop = F],2,max) %>%
+                            function(x) apply(sample_specimen_matrix[groups == x,],2,max) %>%
                               (function(y) names(y)[y==1]))
 
 

@@ -39,7 +39,7 @@ lee_phylum <- Lee %>%
 
 Annoyingly, temperature is a categorical variable in this dataset, so we convert it to a continuous variable and run `DivNet`, modelling the log-ratios as a linear function of temperature:
 
-```{r, message=FALSE, results = "hide"}
+```{r, message=FALSE}
 lee_phylum %>% sample_data %$% temp
 temp_continuous <- lee_phylum %>% sample_data %$% temp %>% as.character %>% as.numeric
 divnet_temperature <- lee_phylum %>%
