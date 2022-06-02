@@ -18,6 +18,12 @@ simplifyBeta <- function(dv,
                          measure,
                          x) {
 
+  if(measure == "Aitchison"){
+    dv[[measure]] <- get_aitchison_distance(dv$fitted_z)
+    rownames(dv[[measure]]) <- rownames(dv[["bray-curtis"]])
+    colnames(dv[[measure]]) <- colnames(dv[["bray-curtis"]])
+  }
+
   Covar2 <- Covar1 <- beta_est <- beta_var <- Sample2 <- Sample1 <- NULL
 
   in_sample_names <- physeq %>% sample_names
