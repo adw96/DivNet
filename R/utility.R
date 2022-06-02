@@ -39,10 +39,15 @@ acomb3 <- function(...) abind(..., along = 3)
 
 #' pick_base
 #' 
-#' Picks the base taxon
+#' Picks the base taxon to be used in divnet fit. If no taxon is detected
+#' in all samples, returns error; in this case, we recommend manually choosing 
+#' a few taxa fairly abundant across samples and for each such taxon
+#' fitting divnet specifying this taxon as the base taxon.
 #' 
 #' @param W A taxon abundance matrix (taxa as columns)
-#' 
+#' @value Index corresponding to taxon chosen as base taxon
+#' @author Amy Willis
+#' @export
 pick_base <- function(W) {
   taxa_sums <- colSums(W)
   taxa_unobserved <- apply(W, 2, function(x) ifelse(any(x == 0), 0, 1))
