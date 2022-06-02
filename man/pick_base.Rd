@@ -10,5 +10,11 @@ pick_base(W)
 \item{W}{A taxon abundance matrix (taxa as columns)}
 }
 \description{
-Picks the base taxon
+Picks the base taxon to be used in divnet fit. If no taxon is detected
+in all samples, returns error; in this case, we recommend manually choosing 
+a few taxa fairly abundant across samples and for each such taxon
+fitting divnet specifying this taxon as the base taxon.
+}
+\author{
+Amy Willis
 }
