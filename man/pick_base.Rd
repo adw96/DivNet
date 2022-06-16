@@ -4,10 +4,18 @@
 \alias{pick_base}
 \title{pick_base}
 \usage{
-pick_base(W)
+pick_base(W, detection_cutoff = NULL, automatic_cutoff = FALSE)
 }
 \arguments{
 \item{W}{A taxon abundance matrix (taxa as columns)}
+
+\item{detection_cutoff}{The proportion of samples base taxon must be detected
+in. Default is NULL in which case base taxon must be detected in all samples
+unless automatic_cutoff is set to TRUE.}
+
+\item{automatic_cutoff}{Choose detection cutoff automatically? Default is 
+FALSE. If TRUE, detection_cutoff will be set equal to the maximum proportion
+of samples any taxon is detected in.}
 }
 \description{
 Picks the base taxon to be used in divnet fit. If no taxon is detected
