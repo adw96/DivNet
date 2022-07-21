@@ -65,7 +65,7 @@ jobs:
           done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
 
       - name: Install phyloseq dependencies
-        if: runner.os != "Linux"
+        if: runner.os != 'Linux'
         run: |
           install.packages("igraph", type="binary")
         shell: Rscript {0}
