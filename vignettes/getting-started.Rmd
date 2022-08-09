@@ -38,7 +38,7 @@ sessionInfo()
 
 Let's take a quick look at the Lee et al dataset.
 
-```
+```{r}
 data(Lee)
 Lee
 ```
@@ -47,7 +47,7 @@ Lee
 
 ## What does DivNet do that I can't do already?
 
-The idea behind DivNet, just like the idea behind breakaway, is that you don't care about your samples. You care about the population that your samples were drawn from. So Mike doesn't care about the X mL of sea scum that he scraped off these basalts, he cares about all of the microbes that live on those basalts. For example, if we knew the true relative abundances of all of the phyla living on seafloor basalts, we could calculate the true Shannon diversity at the phylum level of microbes living on seafloor basalt, and compare it to the, e.g., true Shannon diversity of microbes living on land basalts. In order to do this comparison, we need an estimate of the Shannon diversity of microbes living on seafloor basalts.
+The idea behind `DivNet`, just like the idea behind `breakaway`, is that you don't care about your samples. You care about the population that your samples were drawn from. So Mike doesn't care about the X mL of sea scum that he scraped off these basalts, he cares about all of the microbes that live on those basalts. For example, if we knew the true relative abundances of all of the phyla living on seafloor basalts, we could calculate the true Shannon diversity at the phylum level of microbes living on seafloor basalt, and compare it to the, e.g., true Shannon diversity of microbes living on land basalts. In order to do this comparison, we need an estimate of the Shannon diversity of microbes living on seafloor basalts.
 
 One approach to getting such an estimate is to consider the  Shannon diversity of the samples that we took:
 
@@ -70,7 +70,7 @@ lee_phylum <- tax_glom(Lee, taxrank="Phylum")
 lee_phylum
 ```
 
-20 taxa is incredibly manageable! Let's go ahead and run divnet. My computer has 4 cores, so I am just going to run in parallel with the `ncores` argument.
+20 taxa is incredibly manageable! Let's go ahead and run `divnet`. My computer has 4 cores, so I am just going to run in parallel with the `ncores` argument.
 
 **Sidenote for the reproducibility nerds**: `DivNet`'s model fitting procedure has a Metropolis Hastings step to estimate a complex integral using Monte Carlo estimation, which introduces some randomness into the results. Under the default settings the results should change very little between runs (especially if you set `tuning = "careful"` or increase `EMiter` or `MCiter` from the defaults, which are `tuning = list(EMiter = 10, EMburn = 5, MCiter = 1000, MCburn = 500, stepsize = 0.01)`). To make sure that they don't change between runs, we *could* set the random number seed... but this would only work if we were running everything on one core. Since we want to distribute the process over 4 cores, and setting seeds over multiple cores is [kind of a pain](https://www.r-bloggers.com/%F0%9F%8C%B1-setting-a-seed-in-r-when-using-parallel-simulation/), I'm just going to up the ante with `tuning = "careful"` and hope you'll forgive me this time. If you're a less powerful machine feel free to remove this argument (default is `tuning = "fast"`). 
 
@@ -108,13 +108,16 @@ Let's use this to estimate the Shannon diversity of basalts of different charact
 ```{r}
 ?DivNet::divnet
 ```
-we see that `divnet()` requires an abundance table `W` where taxa are columns and samples are rows; or a phyloseq object. If your input is a phyloseq object, as is the case with our example using `lee_phylum`, then there are two ways you could provide covariate information such as (`char`) to DivNet: 
+
+We see that `divnet()` requires an abundance table `W` where taxa are columns and samples are rows; or a phyloseq object. If your input is a phyloseq object, as is the case with our example using `lee_phylum`, then there are two ways you could provide covariate information such as (`char`) to DivNet: 
 
 ```{r, results = "hide"}
 divnet_phylum_char <- lee_phylum %>%
   divnet(X = "char", ncores = 4)
 ```
-or 
+
+or
+
 ```{r, results = "hide"}
 divnet_phylum_char2 <- lee_phylum %>%
   divnet(formula = ~ char, ncores = 4)
@@ -137,7 +140,7 @@ divnet_phylum_char$shannon %>%
   plot(lee_phylum, color = "char") +
   xlab("Basalt characteristic") +
   ylab("Shannon diversity estimate\n(phylum level)") +
-  coord_cartesian(ylim = c(0,2))
+  ylim(c(0,2))
 ```
 
 You will notice that the plug-in  estimates of Shannon diversity are different for each sample, but there is only a single DivNet estimate for each  characteristic (along with error bars). For characteristics for which many samples were observed, there are smaller error bars than for samples for which there was only one sample (seems reasonable -- we had less data).
@@ -181,3 +184,11 @@ We also see some differences in alpha diversity across the other different group
 ```{r}
 betta(estimates, ses, X)$global[2]
 ```
+
+`breakaway` also implements several other hypothesis testing functions. `betta_random` will let you fit a model with a random effect. `betta_lincom` will generate confidence intervals for and test hypotheses about linear combinations of fixed effects estimated with `betta` or `betta_random`. `test_submodel` will test whether your mean diversity index varies by any level of your covariate of interest by using an F test to compare a full model to a submodel. Examples of these functions can be found in this [`breakaway` tutorial](https://github.com/adw96/breakaway/blob/main/vignettes/diversity-hypothesis-testing.Rmd).
+
+If you use our tools, please don't forget to cite them!
+
+- `breakaway`: Willis & Bunge. (2015). *Estimating diversity via frequency ratios*. Biometrics. [doi:10.1111/biom.12332](https://doi.org/10.1111/biom.12332).
+- `DivNet`: Willis & Martin. (2020). *DivNet: Estimating diversity in networked communities*. Biostatistics. [doi:10.1093/biostatistics/kxaa015](https://doi.org/10.1093/biostatistics/kxaa015).
+- `betta`: Willis, Bunge & Whitman. (2016). *Improved detection of changes in species richness in high diversity microbial communities*. Journal of the Royal Statistical Society: Series C. [doi:10.1111/rssc.12206](https://doi.org/10.1111/rssc.12206).
