@@ -31,6 +31,15 @@ remotes::install_github("adw96/DivNet")
 library(DivNet)
 ```
 
+### Building Vignettes
+
+By default, `remotes::install_github` will not build the included vignettes.  If you would like to view the vignettes locally, install the packages using the following commands:
+
+```r
+remotes::install_github("adw96/breakaway", build_vignettes = TRUE)
+remotes::install_github("adw96/DivNet", build_vignettes = TRUE)
+```
+
 ## Basic Usage
 
 Let’s analyse the Lee *et al.* dataset using DivNet. We could analyse at the ASV level, but to keep things simple let’s analyse the phylum level diversity.
