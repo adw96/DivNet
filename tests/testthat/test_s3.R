@@ -36,6 +36,27 @@ test_that("beta diversity hypothesis testing works for bray-curtis", {
                               n_boot = 10), "list")
 })
 
+test_that("beta diversity hypothesis testing works with two even groups", {
+  Lee_even <- Lee_subset %>%
+    phyloseq::subset_samples(sample_id %in% c(3:4, 6:9, 15:16))
+  divnet_phylum_even <-   divnet(Lee_even,
+                                   X = "sample_id", tuning = "test")
+  ss_mat_even = diag(nrow(sample_data(Lee_even)))
+  colnames(ss_mat_even) <- sample_data(Lee_even)$sample_id
+  expect_is(testBetaDiversity(dv = divnet_phylum_even, h0 = "bray-curtis",
+                              groups = sample_data(Lee_even)$char,
+                              sample_specimen_matrix = ss_mat_even,
+                              n_boot = 10), "list")
+  expect_is(testBetaDiversity(dv = divnet_phylum_even, h0 = "euclidean",
+                              groups = sample_data(Lee_even)$char,
+                              sample_specimen_matrix = ss_mat_even,
+                              n_boot = 10), "list")
+  expect_is(testBetaDiversity(dv = divnet_phylum_even, h0 = "aitchison",
+                              groups = sample_data(Lee_even)$char,
+                              sample_specimen_matrix = ss_mat_even,
+                              n_boot = 10), "list")
+})
+
 test_that("beta diversity hypothesis testing works for euclidean", {
   expect_is(testBetaDiversity(dv = divnet_phylum_sample, h0 = "euclidean",
                               groups = sample_data(Lee_subset)$char,

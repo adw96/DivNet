@@ -17,6 +17,9 @@ unless automatic_cutoff is set to TRUE.}
 FALSE. If TRUE, detection_cutoff will be set equal to the maximum proportion
 of samples any taxon is detected in.}
 }
+\value{
+Index corresponding to taxon chosen as base taxon
+}
 \description{
 Picks the base taxon to be used in divnet fit. If no taxon is detected
 in all samples, returns error; in this case, we recommend manually choosing 

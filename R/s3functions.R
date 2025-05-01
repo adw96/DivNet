@@ -122,9 +122,10 @@ testBetaDiversity <- function(dv,
   unique_groups <- unique(groups)
   unique_specimens <- colnames(sample_specimen_matrix)
   n_specimens <- ncol(sample_specimen_matrix)
-  group_specimens <- sapply(unique_groups,
+  group_specimens <- lapply(unique_groups,
                             function(x) apply(sample_specimen_matrix[groups == x,],2,max) %>%
                               (function(y) names(y)[y==1]))
+  names(group_specimens) <- unique_groups
 
 
 if(h0 == "bray-curtis"){
@@ -167,9 +168,10 @@ if(h0 == "bray-curtis"){
 
     comps <- dv$fitted_z[which_samples,]
 
-    boot_group_specimens <-sapply(unique_groups,
+    boot_group_specimens <-lapply(unique_groups,
            function(x) apply(sample_specimen_matrix[groups == x,np_boot_pulls[,k]],2,max) %>%
              (function(y) names(y)[y==1]))
+    names(boot_group_specimens) <- unique_groups
 
     boot_centroids[[k]] <- lapply(unique_groups,
                                   function(gr){
@@ -244,9 +246,10 @@ if(h0 == "euclidean"){
 
     comps <- dv$fitted_z[which_samples,]
 
-    boot_group_specimens <-sapply(unique_groups,
+    boot_group_specimens <-lapply(unique_groups,
                                   function(x) apply(sample_specimen_matrix[groups == x,np_boot_pulls[,k]],2,max) %>%
                                     (function(y) names(y)[y==1]))
+    names(boot_group_specimens) <- unique_groups
 
     boot_centroids[[k]] <- lapply(unique_groups,
                                   function(gr){
@@ -317,9 +320,10 @@ if(h0 == "aitchison"){
 
     comps <- log_ratio(dv$fitted_z[which_samples,])
 
-    boot_group_specimens <-sapply(unique_groups,
+    boot_group_specimens <-lapply(unique_groups,
                                   function(x) apply(sample_specimen_matrix[groups == x,np_boot_pulls[,k]],2,max) %>%
                                     (function(y) names(y)[y==1]))
+    names(boot_group_specimens) <- unique_groups
 
     boot_centroids[[k]] <- lapply(unique_groups,
                                   function(gr){

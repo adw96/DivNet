@@ -51,7 +51,7 @@ acomb3 <- function(...) abind(..., along = 3)
 #' @param automatic_cutoff Choose detection cutoff automatically? Default is 
 #' FALSE. If TRUE, detection_cutoff will be set equal to the maximum proportion
 #' of samples any taxon is detected in.
-#' @value Index corresponding to taxon chosen as base taxon
+#' @return Index corresponding to taxon chosen as base taxon
 #' @author Amy Willis
 #' @export
 pick_base <- function(W,
