@@ -125,6 +125,7 @@ testBetaDiversity <- function(dv,
   group_specimens <- lapply(unique_groups,
                             function(x) apply(sample_specimen_matrix[groups == x,],2,max) %>%
                               (function(y) names(y)[y==1]))
+  names(group_specimens) <- unique_groups
 
 
 if(h0 == "bray-curtis"){
@@ -170,6 +171,7 @@ if(h0 == "bray-curtis"){
     boot_group_specimens <-lapply(unique_groups,
            function(x) apply(sample_specimen_matrix[groups == x,np_boot_pulls[,k]],2,max) %>%
              (function(y) names(y)[y==1]))
+    names(boot_group_specimens) <- unique_groups
 
     boot_centroids[[k]] <- lapply(unique_groups,
                                   function(gr){
@@ -247,6 +249,7 @@ if(h0 == "euclidean"){
     boot_group_specimens <-lapply(unique_groups,
                                   function(x) apply(sample_specimen_matrix[groups == x,np_boot_pulls[,k]],2,max) %>%
                                     (function(y) names(y)[y==1]))
+    names(boot_group_specimens) <- unique_groups
 
     boot_centroids[[k]] <- lapply(unique_groups,
                                   function(gr){
@@ -320,6 +323,7 @@ if(h0 == "aitchison"){
     boot_group_specimens <-lapply(unique_groups,
                                   function(x) apply(sample_specimen_matrix[groups == x,np_boot_pulls[,k]],2,max) %>%
                                     (function(y) names(y)[y==1]))
+    names(boot_group_specimens) <- unique_groups
 
     boot_centroids[[k]] <- lapply(unique_groups,
                                   function(gr){
