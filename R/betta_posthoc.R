@@ -64,6 +64,18 @@ betta_posthoc <- function(
   letter_set = LETTERS,
   human_sep = "."
 ) {
+  
+  # check that required packages are installed (since these are Suggests for this package)
+  if (!requireNamespace("multcompView", quietly = TRUE)) {
+    stop("Package 'multicompView' is required for this function. Please install it.")
+  }
+  if (!requireNamespace("purrr", quietly = TRUE)) {
+    stop("Package 'purrr' is required for this function. Please install it.")
+  }
+  if (!requireNamespace("stringr", quietly = TRUE)) {
+    stop("Package 'stringr' is required for this function. Please install it.")
+  }
+  
   # Input validation
   # Check for required components
   if (
@@ -149,14 +161,14 @@ betta_posthoc <- function(
   # Add adjusted p-values and significance codes
   results_df <- results_df %>%
     dplyr::mutate(
-      p_adjusted = p.adjust(p_value, method = p_adjust_method),
-      significance = dplyr::case_when(
-        p_adjusted <= 0.001 ~ "***",
-        p_adjusted <= 0.01 ~ "**",
-        p_adjusted <= 0.05 ~ "*",
-        p_adjusted <= 0.1 ~ ".",
-        TRUE ~ " "
-      )
+      p_adjusted = p.adjust(p_value, method = p_adjust_method)#,
+      #significance = dplyr::case_when(
+      #  p_adjusted <= 0.001 ~ "***",
+      #  p_adjusted <= 0.01 ~ "**",
+      #  p_adjusted <= 0.05 ~ "*",
+      #  p_adjusted <= 0.1 ~ ".",
+      #  TRUE ~ " "
+      #)
     )
 
   # Create p-value vector for compact letter display

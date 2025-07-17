@@ -35,7 +35,10 @@ Suggests:
     testthat,
     ggplot2,
     R.rsp,
-    speedyseq
+    speedyseq,
+    multcompView,
+    purrr,
+    stringr
 Additional_repositories: https://github.com/mikemc/speedyseq
 Encoding: UTF-8
 LazyData: true
