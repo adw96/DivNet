@@ -65,17 +65,6 @@ betta_posthoc <- function(
   human_sep = "."
 ) {
   
-  # check that required packages are installed (since these are Suggests for this package)
-  if (!requireNamespace("multcompView", quietly = TRUE)) {
-    stop("Package 'multicompView' is required for this function. Please install it.")
-  }
-  if (!requireNamespace("purrr", quietly = TRUE)) {
-    stop("Package 'purrr' is required for this function. Please install it.")
-  }
-  if (!requireNamespace("stringr", quietly = TRUE)) {
-    stop("Package 'stringr' is required for this function. Please install it.")
-  }
-  
   # Input validation
   # Check for required components
   if (
@@ -129,7 +118,7 @@ betta_posthoc <- function(
   mm <- model.matrix(rhs_formula, data = combos)
 
   # Generate all pairwise comparisons
-  pairwise_indices <- combn(nrow(combos), 2)
+  pairwise_indices <- utils::combn(nrow(combos), 2)
 
   # Perform pairwise comparisons using betta_lincom
   results_df <- purrr::map_dfr(seq_len(ncol(pairwise_indices)), function(i) {
