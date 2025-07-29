@@ -21,7 +21,10 @@ Imports:
     stats,
     tibble,
     tidyr,
-    utils
+    utils,
+    multcompView,
+    purrr,
+    stringr
 Suggests:
     doSNOW,
     glasso,
@@ -35,7 +38,7 @@ Suggests:
     testthat,
     ggplot2,
     R.rsp,
-    speedyseq
+    speedyseq,
 Additional_repositories: https://github.com/mikemc/speedyseq
 Encoding: UTF-8
 LazyData: true
