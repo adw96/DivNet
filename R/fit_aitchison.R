@@ -174,7 +174,7 @@ fit_aitchison <- function(W,
   cat("\n")
   
   ## Next: take average of EM samples past burn. Included init, so have EMiter+1 total 
-  b0_EM <- colMeans(b0_list[(EMburn + 1):(EMiter + 1), ])
+  b0_EM <- colMeans(b0_list[(EMburn + 2):(EMiter + 1), ])
   
   output_list$beta0 <- b0_EM
   
@@ -182,7 +182,7 @@ fit_aitchison <- function(W,
   if (no_covariates) {
     fitted_y <- matrix(b0_EM, ncol = Q-1, nrow = N, byrow=T)
   } else {
-    b_list_reduced <- b_list[, , (EMburn + 1):(EMiter + 1)] 
+    b_list_reduced <- b_list[, , (EMburn + 2):(EMiter + 1)] 
     
     if (length(dim(b_list_reduced)) == 2) {
       b_list_reduced <- b_list_reduced %>% array(c(1, dim(b_list_reduced)))
@@ -196,7 +196,7 @@ fit_aitchison <- function(W,
   }
   
   # burn-in sigma and take average; fine b/c class of positive def matrices is closed under addition
-  sigma_em <- apply(sigma_list[, , (EMburn + 1):(EMiter + 1)], c(1, 2), mean)
+  sigma_em <- apply(sigma_list[, , (EMburn + 2):(EMiter + 1)], c(1, 2), mean)
   
   # store parameters
   output_list$sigma <- sigma_em
